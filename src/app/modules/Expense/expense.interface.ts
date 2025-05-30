@@ -1,11 +1,11 @@
 import { Document, Types } from "mongoose";
-import { IStatus, ITimeline } from "../../interfaces";
 
 export enum ExpenseCategory {
   Grocery = "Grocery",
   Utility = "Utility",
   Maintenance = "Maintenance",
 }
+
 export enum GroceryUnit {
   Kg = "kg",
   Gram = "g",
@@ -15,6 +15,7 @@ export enum GroceryUnit {
   Pack = "pack",
   Bottle = "bottle",
 }
+
 export enum GroceryCategory {
   Vegetables = "Vegetables",
   Fruits = "Fruits",
@@ -25,42 +26,60 @@ export enum GroceryCategory {
   Rice = "Rice",
   Lentils = "Lentils",
   CleaningSupplies = "Cleaning Supplies",
-
-  // Masala Categories
-  Turmeric = "Turmeric", // Haldi
-  ChiliPowder = "Chili Powder", // Lal Mirch
-  Coriander = "Coriander", // Dhania
-  Cumin = "Cumin", // Jeera
-  BlackPepper = "Black Pepper", // Kali Mirch
+  Turmeric = "Turmeric",
+  ChiliPowder = "Chili Powder",
+  Coriander = "Coriander",
+  Cumin = "Cumin",
+  BlackPepper = "Black Pepper",
   GaramMasala = "Garam Masala",
-  Cardamom = "Cardamom", // Elaichi
-  Cloves = "Cloves", // Laung
-  BayLeaf = "Bay Leaf", // Tej Patta
-  MustardSeed = "Mustard Seed", // Rai/Sarson
-  Fenugreek = "Fenugreek", // Methi
-  Fennel = "Fennel", // Saunf
-  Cinnamon = "Cinnamon", // Dalchini
-  Nutmeg = "Nutmeg", // Jaiphal
-  StarAnise = "Star Anise", // Chakr Phool
-  Asafetida = "Asafoetida", // Hing
-  Others = "Others", // For any uncategorized masalas
+  Cardamom = "Cardamom",
+  Cloves = "Cloves",
+  BayLeaf = "Bay Leaf",
+  MustardSeed = "Mustard Seed",
+  Fenugreek = "Fenugreek",
+  Fennel = "Fennel",
+  Cinnamon = "Cinnamon",
+  Nutmeg = "Nutmeg",
+  StarAnise = "Star Anise",
+  Asafetida = "Asafoetida",
+  Others = "Others",
 }
 
-export interface IGroceryItems {
+export enum ExpenseStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+}
+
+export interface IGroceryItem {
   name: string;
   quantity: number;
   unit: GroceryUnit;
   price: number;
   category: GroceryCategory;
 }
+
+export interface IActivityLog {
+  action: "created" | "updated" | "approved" | "rejected" | "deleted";
+  performedBy: {
+    userId: Types.ObjectId;
+    name: string;
+  };
+  timestamp: Date;
+}
+
 export interface IExpense extends Document {
   messId: Types.ObjectId;
   category: ExpenseCategory;
-  status: IStatus;
+  status: ExpenseStatus;
   amount: number;
   description: string;
   date: Date;
   createdBy: Types.ObjectId;
-  timeline?: ITimeline;
-  items?: IGroceryItems[];
+  updatedBy?: Types.ObjectId;
+  items?: IGroceryItem[];
+  activityLogs: IActivityLog[];
+  isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
