@@ -33,3 +33,8 @@ export interface ILocation {
   createdAt?: Date; // Optional timestamp for when the location was created
   updatedAt?: Date; // Optional timestamp for when the location was last updated
 }
+export enum IStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+}

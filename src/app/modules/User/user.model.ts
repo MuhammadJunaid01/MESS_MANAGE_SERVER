@@ -1,5 +1,23 @@
 import { model, Schema } from "mongoose";
-import { IUser, UserRole } from "./user.interface";
+import {
+  IUser,
+  Transaction,
+  TransactionType,
+  UserRole,
+} from "./user.interface";
+const transactionHistory = new Schema<Transaction>(
+  {
+    date: { type: String, required: true }, // Using ISO 8601 formatted string
+    amount: { type: Number, required: true },
+    type: {
+      type: String,
+      enum: Object.values(TransactionType), // Enforcing the enum values
+      required: true,
+    },
+    description: { type: String, required: true },
+  },
+  { timestamps: true, _id: false } // Auto timestamps, no separate _id field
+);
 
 const UserSchema = new Schema<IUser>(
   {
@@ -26,6 +44,18 @@ const UserSchema = new Schema<IUser>(
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     isApproved: { type: Boolean, default: false },
+    transactionHistory: {
+      type: [transactionHistory],
+      default: [],
+    },
+    payable: {
+      type: Number,
+      default: 0,
+    },
+    receivable: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

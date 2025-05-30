@@ -7,6 +7,17 @@ export enum UserRole {
   MealManager = "MealManager",
   Viewer = "Viewer",
 }
+export enum TransactionType {
+  Credit = "credit",
+  Debit = "debit",
+}
+
+export interface Transaction {
+  date: string;
+  amount: number;
+  type: TransactionType; // ক্রেডিট: মেস পেমেন্ট করেছে; ডেবিট: মেস টাকা পেয়েছে
+  description: string;
+}
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -23,4 +34,7 @@ export interface IUser extends Document {
   isApproved: boolean;
   createdAt: Date;
   updatedAt: Date;
+  payable: number; // মেস থেকে পাবে
+  receivable: number; // মেসকে দিবে
+  transactionHistory: Transaction[];
 }

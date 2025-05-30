@@ -2,9 +2,12 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "ts-node-dev --respawn --transpile-only --watch 'src//*.ts' --ignore 'src/migrations' src/server.ts",
+    "start": "node ./dist/server.js",
+    "build": "tsc",
+    "deploy": "yarn build && npx vercel --prod"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +26,7 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.15.1"
+    "mongoose": "^8.15.1",
+    "zod": "^3.25.41"
   }
 }
