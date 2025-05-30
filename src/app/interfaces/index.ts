@@ -25,16 +25,15 @@ export interface ITimeline {
   }>;
 }
 export interface ILocation {
-  latitude?: number; // Latitude coordinate
-  longitude?: number; // Longitude coordinate
-  address?: string; // Optional full address
-  city?: string; // Optional city name
-  state?: string; // Optional state or region
-  country?: string; // Optional country name
-  postalCode?: string; // Optional postal/zip code
-  createdAt?: Date; // Optional timestamp for when the location was created
-  updatedAt?: Date; // Optional timestamp for when the location was last updated
+  type: "Point";
+  coordinates: [number, number]; // [longitude, latitude]
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
 }
+
 export enum IStatus {
   Pending = "Pending",
   Approved = "Approved",

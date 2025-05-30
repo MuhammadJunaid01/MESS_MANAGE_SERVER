@@ -28,7 +28,7 @@ const crypto_1 = __importDefault(require("crypto"));
 const mongoose_1 = require("mongoose");
 const sendEmail_1 = require("../../lib/utils/sendEmail");
 const errors_1 = require("../../middlewares/errors");
-const mess_model_1 = __importDefault(require("../Mess/mess.model"));
+const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
 const user_interface_1 = require("./user.interface");
 const user_model_1 = __importDefault(require("./user.model"));
 // Generate a 6-digit OTP
@@ -338,7 +338,7 @@ const joinMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
-    const mess = yield mess_model_1.default.findById(messId);
+    const mess = yield mess_schema_1.default.findById(messId);
     if (!mess) {
         throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
     }

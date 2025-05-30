@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 
 import { sendOtpEmail } from "../../lib/utils/sendEmail";
 import { AppError } from "../../middlewares/errors";
-import MessModel from "../Mess/mess.model";
+import MessModel from "../Mess/mess.schema";
 import { Gender, IActivityLog, IUser, UserRole } from "./user.interface";
 import UserModel from "./user.model";
 
