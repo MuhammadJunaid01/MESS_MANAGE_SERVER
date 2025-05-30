@@ -1,0 +1,49 @@
+[2025-05-30 13:06:51] INFO: Application setup complete
+[2025-05-30 13:06:51] INFO: Connected to MongoDB
+[2025-05-30 13:06:51] INFO: Server running on http://localhost:5000
+[2025-05-30 13:06:54] INFO: Root route accessed
+[2025-05-30 13:06:54] INFO: GET / 200 2.261 ms
+[2025-05-30 13:06:54] INFO: GET /favicon.ico 404 1.290 ms
+[2025-05-30 13:07:42] INFO: Root route accessed
+[2025-05-30 13:07:42] INFO: GET / 304 1.163 ms
+[2025-05-30 13:07:42] INFO: Root route accessed
+[2025-05-30 13:07:42] INFO: GET / 304 0.790 ms
+[2025-05-30 13:07:43] INFO: Root route accessed
+[2025-05-30 13:07:43] INFO: GET / 304 0.725 ms
+[2025-05-30 13:07:43] INFO: Root route accessed
+[2025-05-30 13:07:43] INFO: GET / 304 0.741 ms
+[2025-05-30 13:07:58] INFO: Application setup complete
+[2025-05-30 13:07:58] INFO: Connected to MongoDB
+[2025-05-30 13:07:58] INFO: Server running on http://localhost:5000
+[2025-05-30 13:08:01] INFO: Root route accessed
+[2025-05-30 13:08:01] INFO: GET / 200 2.228 ms
+[2025-05-30 13:08:02] INFO: Root route accessed
+[2025-05-30 13:08:02] INFO: GET / 304 1.012 ms
+[2025-05-30 13:08:03] INFO: Root route accessed
+[2025-05-30 13:08:03] INFO: GET / 304 0.797 ms
+[2025-05-30 13:08:03] INFO: Root route accessed
+[2025-05-30 13:08:03] INFO: GET / 304 0.730 ms
+[2025-05-30 13:08:03] INFO: Root route accessed
+[2025-05-30 13:08:03] INFO: GET / 304 0.697 ms
+[2025-05-30 13:08:26] INFO: Application setup complete
+[2025-05-30 13:08:26] INFO: Connected to MongoDB
+[2025-05-30 13:08:26] INFO: Server running on http://localhost:5000
+[2025-05-30 13:08:29] INFO: Root route accessed
+[2025-05-30 13:08:29] INFO: GET / 200 2.197 ms
+[2025-05-30 13:08:29] INFO: Root route accessed
+[2025-05-30 13:08:29] INFO: GET / 304 0.972 ms
+[2025-05-30 13:08:30] INFO: Root route accessed
+[2025-05-30 13:08:30] INFO: GET / 304 0.695 ms
+[2025-05-30 13:08:30] INFO: Root route accessed
+[2025-05-30 13:08:30] INFO: GET / 304 0.715 ms
+[2025-05-30 13:08:30] INFO: Root route accessed
+[2025-05-30 13:08:30] INFO: GET / 304 0.748 ms
+[2025-05-30 13:08:51] INFO: Shutting down server...
+[2025-05-30 13:16:36] INFO: Application setup complete
+[2025-05-30 13:16:36] INFO: Connected to MongoDB
+[2025-05-30 13:16:36] INFO: Server running on http://localhost:5000
+[2025-05-30 14:23:53] INFO: Root route accessed
+[2025-05-30 14:23:54] INFO: GET / 304 2.571 ms
+[2025-05-30 14:23:54] INFO: Root route accessed
+[2025-05-30 14:23:54] INFO: GET / 304 1.018 ms
+[2025-05-30 14:56:43] INFO: Shutting down server...

@@ -1,6 +1,7 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
 import UserModel from "../modules/User/user.model";
+import { AppError } from "./errors";
 
 export const authMiddleware = async (
   req: Request,
@@ -26,7 +27,13 @@ export const roleMiddleware =
   (roles: string[]) => (req: Request, res: Response, next: Function) => {
     const user = (req as any).user;
     if (!roles.includes(user.role)) {
-      return res.status(403).json({ message: "Access denied" });
+      throw new AppError("Access denied, you are not authorized", 403);
     }
     next();
   };
+
+export const catchAsync = (fn: RequestHandler) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch((err) => next(err));
+  };
+};

@@ -1,28 +1,36 @@
 import cors from "cors";
-import dotenv from "dotenv";
-import express from "express";
-import mongoose from "mongoose";
+import express, { Application, Request, Response } from "express";
+import morgan from "morgan";
+import { errorHandler } from "./app/middlewares/errors";
+import { logger, stream } from "./app/middlewares/logger";
+import router from "./app/routes";
 
-// Load environment variables
-dotenv.config();
+const app: Application = express();
 
-const app = express();
+// Custom Morgan log format
+const morganFormat = ":method :url :status :response-time ms";
+
+// Middleware
 app.use(express.json());
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI || "mongodb://localhost/mess_management")
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+// Integrate Morgan with Winston logger and custom format
+app.use(morgan(morganFormat, { stream }));
 
-// Middleware for Authentication
+// Default root route
+app.get("/", (req: Request, res: Response) => {
+  logger.info("Root route accessed");
+  res.send("Welcome to the My Mess API 🤝");
+});
 
-// Middleware for Role-Based Access
+// API routes
+app.use("/api/v1", router);
 
-// Routes
-// User Registration
+// Error handler middleware
+app.use(errorHandler);
 
-// Server Start
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Example log for server startup
+logger.info("Application setup complete");
+
+export default app;

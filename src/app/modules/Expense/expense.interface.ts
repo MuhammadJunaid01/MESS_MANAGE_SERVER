@@ -15,13 +15,43 @@ export enum GroceryUnit {
   Pack = "pack",
   Bottle = "bottle",
 }
+export enum GroceryCategory {
+  Vegetables = "Vegetables",
+  Fruits = "Fruits",
+  Meat = "Meat",
+  Fish = "Fish",
+  Oil = "Oil",
+  Salt = "Salt",
+  Rice = "Rice",
+  Lentils = "Lentils",
+  CleaningSupplies = "Cleaning Supplies",
+
+  // Masala Categories
+  Turmeric = "Turmeric", // Haldi
+  ChiliPowder = "Chili Powder", // Lal Mirch
+  Coriander = "Coriander", // Dhania
+  Cumin = "Cumin", // Jeera
+  BlackPepper = "Black Pepper", // Kali Mirch
+  GaramMasala = "Garam Masala",
+  Cardamom = "Cardamom", // Elaichi
+  Cloves = "Cloves", // Laung
+  BayLeaf = "Bay Leaf", // Tej Patta
+  MustardSeed = "Mustard Seed", // Rai/Sarson
+  Fenugreek = "Fenugreek", // Methi
+  Fennel = "Fennel", // Saunf
+  Cinnamon = "Cinnamon", // Dalchini
+  Nutmeg = "Nutmeg", // Jaiphal
+  StarAnise = "Star Anise", // Chakr Phool
+  Asafetida = "Asafoetida", // Hing
+  Others = "Others", // For any uncategorized masalas
+}
 
 export interface IGroceryItems {
   name: string;
   quantity: number;
   unit: GroceryUnit;
-  price?: number;
-  category?: string;
+  price: number;
+  category: GroceryCategory;
 }
 export interface IExpense extends Document {
   messId: Types.ObjectId;

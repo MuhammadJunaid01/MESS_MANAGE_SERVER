@@ -1,50 +1,107 @@
-import { body, validationResult } from "express-validator";
+import { Router } from "express";
+import { protect, restrictTo } from "../../middlewares/auth";
+import { validate } from "../../middlewares/validation";
+import {
+  addActivityLogSchema,
+  approveMessJoinSchema,
+  createUserSchema,
+  forgotPasswordSchema,
+  getUserByEmailSchema,
+  getUserByIdSchema,
+  getUsersSchema,
+  joinMessSchema,
+  resetPasswordSchema,
+  signUpSchema,
+  softDeleteUserSchema,
+  updatePasswordSchema,
+  updateUserSchema,
+  verifyOtpSchema,
+} from "../../schemas/user.schemas";
+import {
+  addActivityLogController,
+  approveMessJoinController,
+  createUserController,
+  forgotPasswordController,
+  getUserByEmailController,
+  getUserByIdController,
+  getUsersController,
+  joinMessController,
+  resetPasswordController,
+  signUpUserController,
+  softDeleteUserController,
+  updatePasswordController,
+  updateUserController,
+  verifyOtpController,
+} from "./user.controller";
+import { UserRole } from "./user.interface";
 
-app.post(
-  "/api/register",
-  [
-    body("name").notEmpty(),
-    body("email").isEmail(),
-    body("password").isLength({ min: 6 }),
-    body("phone").notEmpty(),
-    body("messId").notEmpty(),
-  ],
-  async (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty())
-      return res.status(400).json({ errors: errors.array() });
+const router = Router();
 
-    const { name, email, password, phone, address, nid, role, messId } =
-      req.body;
-
-    try {
-      const existingUser = await User.findOne({ email });
-      if (existingUser)
-        return res.status(400).json({ message: "User already exists" });
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const user = new User({
-        name,
-        email,
-        password: hashedPassword,
-        phone,
-        address,
-        nid,
-        role,
-        messId,
-      });
-
-      await user.save();
-      const token = jwt.sign(
-        { id: user._id },
-        process.env.JWT_SECRET || "secret",
-        { expiresIn: "1d" }
-      );
-      res
-        .status(201)
-        .json({ token, user: { id: user._id, name, email, role } });
-    } catch (err) {
-      res.status(500).json({ message: "Server error" });
-    }
-  }
+// Public routes
+router.post("/signup", validate(signUpSchema), signUpUserController);
+router.post("/verify-otp", validate(verifyOtpSchema), verifyOtpController);
+router.post(
+  "/forgot-password",
+  validate(forgotPasswordSchema),
+  forgotPasswordController
 );
+router.post(
+  "/reset-password",
+  validate(resetPasswordSchema),
+  resetPasswordController
+);
+
+// Protected routes (require authentication)
+router.use(protect);
+
+// User routes
+router.post("/join-mess", validate(joinMessSchema), joinMessController);
+router.post(
+  "/users/:userId/approve-mess",
+  validate(approveMessJoinSchema),
+  restrictTo(UserRole.Admin, UserRole.Manager),
+  approveMessJoinController
+);
+router.get(
+  "/users/:userId",
+  validate(getUserByIdSchema),
+  getUserByIdController
+);
+router.get(
+  "/users/email",
+  validate(getUserByEmailSchema),
+  getUserByEmailController
+);
+router.get("/users", validate(getUsersSchema), getUsersController);
+router.patch(
+  "/users/:userId",
+  validate(updateUserSchema),
+  restrictTo(UserRole.Admin),
+  updateUserController
+);
+router.patch(
+  "/users/:userId/password",
+  validate(updatePasswordSchema),
+  updatePasswordController
+);
+router.delete(
+  "/users/:userId",
+  validate(softDeleteUserSchema),
+  restrictTo(UserRole.Admin),
+  softDeleteUserController
+);
+router.post(
+  "/users/:userId/activity-log",
+  validate(addActivityLogSchema),
+  restrictTo(UserRole.Admin),
+  addActivityLogController
+);
+
+// Admin routes
+router.post(
+  "/users",
+  validate(createUserSchema),
+  restrictTo(UserRole.Admin),
+  createUserController
+);
+export { router as userRouter };

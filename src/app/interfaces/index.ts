@@ -1,4 +1,6 @@
+import { Router } from "express";
 import { Types } from "mongoose";
+import { UserRole } from "../modules/User/user.interface";
 
 export interface ITimeline {
   createdBy: {
@@ -37,4 +39,25 @@ export enum IStatus {
   Pending = "Pending",
   Approved = "Approved",
   Rejected = "Rejected",
+}
+export type TErrorReturnType = {
+  statusCode: number;
+  message: string;
+  errorSources: TErrorSource[];
+};
+
+export type TErrorSource = {
+  path: string | number;
+  message: string;
+};
+export interface IRoute {
+  path: string;
+  route: Router;
+}
+
+export interface AuthUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: UserRole;
 }

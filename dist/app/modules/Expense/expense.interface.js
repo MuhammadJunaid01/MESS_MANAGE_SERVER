@@ -1,0 +1,49 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GroceryCategory = exports.GroceryUnit = exports.ExpenseCategory = void 0;
+var ExpenseCategory;
+(function (ExpenseCategory) {
+    ExpenseCategory["Grocery"] = "Grocery";
+    ExpenseCategory["Utility"] = "Utility";
+    ExpenseCategory["Maintenance"] = "Maintenance";
+})(ExpenseCategory || (exports.ExpenseCategory = ExpenseCategory = {}));
+var GroceryUnit;
+(function (GroceryUnit) {
+    GroceryUnit["Kg"] = "kg";
+    GroceryUnit["Gram"] = "g";
+    GroceryUnit["Liter"] = "l";
+    GroceryUnit["Milliliter"] = "ml";
+    GroceryUnit["Piece"] = "pcs";
+    GroceryUnit["Pack"] = "pack";
+    GroceryUnit["Bottle"] = "bottle";
+})(GroceryUnit || (exports.GroceryUnit = GroceryUnit = {}));
+var GroceryCategory;
+(function (GroceryCategory) {
+    GroceryCategory["Vegetables"] = "Vegetables";
+    GroceryCategory["Fruits"] = "Fruits";
+    GroceryCategory["Meat"] = "Meat";
+    GroceryCategory["Fish"] = "Fish";
+    GroceryCategory["Oil"] = "Oil";
+    GroceryCategory["Salt"] = "Salt";
+    GroceryCategory["Rice"] = "Rice";
+    GroceryCategory["Lentils"] = "Lentils";
+    GroceryCategory["CleaningSupplies"] = "Cleaning Supplies";
+    // Masala Categories
+    GroceryCategory["Turmeric"] = "Turmeric";
+    GroceryCategory["ChiliPowder"] = "Chili Powder";
+    GroceryCategory["Coriander"] = "Coriander";
+    GroceryCategory["Cumin"] = "Cumin";
+    GroceryCategory["BlackPepper"] = "Black Pepper";
+    GroceryCategory["GaramMasala"] = "Garam Masala";
+    GroceryCategory["Cardamom"] = "Cardamom";
+    GroceryCategory["Cloves"] = "Cloves";
+    GroceryCategory["BayLeaf"] = "Bay Leaf";
+    GroceryCategory["MustardSeed"] = "Mustard Seed";
+    GroceryCategory["Fenugreek"] = "Fenugreek";
+    GroceryCategory["Fennel"] = "Fennel";
+    GroceryCategory["Cinnamon"] = "Cinnamon";
+    GroceryCategory["Nutmeg"] = "Nutmeg";
+    GroceryCategory["StarAnise"] = "Star Anise";
+    GroceryCategory["Asafetida"] = "Asafoetida";
+    GroceryCategory["Others"] = "Others";
+})(GroceryCategory || (exports.GroceryCategory = GroceryCategory = {}));

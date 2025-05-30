@@ -1,20 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es2016" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    "target": "es2016",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "module": "commonjs" /* Specify what module code is generated. */,
+    "module": "commonjs",
     "rootDir": "./src",
     "outDir": "./dist",
-
-    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
-    "typeRoots": ["./node_modules/@types", "./types"],
-    /* Type Checking */
-    "strict": true /* Enable all strict type-checking options. */,
-
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
   },
-  "include": ["src/**/*", "types/**/*.d.ts"],
+  "include": ["src/**/*", "types/**/*.d.ts", "express.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

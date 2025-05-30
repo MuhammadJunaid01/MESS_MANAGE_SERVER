@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import { IStatus } from "../../interfaces";
 import {
   ExpenseCategory,
+  GroceryCategory,
   GroceryUnit,
   IExpense,
   IGroceryItems,
@@ -43,7 +44,11 @@ const GroceryItemSchema = new Schema<IGroceryItems>(
       required: true,
     },
     price: Number,
-    category: String,
+    category: {
+      type: String,
+      required: true,
+      enum: Object.values(GroceryCategory),
+    },
   },
   { _id: false }
 );
