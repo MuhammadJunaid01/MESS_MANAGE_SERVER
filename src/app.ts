@@ -1,5 +1,6 @@
 import cors from "cors";
 import express, { Application, Request, Response } from "express";
+import helmet from "helmet";
 import morgan from "morgan";
 import { errorHandler } from "./app/middlewares/errors";
 import { logger, stream } from "./app/middlewares/logger";
@@ -14,7 +15,7 @@ const morganFormat = ":method :url :status :response-time ms";
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(helmet());
 // Integrate Morgan with Winston logger and custom format
 app.use(morgan(morganFormat, { stream }));
 
