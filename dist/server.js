@@ -16,11 +16,15 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./app/config"));
 const database_1 = __importDefault(require("./app/config/database"));
+const meal_corn_1 = require("./app/corn/meal.corn");
 const logger_1 = require("./app/middlewares/logger");
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, database_1.default)();
         logger_1.logger.info("Connected to MongoDB");
+        // Schedule the meal creation cron job
+        (0, meal_corn_1.scheduleMealCreation)();
+        logger_1.logger.info("Scheduled meal creation cron job");
         // Start Express server
         const port = Number(config_1.default.port) || 5000;
         app_1.default.listen(port, "0.0.0.0", () => {

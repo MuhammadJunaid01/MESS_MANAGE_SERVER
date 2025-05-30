@@ -1,45 +1,25 @@
-export interface IMessReport {
-  messName: string;
-  mealRate: number;
-  totalCost: number;
-  totalMeal: number;
-  balance: number;
-  date: Date;
+export interface MealReportFilters {
+  messId?: string;
+  userId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  groupBy?: "mess" | "user" | "date";
+  limit?: number;
+  skip?: number;
 }
-export interface IMyReport {
-  totalMeals: number;
-  totalExpense: number;
-  payToMess: number;
-  receiveFromMess: number;
-  date: Date;
-}
-export interface IConsumptionDetails {
-  vegetables: number; // Vegetables consumption
-  fruits: number; // Fruits consumption
-  meat: number; // Meat consumption
-  fish: number; // Fish consumption
-  oil: number; // Oil consumption
-  salt: number; // Salt consumption
-  rice: number; // Rice consumption
-  wheat: number; // Wheat consumption
-  lentils: number; // Lentils consumption
-  cleaningSupplies: number; // Cleaning supplies consumption
 
-  // Masala Consumption
-  turmeric: number; // Turmeric (Haldi)
-  chiliPowder: number; // Chili Powder (Lal Mirch)
-  coriander: number; // Coriander (Dhania)
-  cumin: number; // Cumin (Jeera)
-  blackPepper: number; // Black Pepper (Kali Mirch)
-  garamMasala: number; // Garam Masala
-  cardamom: number; // Cardamom (Elaichi)
-  cloves: number; // Cloves (Laung)
-  bayLeaf: number; // Bay Leaf (Tej Patta)
-  mustardSeed: number; // Mustard Seed (Rai/Sarson)
-  fenugreek: number; // Fenugreek (Methi)
-  fennel: number; // Fennel (Saunf)
-  cinnamon: number; // Cinnamon (Dalchini)
-  nutmeg: number; // Nutmeg (Jaiphal)
-  starAnise: number; // Star Anise (Chakr Phool)
-  asafetida: number; // Asafoetida (Hing)
+// Interface for meal report output
+export interface MealReportResult {
+  _id: {
+    mess?: { _id: string; name: string; messId: number };
+    user?: { _id: string; name: string; email: string };
+    date?: string;
+  };
+  totalMeals: number;
+  totalActiveMeals: number;
+  totalCost: number;
+  perMealRate: number;
+  breakfast: { active: number; inactive: number };
+  lunch: { active: number; inactive: number };
+  dinner: { active: number; inactive: number };
 }

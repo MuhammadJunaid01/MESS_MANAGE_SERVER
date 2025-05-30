@@ -2,12 +2,17 @@ import mongoose from "mongoose";
 import app from "./app";
 import config from "./app/config";
 import connectDB from "./app/config/database";
+import { scheduleMealCreation } from "./app/corn/meal.corn";
 import { logger } from "./app/middlewares/logger";
 
 const startServer = async (): Promise<void> => {
   try {
     await connectDB();
     logger.info("Connected to MongoDB");
+
+    // Schedule the meal creation cron job
+    scheduleMealCreation();
+    logger.info("Scheduled meal creation cron job");
 
     // Start Express server
     const port = Number(config.port) || 5000;
