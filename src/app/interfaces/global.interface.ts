@@ -39,6 +39,7 @@ export interface ILocation {
 //   Approved = "Approved",
 //   Rejected = "Rejected",
 // }
+
 export enum IStatus {
   Created = "created",
   Updated = "updated",

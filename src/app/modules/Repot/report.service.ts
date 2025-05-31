@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { IStatus } from "../../interfaces";
+import { IStatus } from "../../interfaces/global.interface";
 import { AppError } from "../../middlewares/errors";
 import { ExpenseCategory } from "../Expense/expense.interface";
 import ExpenseModel from "../Expense/expense.schema";

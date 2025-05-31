@@ -1,4 +1,4 @@
-import { AuthUser } from "./src/app/interfaces/index";
+import { AuthUser } from "./src/app/interfaces/global.interface";
 export {}; // Ensure this file is treated as a module
 
 declare global {

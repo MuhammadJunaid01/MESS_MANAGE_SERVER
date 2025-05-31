@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { ZodError } from "zod";
 
 import config from "../../config";
-import { TErrorSource } from "../../interfaces";
+import { TErrorSource } from "../../interfaces/global.interface";
 import {
   handleCastError,
   handleMongooseDuplicateKeyError,

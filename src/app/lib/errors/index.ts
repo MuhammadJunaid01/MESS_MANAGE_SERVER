@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import { ZodError, ZodIssue } from "zod";
-import { TErrorReturnType, TErrorSource } from "../../interfaces";
+import {
+  TErrorReturnType,
+  TErrorSource,
+} from "../../interfaces/global.interface";
 
 export const handleCastError = (
   error: mongoose.Error.CastError

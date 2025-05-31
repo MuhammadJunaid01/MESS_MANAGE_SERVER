@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IStatus } from "../../interfaces";
+import { IStatus } from "../../interfaces/global.interface";
 import { ActivityEntity, IActivityLog } from "./activity.interface";
 
 const ActivityLogSchema = new Schema<IActivityLog>({

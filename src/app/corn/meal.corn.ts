@@ -9,7 +9,10 @@ export const scheduleMealCreation = () => {
     console.log("Running meal creation cron job for upcoming month");
 
     try {
-      const messes = await MessModel.find();
+      const messes = await MessModel.find({
+        isDeleted: false,
+        status: "active",
+      });
       const nextMonth = new Date();
       nextMonth.setMonth(nextMonth.getMonth() + 1);
       nextMonth.setDate(1);

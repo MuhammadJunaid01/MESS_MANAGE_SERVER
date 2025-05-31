@@ -1,19 +1,6 @@
 import { Schema, model } from "mongoose";
-import { ILocation } from "../../interfaces";
-import { IActivityLog, IMess } from "./mess.interface";
-
-const ActivityLogSchema = new Schema<IActivityLog>({
-  action: {
-    type: String,
-    enum: ["created", "updated", "deleted", "activated", "deactivated"],
-    required: true,
-  },
-  performedBy: {
-    name: { type: String, required: true },
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  },
-  timestamp: { type: Date, default: Date.now },
-});
+import { ILocation } from "../../interfaces/global.interface";
+import { IMess } from "./mess.interface";
 
 const LocationSchema = new Schema<ILocation>({
   type: { type: String, enum: ["Point"], default: "Point" },
@@ -49,7 +36,6 @@ const MessSchema = new Schema<IMess>(
       default: "active",
     },
     isDeleted: { type: Boolean, default: false },
-    activityLogs: { type: [ActivityLogSchema], select: false },
   },
   {
     timestamps: true,

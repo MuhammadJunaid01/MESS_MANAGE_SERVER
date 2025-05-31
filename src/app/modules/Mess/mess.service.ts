@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { ILocation } from "../../interfaces";
+import { ILocation } from "../../interfaces/global.interface";
 import { getNextMessId } from "../../lib/utils";
 import { AppError } from "../../middlewares/errors";
 import UserModel from "../User/user.model";

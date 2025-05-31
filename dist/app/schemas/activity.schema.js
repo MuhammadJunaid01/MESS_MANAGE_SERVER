@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRecentActivitiesSchema = void 0;
 const zod_1 = __importDefault(require("zod"));
-const interfaces_1 = require("../interfaces");
+const global_interface_1 = require("../interfaces/global.interface");
 const activity_interface_1 = require("../modules/Activity/activity.interface");
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 exports.getRecentActivitiesSchema = zod_1.default.object({
@@ -20,7 +20,7 @@ exports.getRecentActivitiesSchema = zod_1.default.object({
             .string()
             .datetime({ message: "Invalid dateTo format" })
             .optional(),
-        action: zod_1.default.enum(Object.values(interfaces_1.IStatus)).optional(),
+        action: zod_1.default.enum(Object.values(global_interface_1.IStatus)).optional(),
         entity: zod_1.default
             .enum(Object.values(activity_interface_1.ActivityEntity))
             .optional(),

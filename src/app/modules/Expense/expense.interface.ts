@@ -1,5 +1,5 @@
 import { Document, Types } from "mongoose";
-import { IStatus } from "../../interfaces";
+import { IStatus } from "../../interfaces/global.interface";
 
 export enum ExpenseCategory {
   Grocery = "Grocery",

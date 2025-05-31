@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { IStatus } from "../interfaces";
+import { IStatus } from "../interfaces/global.interface";
 import {
   ExpenseCategory,
   GroceryCategory,

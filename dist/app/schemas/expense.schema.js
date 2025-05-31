@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteExpenseSchema = exports.updateExpenseStatusSchema = exports.updateExpenseSchema = exports.getExpensesSchema = exports.getExpenseByIdSchema = exports.createExpenseSchema = void 0;
 const zod_1 = require("zod");
-const interfaces_1 = require("../interfaces");
+const global_interface_1 = require("../interfaces/global.interface");
 const expense_interface_1 = require("../modules/Expense/expense.interface");
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 const groceryItemSchema = zod_1.z.object({
@@ -39,7 +39,7 @@ exports.getExpenseByIdSchema = zod_1.z.object({
 exports.getExpensesSchema = zod_1.z.object({
     query: zod_1.z.object({
         messId: zod_1.z.string().regex(objectIdRegex, "Invalid mess ID").optional(),
-        status: zod_1.z.enum(Object.values(interfaces_1.IStatus)).optional(),
+        status: zod_1.z.enum(Object.values(global_interface_1.IStatus)).optional(),
         category: zod_1.z
             .enum(Object.values(expense_interface_1.ExpenseCategory))
             .optional(),
@@ -83,7 +83,7 @@ exports.updateExpenseStatusSchema = zod_1.z.object({
         expenseId: zod_1.z.string().regex(objectIdRegex, "Invalid expense ID"),
     }),
     body: zod_1.z.object({
-        status: zod_1.z.enum([interfaces_1.IStatus.Approved, interfaces_1.IStatus.Rejected], {
+        status: zod_1.z.enum([global_interface_1.IStatus.Approved, global_interface_1.IStatus.Rejected], {
             message: "Status must be Approved or Rejected",
         }),
     }),

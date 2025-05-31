@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { IRoute } from "../interfaces";
+import { IRoute } from "../interfaces/global.interface";
 
 const router = Router();
 

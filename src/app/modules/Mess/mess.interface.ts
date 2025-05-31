@@ -1,5 +1,5 @@
 import { Document, Types } from "mongoose";
-import { ILocation } from "../../interfaces";
+import { ILocation } from "../../interfaces/global.interface";
 export interface IActivityLog {
   action: "created" | "updated" | "deleted" | "activated" | "deactivated";
   performedBy: {

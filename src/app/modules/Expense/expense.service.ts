@@ -1,5 +1,5 @@
 import { startSession, Types } from "mongoose";
-import { IStatus } from "../../interfaces";
+import { IStatus } from "../../interfaces/global.interface";
 import { AppError } from "../../middlewares/errors";
 import ActivityLogModel from "../Activity/activity.schema";
 import MessModel from "../Mess/mess.schema";

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { catchAsync } from "..";
 import config from "../../config";
-import { AuthUser } from "../../interfaces";
+import { AuthUser } from "../../interfaces/global.interface";
 import { UserRole } from "../../modules/User/user.interface";
 import { AppError } from "../errors";
 

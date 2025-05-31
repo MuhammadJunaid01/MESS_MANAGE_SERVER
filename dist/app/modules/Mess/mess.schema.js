@@ -1,18 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const ActivityLogSchema = new mongoose_1.Schema({
-    action: {
-        type: String,
-        enum: ["created", "updated", "deleted", "activated", "deactivated"],
-        required: true,
-    },
-    performedBy: {
-        name: { type: String, required: true },
-        userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-    },
-    timestamp: { type: Date, default: Date.now },
-});
 const LocationSchema = new mongoose_1.Schema({
     type: { type: String, enum: ["Point"], default: "Point" },
     coordinates: {
@@ -44,7 +32,6 @@ const MessSchema = new mongoose_1.Schema({
         default: "active",
     },
     isDeleted: { type: Boolean, default: false },
-    activityLogs: { type: [ActivityLogSchema], select: false },
 }, {
     timestamps: true,
     toJSON: { virtuals: true },

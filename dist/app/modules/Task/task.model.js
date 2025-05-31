@@ -34,7 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const interfaces_1 = require("../../interfaces");
+const global_interface_1 = require("../../interfaces/global.interface");
 const task_interface_1 = require("./task.interface");
 const TaskSchema = new mongoose_1.Schema({
     messId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Mess", required: true },
@@ -47,8 +47,8 @@ const TaskSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: Object.values(interfaces_1.IStatus),
-        default: interfaces_1.IStatus.Approved,
+        enum: Object.values(global_interface_1.IStatus),
+        default: global_interface_1.IStatus.Approved,
     },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },

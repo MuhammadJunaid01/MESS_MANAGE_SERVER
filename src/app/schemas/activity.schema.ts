@@ -1,5 +1,5 @@
 import z from "zod";
-import { IStatus } from "../interfaces";
+import { IStatus } from "../interfaces/global.interface";
 import { ActivityEntity } from "../modules/Activity/activity.interface";
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;

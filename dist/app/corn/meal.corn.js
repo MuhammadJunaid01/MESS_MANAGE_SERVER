@@ -22,7 +22,10 @@ const scheduleMealCreation = () => {
     node_cron_1.default.schedule("0 0 1 * *", () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Running meal creation cron job for upcoming month");
         try {
-            const messes = yield mess_schema_1.default.find();
+            const messes = yield mess_schema_1.default.find({
+                isDeleted: false,
+                status: "active",
+            });
             const nextMonth = new Date();
             nextMonth.setMonth(nextMonth.getMonth() + 1);
             nextMonth.setDate(1);

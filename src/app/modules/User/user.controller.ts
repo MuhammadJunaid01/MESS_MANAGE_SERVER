@@ -16,7 +16,7 @@ import {
   verifyOtp,
 } from "./user.service";
 
-import { AuthUser } from "../../interfaces";
+import { AuthUser } from "../../interfaces/global.interface";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";

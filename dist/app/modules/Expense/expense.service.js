@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.softDeleteExpense = exports.updateExpenseStatus = exports.updateExpense = exports.getExpenses = exports.getExpenseById = exports.createExpense = void 0;
 const mongoose_1 = require("mongoose");
-const interfaces_1 = require("../../interfaces");
+const global_interface_1 = require("../../interfaces/global.interface");
 const errors_1 = require("../../middlewares/errors");
 const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
 const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
@@ -183,7 +183,7 @@ const updateExpense = (expenseId, input, updatedBy) => __awaiter(void 0, void 0,
     if (!user) {
         throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
     }
-    if (expense.status !== interfaces_1.IStatus.Pending) {
+    if (expense.status !== global_interface_1.IStatus.Pending) {
         throw new errors_1.AppError("Only pending expenses can be updated", 400, "INVALID_STATUS");
     }
     if (input.items && expense.category !== expense_interface_1.ExpenseCategory.Grocery) {
@@ -238,10 +238,10 @@ const updateExpenseStatus = (expenseId, input, performedBy) => __awaiter(void 0,
     if (!user || ![user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager].includes(user.role)) {
         throw new errors_1.AppError("Only admins or managers can approve/reject expenses", 403, "FORBIDDEN");
     }
-    if (expense.status !== interfaces_1.IStatus.Pending) {
+    if (expense.status !== global_interface_1.IStatus.Pending) {
         throw new errors_1.AppError("Only pending expenses can be approved/rejected", 400, "INVALID_STATUS");
     }
-    if (![interfaces_1.IStatus.Approved, interfaces_1.IStatus.Rejected].includes(input.status)) {
+    if (![global_interface_1.IStatus.Approved, global_interface_1.IStatus.Rejected].includes(input.status)) {
         throw new errors_1.AppError("Invalid status update", 400, "INVALID_STATUS");
     }
     yield activity_schema_1.default.create({

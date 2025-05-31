@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthUser } from "../../interfaces";
+import { AuthUser } from "../../interfaces/global.interface";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";

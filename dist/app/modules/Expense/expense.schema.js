@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const interfaces_1 = require("../../interfaces");
+const global_interface_1 = require("../../interfaces/global.interface");
 const expense_interface_1 = require("./expense.interface");
 const GroceryItemSchema = new mongoose_1.Schema({
     name: { type: String, required: true, trim: true, maxlength: 100 },
@@ -33,8 +33,8 @@ const ExpenseSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: Object.values(interfaces_1.IStatus),
-        default: interfaces_1.IStatus.Pending,
+        enum: Object.values(global_interface_1.IStatus),
+        default: global_interface_1.IStatus.Pending,
     },
     amount: {
         type: Number,

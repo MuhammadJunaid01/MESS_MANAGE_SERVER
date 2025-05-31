@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { IStatus } from "../../interfaces";
+import { IStatus } from "../../interfaces/global.interface";
 import { ITask, TaskType, Urgency } from "./task.interface";
 
 const TaskSchema = new Schema<ITask>(

@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { IStatus } from "../../interfaces";
+import { IStatus } from "../../interfaces/global.interface";
 
 export enum ActivityEntity {
   Meal = "Meal",
