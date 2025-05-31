@@ -34,10 +34,18 @@ export interface ILocation {
   postalCode?: string;
 }
 
+// export enum IStatus {
+//   Pending = "Pending",
+//   Approved = "Approved",
+//   Rejected = "Rejected",
+// }
 export enum IStatus {
-  Pending = "Pending",
-  Approved = "Approved",
-  Rejected = "Rejected",
+  Created = "created",
+  Updated = "updated",
+  Approved = "approved",
+  Rejected = "rejected",
+  Deleted = "deleted",
+  Pending = "pending",
 }
 export type TErrorReturnType = {
   statusCode: number;

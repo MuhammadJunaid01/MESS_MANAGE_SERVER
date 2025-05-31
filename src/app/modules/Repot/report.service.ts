@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
+import { IStatus } from "../../interfaces";
 import { AppError } from "../../middlewares/errors";
-import { ExpenseCategory, ExpenseStatus } from "../Expense/expense.interface";
+import { ExpenseCategory } from "../Expense/expense.interface";
 import ExpenseModel from "../Expense/expense.schema";
 import { MealType } from "../Meal/meal.interface";
 import MealModel from "../Meal/meal.schema";
@@ -59,7 +60,7 @@ export const generateMealReport = async (
   // Match stage for expenses
   const expenseMatch: any = {
     category: ExpenseCategory.Grocery,
-    status: ExpenseStatus.Approved,
+    status: IStatus.Approved,
     isDeleted: false,
   };
   if (filters.messId) expenseMatch.messId = new Types.ObjectId(filters.messId);

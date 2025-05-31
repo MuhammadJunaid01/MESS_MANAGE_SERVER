@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import { IStatus } from "../../interfaces";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";
-import { ActivityAction, ActivityEntity } from "./activity.interface";
+import { ActivityEntity } from "./activity.interface";
 import { getRecentActivities } from "./activity.service";
 
 // Get recent activities
@@ -26,7 +27,7 @@ export const getRecentActivitiesController = catchAsync(
         userId: userId as string | undefined,
         dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
         dateTo: dateTo ? new Date(dateTo as string) : undefined,
-        action: action as ActivityAction | undefined,
+        action: action as IStatus | undefined,
         entity: entity as ActivityEntity | undefined,
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,

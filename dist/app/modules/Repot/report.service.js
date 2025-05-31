@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateMealReport = void 0;
 const mongoose_1 = require("mongoose");
+const interfaces_1 = require("../../interfaces");
 const errors_1 = require("../../middlewares/errors");
 const expense_interface_1 = require("../Expense/expense.interface");
 const expense_schema_1 = __importDefault(require("../Expense/expense.schema"));
@@ -59,7 +60,7 @@ const generateMealReport = (filters, authUserId) => __awaiter(void 0, void 0, vo
     // Match stage for expenses
     const expenseMatch = {
         category: expense_interface_1.ExpenseCategory.Grocery,
-        status: expense_interface_1.ExpenseStatus.Approved,
+        status: interfaces_1.IStatus.Approved,
         isDeleted: false,
     };
     if (filters.messId)

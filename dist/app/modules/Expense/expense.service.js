@@ -14,7 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.softDeleteExpense = exports.updateExpenseStatus = exports.updateExpense = exports.getExpenses = exports.getExpenseById = exports.createExpense = void 0;
 const mongoose_1 = require("mongoose");
+const interfaces_1 = require("../../interfaces");
 const errors_1 = require("../../middlewares/errors");
+const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
 const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
 const user_interface_1 = require("../User/user.interface");
 const user_model_1 = __importDefault(require("../User/user.model"));
@@ -22,48 +24,73 @@ const expense_interface_1 = require("./expense.interface");
 const expense_schema_1 = __importDefault(require("./expense.schema"));
 // Create a new expense
 const createExpense = (input, createdBy) => __awaiter(void 0, void 0, void 0, function* () {
-    const { messId, category, amount, description, date, items } = input;
-    if (!mongoose_1.Types.ObjectId.isValid(messId)) {
-        throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
-    }
-    if (!mongoose_1.Types.ObjectId.isValid(createdBy.userId)) {
-        throw new errors_1.AppError("Invalid creator ID", 400, "INVALID_USER_ID");
-    }
-    const mess = yield mess_schema_1.default.findById(messId);
-    if (!mess || mess.isDeleted) {
-        throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
-    }
-    const user = yield user_model_1.default.findOne({
-        _id: createdBy.userId,
-        messId,
-        isApproved: true,
-    });
-    if (!user) {
-        throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
-    }
-    if (items && category !== expense_interface_1.ExpenseCategory.Grocery) {
-        throw new errors_1.AppError("Items can only be specified for Grocery expenses", 400, "INVALID_ITEMS");
-    }
-    const expense = yield expense_schema_1.default.create({
-        messId: new mongoose_1.Types.ObjectId(messId),
-        category,
-        amount,
-        description,
-        date,
-        items,
-        createdBy: new mongoose_1.Types.ObjectId(createdBy.userId),
-        activityLogs: [
+    const session = yield (0, mongoose_1.startSession)();
+    session.startTransaction();
+    try {
+        const { messId, category, amount, description, date, items } = input;
+        if (!mongoose_1.Types.ObjectId.isValid(messId)) {
+            throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+        }
+        if (!mongoose_1.Types.ObjectId.isValid(createdBy.userId)) {
+            throw new errors_1.AppError("Invalid creator ID", 400, "INVALID_USER_ID");
+        }
+        const mess = yield mess_schema_1.default.findById(messId).session(session);
+        if (!mess || mess.isDeleted) {
+            throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
+        }
+        const user = yield user_model_1.default.findOne({
+            _id: createdBy.userId,
+            messId,
+            isApproved: true,
+        }).session(session);
+        if (!user) {
+            throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
+        }
+        if (items && category !== expense_interface_1.ExpenseCategory.Grocery) {
+            throw new errors_1.AppError("Items can only be specified for Grocery expenses", 400, "INVALID_ITEMS");
+        }
+        const expense = yield expense_schema_1.default.create([
             {
-                action: "created",
-                performedBy: {
-                    userId: new mongoose_1.Types.ObjectId(createdBy.userId),
-                    name: createdBy.name,
-                },
-                timestamp: new Date(),
+                messId: new mongoose_1.Types.ObjectId(messId),
+                category,
+                amount,
+                description,
+                date,
+                items,
+                createdBy: new mongoose_1.Types.ObjectId(createdBy.userId),
+                activityLogs: [
+                    {
+                        action: "created",
+                        performedBy: {
+                            userId: new mongoose_1.Types.ObjectId(createdBy.userId),
+                            name: createdBy.name,
+                        },
+                        timestamp: new Date(),
+                    },
+                ],
             },
-        ],
-    });
-    return expense;
+        ], { session });
+        yield activity_schema_1.default.create([
+            {
+                messId: messId,
+                entity: "Expense",
+                entityId: expense[0]._id,
+                action: "created",
+            },
+        ], { session });
+        // Commit the transaction
+        yield session.commitTransaction();
+        return expense[0];
+    }
+    catch (error) {
+        // Abort transaction on error
+        yield session.abortTransaction();
+        throw error;
+    }
+    finally {
+        // Always end the session
+        session.endSession();
+    }
 });
 exports.createExpense = createExpense;
 // Get expense by ID
@@ -156,7 +183,7 @@ const updateExpense = (expenseId, input, updatedBy) => __awaiter(void 0, void 0,
     if (!user) {
         throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
     }
-    if (expense.status !== expense_interface_1.ExpenseStatus.Pending) {
+    if (expense.status !== interfaces_1.IStatus.Pending) {
         throw new errors_1.AppError("Only pending expenses can be updated", 400, "INVALID_STATUS");
     }
     if (input.items && expense.category !== expense_interface_1.ExpenseCategory.Grocery) {
@@ -173,17 +200,17 @@ const updateExpense = (expenseId, input, updatedBy) => __awaiter(void 0, void 0,
         updateData.date = input.date;
     if (input.items)
         updateData.items = input.items;
-    expense.set(Object.assign(Object.assign({}, updateData), { updatedBy: new mongoose_1.Types.ObjectId(updatedBy.userId), activityLogs: [
-            ...expense.activityLogs,
-            {
-                action: "updated",
-                performedBy: {
-                    userId: new mongoose_1.Types.ObjectId(updatedBy.userId),
-                    name: updatedBy.name,
-                },
-                timestamp: new Date(),
-            },
-        ] }));
+    yield activity_schema_1.default.create({
+        messId: expense.messId,
+        entity: "Expense",
+        entityId: expenseId,
+        action: "updated",
+        performedBy: {
+            userId: new mongoose_1.Types.ObjectId(updatedBy.userId),
+            name: updatedBy.name,
+        },
+        timestamp: new Date(),
+    });
     yield expense.save();
     return expense;
 });
@@ -211,25 +238,22 @@ const updateExpenseStatus = (expenseId, input, performedBy) => __awaiter(void 0,
     if (!user || ![user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager].includes(user.role)) {
         throw new errors_1.AppError("Only admins or managers can approve/reject expenses", 403, "FORBIDDEN");
     }
-    if (expense.status !== expense_interface_1.ExpenseStatus.Pending) {
+    if (expense.status !== interfaces_1.IStatus.Pending) {
         throw new errors_1.AppError("Only pending expenses can be approved/rejected", 400, "INVALID_STATUS");
     }
-    if (![expense_interface_1.ExpenseStatus.Approved, expense_interface_1.ExpenseStatus.Rejected].includes(input.status)) {
+    if (![interfaces_1.IStatus.Approved, interfaces_1.IStatus.Rejected].includes(input.status)) {
         throw new errors_1.AppError("Invalid status update", 400, "INVALID_STATUS");
     }
-    expense.set({
-        status: input.status,
-        activityLogs: [
-            ...expense.activityLogs,
-            {
-                action: input.status === expense_interface_1.ExpenseStatus.Approved ? "approved" : "rejected",
-                performedBy: {
-                    userId: new mongoose_1.Types.ObjectId(performedBy.userId),
-                    name: performedBy.name,
-                },
-                timestamp: new Date(),
-            },
-        ],
+    yield activity_schema_1.default.create({
+        messId: expense.messId,
+        entity: "Expense",
+        entityId: expenseId,
+        action: input.status,
+        performedBy: {
+            userId: new mongoose_1.Types.ObjectId(performedBy.userId),
+            name: performedBy.name,
+        },
+        timestamp: new Date(),
     });
     yield expense.save();
     return expense;
@@ -258,20 +282,20 @@ const softDeleteExpense = (expenseId, deletedBy) => __awaiter(void 0, void 0, vo
     if (!user || ![user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager].includes(user.role)) {
         throw new errors_1.AppError("Only admins or managers can delete expenses", 403, "FORBIDDEN");
     }
-    expense.set({
-        isDeleted: true,
-        updatedBy: new mongoose_1.Types.ObjectId(deletedBy.userId),
-        activityLogs: [
-            ...expense.activityLogs,
-            {
-                action: "deleted",
-                performedBy: {
-                    userId: new mongoose_1.Types.ObjectId(deletedBy.userId),
-                    name: deletedBy.name,
-                },
-                timestamp: new Date(),
-            },
-        ],
+    expense.isDeleted = true;
+    expense.deletedBy = new mongoose_1.Types.ObjectId(deletedBy.userId);
+    expense.deletedAt = new Date();
+    yield expense.save();
+    yield activity_schema_1.default.create({
+        messId: expense.messId,
+        entity: "Expense",
+        entityId: expenseId,
+        action: "deleted",
+        performedBy: {
+            userId: new mongoose_1.Types.ObjectId(deletedBy.userId),
+            name: deletedBy.name,
+        },
+        timestamp: new Date(),
     });
     yield expense.save();
 });

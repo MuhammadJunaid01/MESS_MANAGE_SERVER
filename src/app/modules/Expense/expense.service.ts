@@ -1,14 +1,11 @@
-import { Types } from "mongoose";
+import { startSession, Types } from "mongoose";
+import { IStatus } from "../../interfaces";
 import { AppError } from "../../middlewares/errors";
+import ActivityLogModel from "../Activity/activity.schema";
 import MessModel from "../Mess/mess.schema";
 import { UserRole } from "../User/user.interface";
 import UserModel from "../User/user.model";
-import {
-  ExpenseCategory,
-  ExpenseStatus,
-  IExpense,
-  IGroceryItem,
-} from "./expense.interface";
+import { ExpenseCategory, IExpense, IGroceryItem } from "./expense.interface";
 import ExpenseModel from "./expense.schema";
 
 // Interface for expense creation input
@@ -32,7 +29,7 @@ interface UpdateExpenseInput {
 
 // Interface for expense status update input
 interface UpdateExpenseStatusInput {
-  status: ExpenseStatus;
+  status: IStatus;
 }
 
 // Interface for activity log input
@@ -49,63 +46,95 @@ export const createExpense = async (
   input: CreateExpenseInput,
   createdBy: { userId: string; name: string }
 ): Promise<IExpense> => {
-  const { messId, category, amount, description, date, items } = input;
+  const session = await startSession();
+  session.startTransaction();
 
-  if (!Types.ObjectId.isValid(messId)) {
-    throw new AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
-  }
+  try {
+    const { messId, category, amount, description, date, items } = input;
 
-  if (!Types.ObjectId.isValid(createdBy.userId)) {
-    throw new AppError("Invalid creator ID", 400, "INVALID_USER_ID");
-  }
+    if (!Types.ObjectId.isValid(messId)) {
+      throw new AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+    }
 
-  const mess = await MessModel.findById(messId);
-  if (!mess || mess.isDeleted) {
-    throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
-  }
+    if (!Types.ObjectId.isValid(createdBy.userId)) {
+      throw new AppError("Invalid creator ID", 400, "INVALID_USER_ID");
+    }
 
-  const user = await UserModel.findOne({
-    _id: createdBy.userId,
-    messId,
-    isApproved: true,
-  });
-  if (!user) {
-    throw new AppError(
-      "User is not an approved member of this mess",
-      403,
-      "NOT_MESS_MEMBER"
-    );
-  }
+    const mess = await MessModel.findById(messId).session(session);
+    if (!mess || mess.isDeleted) {
+      throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
+    }
 
-  if (items && category !== ExpenseCategory.Grocery) {
-    throw new AppError(
-      "Items can only be specified for Grocery expenses",
-      400,
-      "INVALID_ITEMS"
-    );
-  }
+    const user = await UserModel.findOne({
+      _id: createdBy.userId,
+      messId,
+      isApproved: true,
+    }).session(session);
 
-  const expense = await ExpenseModel.create({
-    messId: new Types.ObjectId(messId),
-    category,
-    amount,
-    description,
-    date,
-    items,
-    createdBy: new Types.ObjectId(createdBy.userId),
-    activityLogs: [
-      {
-        action: "created",
-        performedBy: {
-          userId: new Types.ObjectId(createdBy.userId),
-          name: createdBy.name,
+    if (!user) {
+      throw new AppError(
+        "User is not an approved member of this mess",
+        403,
+        "NOT_MESS_MEMBER"
+      );
+    }
+
+    if (items && category !== ExpenseCategory.Grocery) {
+      throw new AppError(
+        "Items can only be specified for Grocery expenses",
+        400,
+        "INVALID_ITEMS"
+      );
+    }
+
+    const expense = await ExpenseModel.create(
+      [
+        {
+          messId: new Types.ObjectId(messId),
+          category,
+          amount,
+          description,
+          date,
+          items,
+          createdBy: new Types.ObjectId(createdBy.userId),
+          activityLogs: [
+            {
+              action: "created",
+              performedBy: {
+                userId: new Types.ObjectId(createdBy.userId),
+                name: createdBy.name,
+              },
+              timestamp: new Date(),
+            },
+          ],
         },
-        timestamp: new Date(),
-      },
-    ],
-  });
+      ],
+      { session }
+    );
 
-  return expense;
+    await ActivityLogModel.create(
+      [
+        {
+          messId: messId,
+          entity: "Expense",
+          entityId: expense[0]._id,
+          action: "created",
+        },
+      ],
+      { session }
+    );
+
+    // Commit the transaction
+    await session.commitTransaction();
+    return expense[0];
+  } catch (error) {
+    // Abort transaction on error
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    // Always end the session
+    session.endSession();
+  }
 };
 
 // Get expense by ID
@@ -152,7 +181,7 @@ export const getExpenseById = async (
 export const getExpenses = async (
   filters: {
     messId?: string;
-    status?: ExpenseStatus;
+    status?: IStatus;
     category?: ExpenseCategory;
     dateFrom?: Date;
     dateTo?: Date;
@@ -240,7 +269,7 @@ export const updateExpense = async (
     );
   }
 
-  if (expense.status !== ExpenseStatus.Pending) {
+  if (expense.status !== IStatus.Pending) {
     throw new AppError(
       "Only pending expenses can be updated",
       400,
@@ -263,20 +292,16 @@ export const updateExpense = async (
   if (input.date) updateData.date = input.date;
   if (input.items) updateData.items = input.items;
 
-  expense.set({
-    ...updateData,
-    updatedBy: new Types.ObjectId(updatedBy.userId),
-    activityLogs: [
-      ...expense.activityLogs,
-      {
-        action: "updated",
-        performedBy: {
-          userId: new Types.ObjectId(updatedBy.userId),
-          name: updatedBy.name,
-        },
-        timestamp: new Date(),
-      },
-    ],
+  await ActivityLogModel.create({
+    messId: expense.messId,
+    entity: "Expense",
+    entityId: expenseId,
+    action: "updated",
+    performedBy: {
+      userId: new Types.ObjectId(updatedBy.userId),
+      name: updatedBy.name,
+    },
+    timestamp: new Date(),
   });
 
   await expense.save();
@@ -318,7 +343,7 @@ export const updateExpenseStatus = async (
     );
   }
 
-  if (expense.status !== ExpenseStatus.Pending) {
+  if (expense.status !== IStatus.Pending) {
     throw new AppError(
       "Only pending expenses can be approved/rejected",
       400,
@@ -326,26 +351,20 @@ export const updateExpenseStatus = async (
     );
   }
 
-  if (
-    ![ExpenseStatus.Approved, ExpenseStatus.Rejected].includes(input.status)
-  ) {
+  if (![IStatus.Approved, IStatus.Rejected].includes(input.status)) {
     throw new AppError("Invalid status update", 400, "INVALID_STATUS");
   }
 
-  expense.set({
-    status: input.status,
-    activityLogs: [
-      ...expense.activityLogs,
-      {
-        action:
-          input.status === ExpenseStatus.Approved ? "approved" : "rejected",
-        performedBy: {
-          userId: new Types.ObjectId(performedBy.userId),
-          name: performedBy.name,
-        },
-        timestamp: new Date(),
-      },
-    ],
+  await ActivityLogModel.create({
+    messId: expense.messId,
+    entity: "Expense",
+    entityId: expenseId,
+    action: input.status,
+    performedBy: {
+      userId: new Types.ObjectId(performedBy.userId),
+      name: performedBy.name,
+    },
+    timestamp: new Date(),
   });
 
   await expense.save();
@@ -385,22 +404,21 @@ export const softDeleteExpense = async (
       "FORBIDDEN"
     );
   }
+  expense.isDeleted = true;
+  expense.deletedBy = new Types.ObjectId(deletedBy.userId);
+  expense.deletedAt = new Date();
+  await expense.save();
 
-  expense.set({
-    isDeleted: true,
-    updatedBy: new Types.ObjectId(deletedBy.userId),
-    activityLogs: [
-      ...expense.activityLogs,
-      {
-        action: "deleted",
-        performedBy: {
-          userId: new Types.ObjectId(deletedBy.userId),
-          name: deletedBy.name,
-        },
-        timestamp: new Date(),
-      },
-    ],
+  await ActivityLogModel.create({
+    messId: expense.messId,
+    entity: "Expense",
+    entityId: expenseId,
+    action: "deleted",
+    performedBy: {
+      userId: new Types.ObjectId(deletedBy.userId),
+      name: deletedBy.name,
+    },
+    timestamp: new Date(),
   });
-
   await expense.save();
 };

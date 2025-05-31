@@ -1,12 +1,5 @@
 import { Types } from "mongoose";
-
-export enum ActivityAction {
-  Created = "created",
-  Updated = "updated",
-  Approved = "approved",
-  Rejected = "rejected",
-  Deleted = "deleted",
-}
+import { IStatus } from "../../interfaces";
 
 export enum ActivityEntity {
   Meal = "Meal",
@@ -17,7 +10,7 @@ export interface IActivityLog extends Document {
   messId: Types.ObjectId;
   entity: ActivityEntity;
   entityId: Types.ObjectId;
-  action: ActivityAction;
+  action: IStatus;
   performedBy: {
     userId: Types.ObjectId;
     name: string;
@@ -30,7 +23,7 @@ export interface ActivityFilters {
   userId?: string;
   dateFrom?: Date;
   dateTo?: Date;
-  action?: ActivityAction;
+  action?: IStatus;
   entity?: ActivityEntity;
   limit?: number;
   skip?: number;

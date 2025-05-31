@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
+const interfaces_1 = require("../../interfaces");
 const expense_interface_1 = require("./expense.interface");
 const GroceryItemSchema = new mongoose_1.Schema({
     name: { type: String, required: true, trim: true, maxlength: 100 },
@@ -10,24 +11,18 @@ const GroceryItemSchema = new mongoose_1.Schema({
         min: [0.001, "Quantity must be positive"],
     },
     unit: { type: String, enum: Object.values(expense_interface_1.GroceryUnit), required: true },
-    price: { type: Number, required: true, min: [0, "Price cannot be negative"] },
+    price: {
+        type: Number,
+        required: true,
+        min: [0, "Price cannot be negative"],
+    },
     category: {
         type: String,
         enum: Object.values(expense_interface_1.GroceryCategory),
         required: true,
     },
-});
-const ActivityLogSchema = new mongoose_1.Schema({
-    action: {
-        type: String,
-        enum: ["created", "updated", "approved", "rejected", "deleted"],
-        required: true,
-    },
-    performedBy: {
-        userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-        name: { type: String, required: true },
-    },
-    timestamp: { type: Date, default: Date.now },
+}, {
+    _id: false,
 });
 const ExpenseSchema = new mongoose_1.Schema({
     messId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Mess", required: true },
@@ -38,8 +33,8 @@ const ExpenseSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: Object.values(expense_interface_1.ExpenseStatus),
-        default: expense_interface_1.ExpenseStatus.Pending,
+        enum: Object.values(interfaces_1.IStatus),
+        default: interfaces_1.IStatus.Pending,
     },
     amount: {
         type: Number,
@@ -55,8 +50,15 @@ const ExpenseSchema = new mongoose_1.Schema({
     date: { type: Date, required: true },
     createdBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     updatedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
-    items: { type: [GroceryItemSchema], default: undefined },
-    activityLogs: { type: [ActivityLogSchema], select: false },
+    deletedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
+    deletedAt: { type: Date, default: new Date() },
+    items: {
+        type: [GroceryItemSchema],
+        default: undefined,
+        required: function () {
+            return (this === null || this === void 0 ? void 0 : this.category) === expense_interface_1.ExpenseCategory.Grocery;
+        },
+    },
     isDeleted: { type: Boolean, default: false },
 }, {
     timestamps: true,

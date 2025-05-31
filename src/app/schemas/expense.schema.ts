@@ -1,7 +1,7 @@
 import { z } from "zod";
+import { IStatus } from "../interfaces";
 import {
   ExpenseCategory,
-  ExpenseStatus,
   GroceryCategory,
   GroceryUnit,
 } from "../modules/Expense/expense.interface";
@@ -45,9 +45,7 @@ export const getExpenseByIdSchema = z.object({
 export const getExpensesSchema = z.object({
   query: z.object({
     messId: z.string().regex(objectIdRegex, "Invalid mess ID").optional(),
-    status: z
-      .enum(Object.values(ExpenseStatus) as [string, ...string[]])
-      .optional(),
+    status: z.enum(Object.values(IStatus) as [string, ...string[]]).optional(),
     category: z
       .enum(Object.values(ExpenseCategory) as [string, ...string[]])
       .optional(),
@@ -93,7 +91,7 @@ export const updateExpenseStatusSchema = z.object({
     expenseId: z.string().regex(objectIdRegex, "Invalid expense ID"),
   }),
   body: z.object({
-    status: z.enum([ExpenseStatus.Approved, ExpenseStatus.Rejected], {
+    status: z.enum([IStatus.Approved, IStatus.Rejected], {
       message: "Status must be Approved or Rejected",
     }),
   }),

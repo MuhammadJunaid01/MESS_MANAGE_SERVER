@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ExpenseStatus = exports.GroceryCategory = exports.GroceryUnit = exports.ExpenseCategory = void 0;
+exports.GroceryCategory = exports.GroceryUnit = exports.ExpenseCategory = void 0;
 var ExpenseCategory;
 (function (ExpenseCategory) {
     ExpenseCategory["Grocery"] = "Grocery";
@@ -46,9 +46,3 @@ var GroceryCategory;
     GroceryCategory["Asafetida"] = "Asafoetida";
     GroceryCategory["Others"] = "Others";
 })(GroceryCategory || (exports.GroceryCategory = GroceryCategory = {}));
-var ExpenseStatus;
-(function (ExpenseStatus) {
-    ExpenseStatus["Pending"] = "Pending";
-    ExpenseStatus["Approved"] = "Approved";
-    ExpenseStatus["Rejected"] = "Rejected";
-})(ExpenseStatus || (exports.ExpenseStatus = ExpenseStatus = {}));

@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+import { IStatus } from "../../interfaces";
 
 export enum ExpenseCategory {
   Grocery = "Grocery",
@@ -45,12 +46,6 @@ export enum GroceryCategory {
   Others = "Others",
 }
 
-export enum ExpenseStatus {
-  Pending = "Pending",
-  Approved = "Approved",
-  Rejected = "Rejected",
-}
-
 export interface IGroceryItem {
   name: string;
   quantity: number;
@@ -59,27 +54,19 @@ export interface IGroceryItem {
   category: GroceryCategory;
 }
 
-export interface IActivityLog {
-  action: "created" | "updated" | "approved" | "rejected" | "deleted";
-  performedBy: {
-    userId: Types.ObjectId;
-    name: string;
-  };
-  timestamp: Date;
-}
-
 export interface IExpense extends Document {
   messId: Types.ObjectId;
   category: ExpenseCategory;
-  status: ExpenseStatus;
+  status: IStatus;
   amount: number;
   description: string;
   date: Date;
   createdBy: Types.ObjectId;
   updatedBy?: Types.ObjectId;
   items?: IGroceryItem[];
-  activityLogs: IActivityLog[];
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
+  deletedBy?: Types.ObjectId;
+  deletedAt?: Date;
 }

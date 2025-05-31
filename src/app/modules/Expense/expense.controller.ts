@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthUser } from "../../interfaces";
+import { AuthUser, IStatus } from "../../interfaces";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";
-import { ExpenseCategory, ExpenseStatus } from "./expense.interface";
+import { ExpenseCategory } from "./expense.interface";
 import {
   createExpense,
   getExpenseById,
@@ -98,7 +98,7 @@ export const getExpensesController = catchAsync(
 
     const filters = {
       messId: messId as string | undefined,
-      status: status as ExpenseStatus | undefined,
+      status: status as IStatus | undefined,
       category: category as ExpenseCategory | undefined,
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
       dateTo: dateTo ? new Date(dateTo as string) : undefined,

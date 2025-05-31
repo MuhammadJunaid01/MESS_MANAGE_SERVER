@@ -1,8 +1,6 @@
 import z from "zod";
-import {
-  ActivityAction,
-  ActivityEntity,
-} from "../modules/Activity/activity.interface";
+import { IStatus } from "../interfaces";
+import { ActivityEntity } from "../modules/Activity/activity.interface";
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
@@ -18,9 +16,7 @@ export const getRecentActivitiesSchema = z.object({
       .string()
       .datetime({ message: "Invalid dateTo format" })
       .optional(),
-    action: z
-      .enum(Object.values(ActivityAction) as [string, ...string[]])
-      .optional(),
+    action: z.enum(Object.values(IStatus) as [string, ...string[]]).optional(),
     entity: z
       .enum(Object.values(ActivityEntity) as [string, ...string[]])
       .optional(),

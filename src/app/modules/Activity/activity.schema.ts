@@ -1,15 +1,12 @@
 import { Schema, model } from "mongoose";
-import {
-  ActivityAction,
-  ActivityEntity,
-  IActivityLog,
-} from "./activity.interface";
+import { IStatus } from "../../interfaces";
+import { ActivityEntity, IActivityLog } from "./activity.interface";
 
 const ActivityLogSchema = new Schema<IActivityLog>({
   messId: { type: Schema.Types.ObjectId, ref: "Mess", required: true },
   entity: { type: String, enum: Object.values(ActivityEntity), required: true },
   entityId: { type: Schema.Types.ObjectId, required: true },
-  action: { type: String, enum: Object.values(ActivityAction), required: true },
+  action: { type: String, enum: Object.values(IStatus), required: true },
   performedBy: {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String, required: true },
