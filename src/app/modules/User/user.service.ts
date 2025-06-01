@@ -117,7 +117,6 @@ export const signIn = async (
   const user = await UserModel.findOne({
     email: email,
   }).select("+password");
-  console.log("user", user);
   if (!user) {
     throw new AppError("Invalid email or password", 401, "AUTH_FAILED");
   }
@@ -155,7 +154,7 @@ export const signIn = async (
 };
 // Verify OTP for signup
 export const verifyOtp = async (email: string, otp: string): Promise<IUser> => {
-  const user = await UserModel.findOne({ email: email.toLowerCase() }).select(
+  const user = await UserModel.findOne({ email: email }).select(
     "+otp +otpExpires"
   );
   if (!user) {
@@ -178,14 +177,7 @@ export const verifyOtp = async (email: string, otp: string): Promise<IUser> => {
   user.isVerified = true;
   user.otp = undefined;
   user.otpExpires = undefined;
-  // user.activityLogs.push({
-  //   action: "approved",
-  //   performedBy: {
-  //     name: "System",
-  //     managerId: user._id,
-  //   },
-  //   timestamp: new Date(),
-  // });
+  user.role = UserRole.Manager;
 
   await user.save();
   return user;

@@ -41,7 +41,7 @@ exports.getMealByIdController = (0, middlewares_1.catchAsync)((req, res, next) =
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
-    const meal = yield (0, meal_service_1.getMealById)(mealId, authUser._id);
+    const meal = yield (0, meal_service_1.getMealById)(mealId, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -63,7 +63,7 @@ exports.getMealsController = (0, middlewares_1.catchAsync)((req, res, next) => _
         dateTo: dateTo ? new Date(dateTo) : undefined,
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
-    }, authUser._id);
+    }, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -80,7 +80,7 @@ exports.updateMealController = (0, middlewares_1.catchAsync)((req, res, next) =>
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
     const meal = yield (0, meal_service_1.updateMeal)(mealId, {
-        userId: authUser._id,
+        userId: authUser.userId,
         meals,
         date: date ? new Date(date) : undefined,
     });
@@ -98,7 +98,7 @@ exports.deleteMealController = (0, middlewares_1.catchAsync)((req, res, next) =>
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
-    yield (0, meal_service_1.deleteMeal)(mealId, authUser._id);
+    yield (0, meal_service_1.deleteMeal)(mealId, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,

@@ -16,20 +16,50 @@ exports.protect = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const __1 = require("..");
 const config_1 = __importDefault(require("../../config"));
+const user_model_1 = __importDefault(require("../../modules/User/user.model"));
 const errors_1 = require("../errors");
 // JWT authentication middleware
 exports.protect = (0, __1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const token = (_a = req.header("Authorization")) === null || _a === void 0 ? void 0 : _a.replace("Bearers", "");
+    // Extract the token from the Authorization header
+    const authHeader = req.header("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        throw new errors_1.AppError("No or invalid token provided", 401, "UNAUTHORIZED");
+    }
+    const token = authHeader.replace("Bearer ", ""); // Correctly replace "Bearer " prefix
+    console.log("token", token);
     if (!token) {
         throw new errors_1.AppError("No token provided", 401, "UNAUTHORIZED");
     }
+    console.log("config.secretToken", config_1.default.secretToken);
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, config_1.default.secretToken || "secret");
-        req.user = decoded; // Set user data from JWT payload
+        // Verify the token using the secret key
+        const decoded = jsonwebtoken_1.default.verify(token, config_1.default.secretToken || "secret" // Use secret from config or fallback to "secret"
+        );
+        const user = yield user_model_1.default.findById(decoded.userId);
+        if (!user) {
+            throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
+        }
+        // if (user.role === UserRole.Admin);
+        if (user.messId && user._id) {
+            const authUser = {
+                userId: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                messId: user.messId,
+            };
+            req.user = authUser;
+        }
+        else {
+            req.user = decoded;
+            console.log("decoded", decoded);
+        }
+        // Attach decoded user data to the request object
+        // Proceed to the next middleware
         next();
     }
     catch (err) {
+        console.error("JWT verification error:", err); // Log the error for debugging
         throw new errors_1.AppError("Invalid token", 401, "INVALID_TOKEN");
     }
 }));

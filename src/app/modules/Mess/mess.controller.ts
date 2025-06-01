@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { Types } from "mongoose";
 import { AuthUser } from "../../interfaces/global.interface";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
@@ -28,7 +29,7 @@ export const createMessController = catchAsync(
     const mess = await createMess({
       name,
       location,
-      createdBy: authUser._id,
+      createdBy: new Types.ObjectId(authUser.userId),
     });
 
     sendResponse(res, {
@@ -112,7 +113,7 @@ export const updateMessController = catchAsync(
     const mess = await updateMess(
       messId,
       { name, location, status },
-      { name: authUser.name, userId: authUser._id }
+      { name: authUser.name, userId: authUser.userId }
     );
 
     sendResponse(res, {
@@ -138,7 +139,10 @@ export const deleteMessController = catchAsync(
       );
     }
 
-    await softDeleteMess(messId, { name: authUser.name, userId: authUser._id });
+    await softDeleteMess(messId, {
+      name: authUser.name,
+      userId: authUser.userId,
+    });
 
     sendResponse(res, {
       statusCode: 200,

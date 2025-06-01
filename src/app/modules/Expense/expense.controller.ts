@@ -36,7 +36,7 @@ export const createExpenseController = catchAsync(
         date: new Date(date),
         items,
       },
-      { userId: authUser._id, name: authUser.name }
+      { userId: authUser.userId, name: authUser.name }
     );
 
     sendResponse(res, {
@@ -62,7 +62,7 @@ export const getExpenseByIdController = catchAsync(
       );
     }
 
-    const expense = await getExpenseById(expenseId, authUser._id);
+    const expense = await getExpenseById(expenseId, authUser.userId);
 
     sendResponse(res, {
       statusCode: 200,
@@ -107,7 +107,7 @@ export const getExpensesController = catchAsync(
       skip: skip ? Number(skip) : undefined,
     };
 
-    const expenses = await getExpenses(filters, authUser._id);
+    const expenses = await getExpenses(filters, authUser.userId);
 
     sendResponse(res, {
       statusCode: 200,
@@ -142,7 +142,7 @@ export const updateExpenseController = catchAsync(
         date: date ? new Date(date) : undefined,
         items,
       },
-      { userId: authUser._id, name: authUser.name }
+      { userId: authUser.userId, name: authUser.name }
     );
 
     sendResponse(res, {
@@ -172,7 +172,7 @@ export const updateExpenseStatusController = catchAsync(
     const expense = await updateExpenseStatus(
       expenseId,
       { status },
-      { userId: authUser._id, name: authUser.name }
+      { userId: authUser.userId, name: authUser.name }
     );
 
     sendResponse(res, {
@@ -199,7 +199,7 @@ export const deleteExpenseController = catchAsync(
     }
 
     await softDeleteExpense(expenseId, {
-      userId: authUser._id,
+      userId: authUser.userId,
       name: authUser.name,
     });
 

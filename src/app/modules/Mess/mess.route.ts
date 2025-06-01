@@ -27,7 +27,7 @@ const getLimiter = rateLimit({
   max: 100,
   message: "Too many requests, please try again later.",
 });
-
+console.log("hiy");
 // Protected routes (require authentication)
 router.use(protect);
 

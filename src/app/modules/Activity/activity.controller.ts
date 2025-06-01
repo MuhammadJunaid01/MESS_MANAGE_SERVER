@@ -32,7 +32,7 @@ export const getRecentActivitiesController = catchAsync(
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
       },
-      authUser._id
+      authUser.userId
     );
 
     sendResponse(res, {

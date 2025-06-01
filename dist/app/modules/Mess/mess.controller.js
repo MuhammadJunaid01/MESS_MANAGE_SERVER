@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteMessController = exports.updateMessController = exports.getMessesController = exports.getMessByIdController = exports.createMessController = void 0;
+const mongoose_1 = require("mongoose");
 const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
 const errors_1 = require("../../middlewares/errors");
@@ -24,7 +25,7 @@ exports.createMessController = (0, middlewares_1.catchAsync)((req, res, next) =>
     const mess = yield (0, mess_service_1.createMess)({
         name,
         location,
-        createdBy: authUser._id,
+        createdBy: new mongoose_1.Types.ObjectId(authUser.userId),
     });
     (0, utils_1.sendResponse)(res, {
         statusCode: 201,
@@ -83,7 +84,7 @@ exports.updateMessController = (0, middlewares_1.catchAsync)((req, res, next) =>
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
-    const mess = yield (0, mess_service_1.updateMess)(messId, { name, location, status }, { name: authUser.name, userId: authUser._id });
+    const mess = yield (0, mess_service_1.updateMess)(messId, { name, location, status }, { name: authUser.name, userId: authUser.userId });
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -98,7 +99,10 @@ exports.deleteMessController = (0, middlewares_1.catchAsync)((req, res, next) =>
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
-    yield (0, mess_service_1.softDeleteMess)(messId, { name: authUser.name, userId: authUser._id });
+    yield (0, mess_service_1.softDeleteMess)(messId, {
+        name: authUser.name,
+        userId: authUser.userId,
+    });
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,

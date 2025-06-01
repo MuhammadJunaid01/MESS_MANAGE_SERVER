@@ -24,12 +24,12 @@ const sendOtpEmail = (email_1, otp_1, name_1, ...args_1) => __awaiter(void 0, [e
         port: 587,
         secure: config_1.default.nodeEnv === "production",
         auth: {
-            user: "hire.developerjunaid@gmail.com",
-            pass: "htzg ivoj sahv irad",
+            user: config_1.default.emailUser,
+            pass: config_1.default.emailPass,
         },
     });
     const mailOptions = {
-        from: "hire.developerjunaid@gmail.com",
+        from: config_1.default.emailUser,
         to: email,
         subject: "Verify Your Email - LifeSaver",
         html: (0, html_1.generateOtpEmailHtml)(name, otp, email, expiryTime),

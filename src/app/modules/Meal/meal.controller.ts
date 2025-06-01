@@ -56,7 +56,7 @@ export const getMealByIdController = catchAsync(
       );
     }
 
-    const meal = await getMealById(mealId, authUser._id);
+    const meal = await getMealById(mealId, authUser.userId);
 
     sendResponse(res, {
       statusCode: 200,
@@ -90,7 +90,7 @@ export const getMealsController = catchAsync(
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
       },
-      authUser._id
+      authUser.userId
     );
 
     sendResponse(res, {
@@ -118,7 +118,7 @@ export const updateMealController = catchAsync(
     }
 
     const meal = await updateMeal(mealId, {
-      userId: authUser._id,
+      userId: authUser.userId,
       meals,
       date: date ? new Date(date) : undefined,
     });
@@ -146,7 +146,7 @@ export const deleteMealController = catchAsync(
       );
     }
 
-    await deleteMeal(mealId, authUser._id);
+    await deleteMeal(mealId, authUser.userId);
 
     sendResponse(res, {
       statusCode: 200,

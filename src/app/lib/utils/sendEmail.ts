@@ -15,13 +15,13 @@ export const sendOtpEmail = async (
     port: 587,
     secure: config.nodeEnv === "production",
     auth: {
-      user: "hire.developerjunaid@gmail.com",
-      pass: "htzg ivoj sahv irad",
+      user: config.emailUser,
+      pass: config.emailPass,
     },
   });
 
   const mailOptions = {
-    from: "hire.developerjunaid@gmail.com",
+    from: config.emailUser,
     to: email,
     subject: "Verify Your Email - LifeSaver",
     html: generateOtpEmailHtml(name, otp, email, expiryTime),

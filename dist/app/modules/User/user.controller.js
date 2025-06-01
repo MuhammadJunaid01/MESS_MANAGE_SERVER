@@ -26,7 +26,7 @@ exports.joinMessController = (0, middlewares_1.catchAsync)((req, res, next) => _
         messId,
         performedBy: {
             name: authUser.name,
-            managerId: authUser._id,
+            managerId: authUser.userId,
         },
     });
     (0, utils_1.sendResponse)(res, {
@@ -47,7 +47,7 @@ exports.approveMessJoinController = (0, middlewares_1.catchAsync)((req, res, nex
         userId,
         performedBy: {
             name: authUser.name,
-            managerId: authUser._id,
+            managerId: authUser.userId,
         },
     });
     (0, utils_1.sendResponse)(res, {
@@ -241,7 +241,7 @@ exports.updateUserController = (0, middlewares_1.catchAsync)((req, res, next) =>
         isApproved,
     }, {
         name: authUser.name,
-        managerId: authUser._id,
+        managerId: authUser.userId,
     });
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
@@ -271,7 +271,7 @@ exports.softDeleteUserController = (0, middlewares_1.catchAsync)((req, res, next
     }
     yield (0, user_service_1.softDeleteUser)(userId, {
         name: authUser.name,
-        managerId: authUser._id,
+        managerId: authUser.userId,
     });
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,

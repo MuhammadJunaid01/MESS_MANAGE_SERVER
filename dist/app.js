@@ -7,6 +7,7 @@ const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
+const middlewares_1 = require("./app/middlewares");
 const errors_1 = require("./app/middlewares/errors");
 const logger_1 = require("./app/middlewares/logger");
 const routes_1 = __importDefault(require("./app/routes"));
@@ -27,7 +28,9 @@ app.get("/", (req, res) => {
 });
 // API routes
 app.use("/api/v1", routes_1.default);
-// Error handler middleware
+// 404 Middleware (Not Found)
+app.use(middlewares_1.notFoundMiddleware);
+// Error handler middleware (should come after notFoundMiddleware)
 app.use(errors_1.errorHandler);
 // Example log for server startup
 logger_1.logger.info("Application setup complete");

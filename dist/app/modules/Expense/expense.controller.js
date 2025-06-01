@@ -28,7 +28,7 @@ exports.createExpenseController = (0, middlewares_1.catchAsync)((req, res, next)
         description,
         date: new Date(date),
         items,
-    }, { userId: authUser._id, name: authUser.name });
+    }, { userId: authUser.userId, name: authUser.name });
     (0, utils_1.sendResponse)(res, {
         statusCode: 201,
         success: true,
@@ -43,7 +43,7 @@ exports.getExpenseByIdController = (0, middlewares_1.catchAsync)((req, res, next
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
-    const expense = yield (0, expense_service_1.getExpenseById)(expenseId, authUser._id);
+    const expense = yield (0, expense_service_1.getExpenseById)(expenseId, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -68,7 +68,7 @@ exports.getExpensesController = (0, middlewares_1.catchAsync)((req, res, next) =
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
     };
-    const expenses = yield (0, expense_service_1.getExpenses)(filters, authUser._id);
+    const expenses = yield (0, expense_service_1.getExpenses)(filters, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -90,7 +90,7 @@ exports.updateExpenseController = (0, middlewares_1.catchAsync)((req, res, next)
         description,
         date: date ? new Date(date) : undefined,
         items,
-    }, { userId: authUser._id, name: authUser.name });
+    }, { userId: authUser.userId, name: authUser.name });
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -106,7 +106,7 @@ exports.updateExpenseStatusController = (0, middlewares_1.catchAsync)((req, res,
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
-    const expense = yield (0, expense_service_1.updateExpenseStatus)(expenseId, { status }, { userId: authUser._id, name: authUser.name });
+    const expense = yield (0, expense_service_1.updateExpenseStatus)(expenseId, { status }, { userId: authUser.userId, name: authUser.name });
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -122,7 +122,7 @@ exports.deleteExpenseController = (0, middlewares_1.catchAsync)((req, res, next)
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
     yield (0, expense_service_1.softDeleteExpense)(expenseId, {
-        userId: authUser._id,
+        userId: authUser.userId,
         name: authUser.name,
     });
     (0, utils_1.sendResponse)(res, {

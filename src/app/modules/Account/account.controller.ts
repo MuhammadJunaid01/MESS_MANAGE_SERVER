@@ -29,7 +29,7 @@ export const createAccountController = catchAsync(
 
     const account = await createAccount(
       { userId, messId },
-      { userId: authUser._id, name: authUser.name }
+      { userId: authUser.userId, name: authUser.name }
     );
 
     sendResponse(res, {
@@ -55,7 +55,7 @@ export const getAccountByIdController = catchAsync(
       );
     }
 
-    const account = await getAccountById(accountId, authUser._id);
+    const account = await getAccountById(accountId, authUser.userId);
 
     sendResponse(res, {
       statusCode: 200,
@@ -87,7 +87,7 @@ export const getAccountsController = catchAsync(
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
       },
-      authUser._id
+      authUser.userId
     );
 
     sendResponse(res, {
@@ -121,7 +121,7 @@ export const createTransactionController = catchAsync(
         description,
         date: new Date(date),
       },
-      { userId: authUser._id, name: authUser.name }
+      { userId: authUser.userId, name: authUser.name }
     );
 
     sendResponse(res, {
@@ -156,7 +156,7 @@ export const getTransactionsController = catchAsync(
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
       },
-      authUser._id
+      authUser.userId
     );
 
     sendResponse(res, {
@@ -183,7 +183,7 @@ export const deleteAccountController = catchAsync(
     }
 
     await softDeleteAccount(accountId, {
-      userId: authUser._id,
+      userId: authUser.userId,
       name: authUser.name,
     });
 

@@ -42,7 +42,7 @@ export const joinMessController = catchAsync(
       messId,
       performedBy: {
         name: authUser.name,
-        managerId: authUser._id,
+        managerId: authUser.userId,
       },
     });
 
@@ -73,7 +73,7 @@ export const approveMessJoinController = catchAsync(
       userId,
       performedBy: {
         name: authUser.name,
-        managerId: authUser._id,
+        managerId: authUser.userId,
       },
     });
 
@@ -367,7 +367,7 @@ export const updateUserController = catchAsync(
       },
       {
         name: authUser.name,
-        managerId: authUser._id,
+        managerId: authUser.userId,
       }
     );
 
@@ -413,7 +413,7 @@ export const softDeleteUserController = catchAsync(
 
     await softDeleteUser(userId, {
       name: authUser.name,
-      managerId: authUser._id,
+      managerId: authUser.userId,
     });
 
     sendResponse(res, {

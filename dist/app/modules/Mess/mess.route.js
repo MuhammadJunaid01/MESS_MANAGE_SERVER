@@ -20,6 +20,7 @@ const getLimiter = (0, express_rate_limit_1.default)({
     max: 100,
     message: "Too many requests, please try again later.",
 });
+console.log("hiy");
 // Protected routes (require authentication)
 router.use(auth_1.protect);
 // Mess routes

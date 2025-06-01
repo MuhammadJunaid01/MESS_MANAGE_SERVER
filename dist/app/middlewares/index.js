@@ -12,10 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.restrictTo = exports.catchAsync = exports.roleMiddleware = exports.authMiddleware = void 0;
+exports.restrictTo = exports.catchAsync = exports.roleMiddleware = exports.authMiddleware = exports.notFoundMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_model_1 = __importDefault(require("../modules/User/user.model"));
 const errors_1 = require("./errors");
+const notFoundMiddleware = (req, res, next) => {
+    const error = {
+        status: 404,
+        message: `Route not found: ${req.originalUrl}`,
+    };
+    res.status(404).json(error);
+};
+exports.notFoundMiddleware = notFoundMiddleware;
 const authMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const token = (_a = req.header("Authorization")) === null || _a === void 0 ? void 0 : _a.replace("Bearer ", "");

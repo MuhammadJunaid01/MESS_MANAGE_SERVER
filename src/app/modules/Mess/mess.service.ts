@@ -1,7 +1,8 @@
 import { Types } from "mongoose";
-import { ILocation } from "../../interfaces/global.interface";
+import { ILocation, IStatus } from "../../interfaces/global.interface";
 import { getNextMessId } from "../../lib/utils";
 import { AppError } from "../../middlewares/errors";
+import ActivityLogModel from "../Activity/activity.schema";
 import UserModel from "../User/user.model";
 import { IMess } from "./mess.interface";
 import MessModel from "./mess.schema";
@@ -10,7 +11,7 @@ import MessModel from "./mess.schema";
 interface CreateMessInput {
   name: string;
   location: ILocation;
-  createdBy: string;
+  createdBy: Types.ObjectId;
 }
 
 // Interface for mess update input
@@ -21,13 +22,6 @@ interface UpdateMessInput {
 }
 
 // Interface for activity log input
-interface ActivityLogInput {
-  action: "created" | "updated" | "deleted" | "activated" | "deactivated";
-  performedBy: {
-    name: string;
-    userId: string;
-  };
-}
 
 // Create a new mess
 export const createMess = async (input: CreateMessInput): Promise<IMess> => {
@@ -37,36 +31,54 @@ export const createMess = async (input: CreateMessInput): Promise<IMess> => {
     throw new AppError("Invalid creator ID", 400, "INVALID_USER_ID");
   }
 
-  const user = await UserModel.findById(createdBy);
-  if (!user) {
-    throw new AppError("Creator not found", 404, "USER_NOT_FOUND");
-  }
+  const session = await MessModel.startSession();
+  session.startTransaction();
 
-  const existingMess = await MessModel.findOne({ name });
-  if (existingMess) {
-    throw new AppError("Mess name already exists", 400, "NAME_EXISTS");
-  }
+  try {
+    const user = await UserModel.findById(createdBy).session(session);
+    if (!user) {
+      throw new AppError("Creator not found", 404, "USER_NOT_FOUND");
+    }
 
-  const messId = await getNextMessId();
+    const existingMess = await MessModel.findOne({ name }).session(session);
+    if (existingMess) {
+      throw new AppError("Mess name already exists", 400, "NAME_EXISTS");
+    }
 
-  const mess = await MessModel.create({
-    messId,
-    name,
-    location,
-    createdBy: new Types.ObjectId(createdBy),
-    activityLogs: [
-      {
-        action: "created",
-        performedBy: {
-          name: user.name,
-          userId: new Types.ObjectId(createdBy),
-        },
-        timestamp: new Date(),
+    const messId = await getNextMessId();
+
+    const mess = new MessModel({
+      messId,
+      name,
+      location,
+      createdBy: new Types.ObjectId(createdBy),
+    });
+
+    const newMess = await mess.save({ session });
+
+    const activity = new ActivityLogModel({
+      messId: newMess._id,
+      entity: "Mess",
+      entityId: newMess._id,
+      action: IStatus.Created,
+      performedBy: {
+        userId: new Types.ObjectId(createdBy),
+        name: user.name,
       },
-    ],
-  });
+      timestamp: new Date(),
+    });
 
-  return mess;
+    await activity.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return newMess;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 
 // Get mess by ID
@@ -137,53 +149,56 @@ export const updateMess = async (
     throw new AppError("Invalid updater ID", 400, "INVALID_USER_ID");
   }
 
-  const mess = await MessModel.findOne({ _id: messId, isDeleted: false });
-  if (!mess) {
-    throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
-  }
+  const session = await MessModel.startSession();
+  session.startTransaction();
 
-  if (input.name && input.name !== mess.name) {
-    const existingMess = await MessModel.findOne({ name: input.name });
-    if (existingMess) {
-      throw new AppError("Mess name already exists", 400, "NAME_EXISTS");
+  try {
+    const mess = await MessModel.findOne({
+      _id: messId,
+      isDeleted: false,
+    }).session(session);
+    if (!mess) {
+      throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
     }
-  }
 
-  const updateData: Partial<IMess> = {};
-  const activityLog: ActivityLogInput = {
-    action: input.status
-      ? input.status === "active"
-        ? "activated"
-        : "deactivated"
-      : "updated",
-    performedBy: {
-      name: updatedBy.name,
-      userId: updatedBy.userId,
-    },
-  };
+    if (input.name && input.name !== mess.name) {
+      const existingMess = await MessModel.findOne({
+        name: input.name,
+      }).session(session);
+      if (existingMess) {
+        throw new AppError("Mess name already exists", 400, "NAME_EXISTS");
+      }
+    }
 
-  if (input.name) updateData.name = input.name;
-  if (input.location) updateData.location = input.location;
-  if (input.status) updateData.status = input.status;
+    const updateData: Partial<IMess> = {};
+    if (input.name) updateData.name = input.name;
+    if (input.location) updateData.location = input.location;
+    if (input.status) updateData.status = input.status;
 
-  mess.set({
-    ...updateData,
-    updatedBy: new Types.ObjectId(updatedBy.userId),
-    activityLogs: [
-      ...mess.activityLogs,
-      {
-        action: activityLog.action,
-        performedBy: {
-          name: updatedBy.name,
-          userId: new Types.ObjectId(updatedBy.userId),
-        },
-        timestamp: new Date(),
+    Object.assign(mess, updateData);
+    await mess.save({ session });
+
+    const activity = new ActivityLogModel({
+      messId: mess._id,
+      entity: "Mess",
+      entityId: mess._id,
+      action: IStatus.Updated,
+      performedBy: {
+        userId: new Types.ObjectId(updatedBy.userId),
+        name: updatedBy.name,
       },
-    ],
-  });
+      timestamp: new Date(),
+    });
+    await activity.save({ session });
 
-  await mess.save();
-  return mess;
+    await session.commitTransaction();
+    session.endSession();
+    return mess;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 
 // Soft delete mess

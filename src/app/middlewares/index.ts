@@ -3,7 +3,18 @@ import jwt from "jsonwebtoken";
 import { UserRole } from "../modules/User/user.interface";
 import UserModel from "../modules/User/user.model";
 import { AppError } from "./errors";
+export const notFoundMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const error = {
+    status: 404,
+    message: `Route not found: ${req.originalUrl}`,
+  };
 
+  res.status(404).json(error);
+};
 export const authMiddleware = async (
   req: Request,
   res: Response,

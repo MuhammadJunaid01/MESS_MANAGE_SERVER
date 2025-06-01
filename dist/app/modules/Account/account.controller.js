@@ -21,7 +21,7 @@ exports.createAccountController = (0, middlewares_1.catchAsync)((req, res, next)
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
-    const account = yield (0, account_service_1.createAccount)({ userId, messId }, { userId: authUser._id, name: authUser.name });
+    const account = yield (0, account_service_1.createAccount)({ userId, messId }, { userId: authUser.userId, name: authUser.name });
     (0, utils_1.sendResponse)(res, {
         statusCode: 201,
         success: true,
@@ -36,7 +36,7 @@ exports.getAccountByIdController = (0, middlewares_1.catchAsync)((req, res, next
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
-    const account = yield (0, account_service_1.getAccountById)(accountId, authUser._id);
+    const account = yield (0, account_service_1.getAccountById)(accountId, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -56,7 +56,7 @@ exports.getAccountsController = (0, middlewares_1.catchAsync)((req, res, next) =
         userId: userId,
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
-    }, authUser._id);
+    }, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -77,7 +77,7 @@ exports.createTransactionController = (0, middlewares_1.catchAsync)((req, res, n
         type,
         description,
         date: new Date(date),
-    }, { userId: authUser._id, name: authUser.name });
+    }, { userId: authUser.userId, name: authUser.name });
     (0, utils_1.sendResponse)(res, {
         statusCode: 201,
         success: true,
@@ -99,7 +99,7 @@ exports.getTransactionsController = (0, middlewares_1.catchAsync)((req, res, nex
         dateTo: dateTo ? new Date(dateTo) : undefined,
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
-    }, authUser._id);
+    }, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -115,7 +115,7 @@ exports.deleteAccountController = (0, middlewares_1.catchAsync)((req, res, next)
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
     yield (0, account_service_1.softDeleteAccount)(accountId, {
-        userId: authUser._id,
+        userId: authUser.userId,
         name: authUser.name,
     });
     (0, utils_1.sendResponse)(res, {

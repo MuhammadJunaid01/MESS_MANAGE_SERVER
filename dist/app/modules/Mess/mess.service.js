@@ -14,42 +14,59 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.softDeleteMess = exports.updateMess = exports.getMesses = exports.getMessById = exports.createMess = void 0;
 const mongoose_1 = require("mongoose");
+const global_interface_1 = require("../../interfaces/global.interface");
 const utils_1 = require("../../lib/utils");
 const errors_1 = require("../../middlewares/errors");
+const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
 const user_model_1 = __importDefault(require("../User/user.model"));
 const mess_schema_1 = __importDefault(require("./mess.schema"));
+// Interface for activity log input
 // Create a new mess
 const createMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, location, createdBy } = input;
     if (!mongoose_1.Types.ObjectId.isValid(createdBy)) {
         throw new errors_1.AppError("Invalid creator ID", 400, "INVALID_USER_ID");
     }
-    const user = yield user_model_1.default.findById(createdBy);
-    if (!user) {
-        throw new errors_1.AppError("Creator not found", 404, "USER_NOT_FOUND");
-    }
-    const existingMess = yield mess_schema_1.default.findOne({ name });
-    if (existingMess) {
-        throw new errors_1.AppError("Mess name already exists", 400, "NAME_EXISTS");
-    }
-    const messId = yield (0, utils_1.getNextMessId)();
-    const mess = yield mess_schema_1.default.create({
-        messId,
-        name,
-        location,
-        createdBy: new mongoose_1.Types.ObjectId(createdBy),
-        activityLogs: [
-            {
-                action: "created",
-                performedBy: {
-                    name: user.name,
-                    userId: new mongoose_1.Types.ObjectId(createdBy),
-                },
-                timestamp: new Date(),
+    const session = yield mess_schema_1.default.startSession();
+    session.startTransaction();
+    try {
+        const user = yield user_model_1.default.findById(createdBy).session(session);
+        if (!user) {
+            throw new errors_1.AppError("Creator not found", 404, "USER_NOT_FOUND");
+        }
+        const existingMess = yield mess_schema_1.default.findOne({ name }).session(session);
+        if (existingMess) {
+            throw new errors_1.AppError("Mess name already exists", 400, "NAME_EXISTS");
+        }
+        const messId = yield (0, utils_1.getNextMessId)();
+        const mess = new mess_schema_1.default({
+            messId,
+            name,
+            location,
+            createdBy: new mongoose_1.Types.ObjectId(createdBy),
+        });
+        const newMess = yield mess.save({ session });
+        const activity = new activity_schema_1.default({
+            messId: newMess._id,
+            entity: "Mess",
+            entityId: newMess._id,
+            action: global_interface_1.IStatus.Created,
+            performedBy: {
+                userId: new mongoose_1.Types.ObjectId(createdBy),
+                name: user.name,
             },
-        ],
-    });
-    return mess;
+            timestamp: new Date(),
+        });
+        yield activity.save({ session });
+        yield session.commitTransaction();
+        session.endSession();
+        return newMess;
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
 });
 exports.createMess = createMess;
 // Get mess by ID
@@ -100,47 +117,54 @@ const updateMess = (messId, input, updatedBy) => __awaiter(void 0, void 0, void 
     if (!mongoose_1.Types.ObjectId.isValid(updatedBy.userId)) {
         throw new errors_1.AppError("Invalid updater ID", 400, "INVALID_USER_ID");
     }
-    const mess = yield mess_schema_1.default.findOne({ _id: messId, isDeleted: false });
-    if (!mess) {
-        throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
-    }
-    if (input.name && input.name !== mess.name) {
-        const existingMess = yield mess_schema_1.default.findOne({ name: input.name });
-        if (existingMess) {
-            throw new errors_1.AppError("Mess name already exists", 400, "NAME_EXISTS");
+    const session = yield mess_schema_1.default.startSession();
+    session.startTransaction();
+    try {
+        const mess = yield mess_schema_1.default.findOne({
+            _id: messId,
+            isDeleted: false,
+        }).session(session);
+        if (!mess) {
+            throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
         }
-    }
-    const updateData = {};
-    const activityLog = {
-        action: input.status
-            ? input.status === "active"
-                ? "activated"
-                : "deactivated"
-            : "updated",
-        performedBy: {
-            name: updatedBy.name,
-            userId: updatedBy.userId,
-        },
-    };
-    if (input.name)
-        updateData.name = input.name;
-    if (input.location)
-        updateData.location = input.location;
-    if (input.status)
-        updateData.status = input.status;
-    mess.set(Object.assign(Object.assign({}, updateData), { updatedBy: new mongoose_1.Types.ObjectId(updatedBy.userId), activityLogs: [
-            ...mess.activityLogs,
-            {
-                action: activityLog.action,
-                performedBy: {
-                    name: updatedBy.name,
-                    userId: new mongoose_1.Types.ObjectId(updatedBy.userId),
-                },
-                timestamp: new Date(),
+        if (input.name && input.name !== mess.name) {
+            const existingMess = yield mess_schema_1.default.findOne({
+                name: input.name,
+            }).session(session);
+            if (existingMess) {
+                throw new errors_1.AppError("Mess name already exists", 400, "NAME_EXISTS");
+            }
+        }
+        const updateData = {};
+        if (input.name)
+            updateData.name = input.name;
+        if (input.location)
+            updateData.location = input.location;
+        if (input.status)
+            updateData.status = input.status;
+        Object.assign(mess, updateData);
+        yield mess.save({ session });
+        const activity = new activity_schema_1.default({
+            messId: mess._id,
+            entity: "Mess",
+            entityId: mess._id,
+            action: global_interface_1.IStatus.Updated,
+            performedBy: {
+                userId: new mongoose_1.Types.ObjectId(updatedBy.userId),
+                name: updatedBy.name,
             },
-        ] }));
-    yield mess.save();
-    return mess;
+            timestamp: new Date(),
+        });
+        yield activity.save({ session });
+        yield session.commitTransaction();
+        session.endSession();
+        return mess;
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
 });
 exports.updateMess = updateMess;
 // Soft delete mess

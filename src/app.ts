@@ -2,6 +2,7 @@ import cors from "cors";
 import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import { notFoundMiddleware } from "./app/middlewares";
 import { errorHandler } from "./app/middlewares/errors";
 import { logger, stream } from "./app/middlewares/logger";
 import router from "./app/routes";
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
+
 // Integrate Morgan with Winston logger and custom format
 app.use(morgan(morganFormat, { stream }));
 
@@ -28,7 +30,10 @@ app.get("/", (req: Request, res: Response) => {
 // API routes
 app.use("/api/v1", router);
 
-// Error handler middleware
+// 404 Middleware (Not Found)
+app.use(notFoundMiddleware);
+
+// Error handler middleware (should come after notFoundMiddleware)
 app.use(errorHandler);
 
 // Example log for server startup

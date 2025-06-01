@@ -64,8 +64,9 @@ export interface IRoute {
 }
 
 export interface AuthUser {
-  _id: string;
+  userId: string;
   name: string;
   email: string;
   role: UserRole;
+  messId: Types.ObjectId;
 }

@@ -78,7 +78,6 @@ const signIn = (input) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.default.findOne({
         email: email,
     }).select("+password");
-    console.log("user", user);
     if (!user) {
         throw new errors_1.AppError("Invalid email or password", 401, "AUTH_FAILED");
     }
@@ -105,7 +104,7 @@ const signIn = (input) => __awaiter(void 0, void 0, void 0, function* () {
 exports.signIn = signIn;
 // Verify OTP for signup
 const verifyOtp = (email, otp) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.default.findOne({ email: email.toLowerCase() }).select("+otp +otpExpires");
+    const user = yield user_model_1.default.findOne({ email: email }).select("+otp +otpExpires");
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
@@ -122,14 +121,7 @@ const verifyOtp = (email, otp) => __awaiter(void 0, void 0, void 0, function* ()
     user.isVerified = true;
     user.otp = undefined;
     user.otpExpires = undefined;
-    // user.activityLogs.push({
-    //   action: "approved",
-    //   performedBy: {
-    //     name: "System",
-    //     managerId: user._id,
-    //   },
-    //   timestamp: new Date(),
-    // });
+    user.role = user_interface_1.UserRole.Manager;
     yield user.save();
     return user;
 });

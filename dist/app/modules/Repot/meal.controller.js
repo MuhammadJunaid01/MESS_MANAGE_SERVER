@@ -29,7 +29,7 @@ exports.generateMealReportController = (0, middlewares_1.catchAsync)((req, res, 
         groupBy: groupBy,
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
-    }, authUser._id);
+    }, authUser.userId);
     (0, utils_1.sendResponse)(res, {
         statusCode: 200,
         success: true,
