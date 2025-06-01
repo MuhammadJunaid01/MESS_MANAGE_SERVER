@@ -38,7 +38,7 @@ router.use(protect);
 router.get("/create-for-one-month", createMealForOneMonthController);
 router.post(
   "/toggle",
-  // sanitizeInput,
+  sanitizeInput,
   validate(toggleMealsForDateRangeSchema),
   toggleMealsForDateRangeController
 );

@@ -1007,3 +1007,23 @@
 [2025-06-01 22:51:30] INFO: POST /api/v1/meal/toggle 200 38.745 ms
 [2025-06-01 22:51:43] INFO: POST /api/v1/meal/toggle 200 44.382 ms
 [2025-06-01 22:51:57] INFO: POST /api/v1/meal/toggle 200 45.756 ms
+[2025-06-01 23:41:05] INFO: Application setup complete
+[2025-06-01 23:41:05] INFO: Connected to MongoDB
+[2025-06-01 23:41:05] INFO: Scheduled meal creation cron job
+[2025-06-01 23:41:05] INFO: Server running on http://localhost:5000
+[2025-06-01 23:41:17] INFO: POST /api/v1/meal/toggle 401 9.914 ms
+[2025-06-01 23:42:04] INFO: POST /api/v1/auth/signin 200 86.331 ms
+[2025-06-01 23:42:24] INFO: POST /api/v1/meal/toggle 500 7.293 ms
+[2025-06-01 23:43:14] INFO: Application setup complete
+[2025-06-01 23:43:14] INFO: Connected to MongoDB
+[2025-06-01 23:43:14] INFO: Scheduled meal creation cron job
+[2025-06-01 23:43:14] INFO: Server running on http://localhost:5000
+[2025-06-01 23:43:17] INFO: POST /api/v1/meal/toggle 500 20.424 ms
+[2025-06-01 23:43:18] INFO: POST /api/v1/meal/toggle 500 8.622 ms
+[2025-06-01 23:43:19] INFO: POST /api/v1/meal/toggle 500 6.938 ms
+[2025-06-01 23:44:02] INFO: Application setup complete
+[2025-06-01 23:44:02] INFO: Connected to MongoDB
+[2025-06-01 23:44:02] INFO: Scheduled meal creation cron job
+[2025-06-01 23:44:02] INFO: Server running on http://localhost:5000
+[2025-06-01 23:44:09] INFO: POST /api/v1/meal/toggle 200 101.854 ms
+[2025-06-01 23:45:58] INFO: POST /api/v1/meal/toggle 200 90.834 ms
