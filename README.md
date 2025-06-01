@@ -82,6 +82,109 @@ yarn build
 yarn start
 ```
 
+```
+└── 📁src
+    └── 📁app
+        └── 📁config
+            └── 📁database
+                └── index.ts
+            └── index.ts
+        └── 📁corn
+            └── meal.corn.ts
+        └── 📁interfaces
+            └── global.interface.ts
+        └── 📁lib
+            └── 📁builder
+                └── 📁html
+                    └── index.ts
+                └── index.ts
+            └── 📁errors
+                └── index.ts
+            └── 📁utils
+                └── index.ts
+                └── pagination.ts
+                └── sendEmail.ts
+        └── 📁middlewares
+            └── 📁auth
+                └── index.ts
+            └── 📁errors
+                └── index.ts
+            └── index.ts
+            └── 📁logger
+                └── index.ts
+            └── sanitize.middleware.ts
+            └── 📁validation
+                └── index.ts
+                └── 📁zod
+                    └── index.ts
+                    └── 📁user
+                        └── index.ts
+        └── 📁modules
+            └── 📁Account
+                └── account.controller.ts
+                └── account.interface.ts
+                └── account.route.ts
+                └── account.schema.ts
+                └── account.service.ts
+            └── 📁Activity
+                └── activity.controller.ts
+                └── activity.interface.ts
+                └── activity.route.ts
+                └── activity.schema.ts
+                └── activity.service.ts
+            └── 📁Counter
+                └── counter.interface.ts
+                └── counter.schema.ts
+            └── 📁Expense
+                └── expense.controller.ts
+                └── expense.interface.ts
+                └── expense.route.ts
+                └── expense.schema.ts
+                └── expense.service.ts
+            └── 📁Meal
+                └── meal.controller.ts
+                └── meal.interface.ts
+                └── meal.route.ts
+                └── meal.schema.ts
+                └── meal.service.ts
+            └── 📁Mess
+                └── mess.controller.ts
+                └── mess.interface.ts
+                └── mess.route.ts
+                └── mess.schema.ts
+                └── mess.service.ts
+            └── 📁Repot
+                └── meal.controller.ts
+                └── report.interface.ts
+                └── report.route.ts
+                └── report.service.ts
+            └── 📁Task
+                └── task.interface.ts
+                └── task.model.ts
+            └── 📁Transaction
+                └── transaction.interface.ts
+                └── transaction.schema.ts
+            └── 📁User
+                └── user.controller.ts
+                └── user.interface.ts
+                └── user.model.ts
+                └── user.route.ts
+                └── user.service.ts
+        └── 📁routes
+            └── index.ts
+        └── 📁schemas
+            └── account.schema.ts
+            └── activity.schema.ts
+            └── expense.schema.ts
+            └── meal.schema.ts
+            └── mess.schema.ts
+            └── report.schema.ts
+            └── user.schemas.ts
+        └── sudu-code.txt
+    └── app.ts
+    └── server.ts
+```
+
 ## API Endpoints Overview
 
 All API endpoints are prefixed with `/api/v1`.
