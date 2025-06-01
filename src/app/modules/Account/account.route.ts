@@ -1,6 +1,7 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { protect, restrictTo } from "../../middlewares/auth";
+import { restrictTo } from "../../middlewares";
+import { protect } from "../../middlewares/auth";
 import { sanitizeInput } from "../../middlewares/sanitize.middleware";
 import { validate } from "../../middlewares/validation";
 import {

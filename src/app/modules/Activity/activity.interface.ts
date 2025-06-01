@@ -4,6 +4,12 @@ import { IStatus } from "../../interfaces/global.interface";
 export enum ActivityEntity {
   Meal = "Meal",
   Expense = "Expense",
+  Mess = "Mess",
+  User = "User",
+  Account = "Account",
+  Report = "Report",
+  Task = "Task",
+  Transaction = "Transaction",
 }
 
 export interface IActivityLog extends Document {

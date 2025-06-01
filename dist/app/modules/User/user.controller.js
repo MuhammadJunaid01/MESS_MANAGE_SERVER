@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addActivityLogController = exports.softDeleteUserController = exports.updatePasswordController = exports.updateUserController = exports.getUsersController = exports.getUserByEmailController = exports.getUserByIdController = exports.createUserController = exports.resetPasswordController = exports.forgotPasswordController = exports.verifyOtpController = exports.signUpUserController = exports.approveMessJoinController = exports.joinMessController = void 0;
+exports.addActivityLogController = exports.softDeleteUserController = exports.updatePasswordController = exports.updateUserController = exports.getUsersController = exports.getUserByEmailController = exports.getUserByIdController = exports.createUserController = exports.resetPasswordController = exports.forgotPasswordController = exports.verifyOtpController = exports.signInController = exports.signUpUserController = exports.approveMessJoinController = exports.joinMessController = void 0;
 const user_service_1 = require("./user.service");
 const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
@@ -85,6 +85,16 @@ exports.signUpUserController = (0, middlewares_1.catchAsync)((req, res, next) =>
                 role: user.role,
             },
         },
+    });
+}));
+exports.signInController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    const response = yield (0, user_service_1.signIn)({ email, password });
+    (0, utils_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "User signed in successfully",
+        data: { user: response.user, accessToken: response.accessToken },
     });
 }));
 // Verify OTP controller

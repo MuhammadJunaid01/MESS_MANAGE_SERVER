@@ -2,19 +2,6 @@ import bcrypt from "bcryptjs";
 import { model, Schema } from "mongoose";
 import { Gender, IActivityLog, IUser, UserRole } from "./user.interface";
 
-const ActivityLogSchema = new Schema<IActivityLog>({
-  action: {
-    type: String,
-    enum: ["approved", "rejected", "blocked", "unblocked"],
-    required: true,
-  },
-  performedBy: {
-    name: { type: String, required: true },
-    managerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  },
-  timestamp: { type: Date, default: Date.now },
-});
-
 const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true, trim: true },
@@ -64,7 +51,7 @@ const UserSchema = new Schema<IUser>(
     resetToken: { type: String, select: false },
     resetTokenExpires: { type: Date, select: false },
     refreshToken: { type: String, select: false },
-    activityLogs: [ActivityLogSchema],
+    isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,

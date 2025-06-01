@@ -29,15 +29,3 @@ export const protect = catchAsync(
 );
 
 // Role-based authorization middleware
-export const restrictTo = (...roles: UserRole[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      throw new AppError(
-        "You do not have permission to perform this action",
-        403,
-        "FORBIDDEN"
-      );
-    }
-    next();
-  };
-};

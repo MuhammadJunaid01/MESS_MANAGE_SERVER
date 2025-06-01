@@ -9,6 +9,7 @@ import {
   getUsers,
   joinMess,
   resetPassword,
+  signIn,
   signUpUser,
   softDeleteUser,
   updatePassword,
@@ -132,6 +133,20 @@ export const signUpUserController = catchAsync(
   }
 );
 
+export const signInController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+
+    const response = await signIn({ email, password });
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "User signed in successfully",
+      data: { user: response.user, accessToken: response.accessToken },
+    });
+  }
+);
 // Verify OTP controller
 export const verifyOtpController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {

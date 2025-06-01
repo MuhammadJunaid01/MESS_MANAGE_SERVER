@@ -1,12 +1,15 @@
 import crypto from "crypto";
-import { Types } from "mongoose";
+import { startSession, Types } from "mongoose";
 
+import bcrypt from "bcryptjs";
+import config from "../../config";
+import { generateAccessToken } from "../../lib/builder";
 import { sendOtpEmail } from "../../lib/utils/sendEmail";
 import { AppError } from "../../middlewares/errors";
+import ActivityLogModel from "../Activity/activity.schema";
 import MessModel from "../Mess/mess.schema";
 import { Gender, IActivityLog, IUser, UserRole } from "./user.interface";
 import UserModel from "./user.model";
-
 // Interface for user creation input
 interface CreateUserInput {
   name: string;
@@ -83,7 +86,6 @@ export const signUpUser = async (input: CreateUserInput): Promise<IUser> => {
     isVerified: false,
     isBlocked: false,
     isApproved: false,
-    activityLogs: [],
     otp,
     otpExpires,
   };
@@ -101,7 +103,56 @@ export const signUpUser = async (input: CreateUserInput): Promise<IUser> => {
 
   return user;
 };
+interface SignInInput {
+  email: string;
+  password: string;
+}
 
+export const signIn = async (
+  input: SignInInput
+): Promise<{ user: Omit<IUser, "password">; accessToken: string }> => {
+  const { email, password } = input;
+  console.log("HIT");
+  // Find user by email (lowercase), include password for validation
+  const user = await UserModel.findOne({
+    email: email,
+  }).select("+password");
+  console.log("user", user);
+  if (!user) {
+    throw new AppError("Invalid email or password", 401, "AUTH_FAILED");
+  }
+
+  // Check if user is blocked
+  if (user.isBlocked) {
+    throw new AppError("User account is blocked", 403, "USER_BLOCKED");
+  }
+
+  // Check if user is verified
+  if (config.nodeEnv !== "development" && !user.isVerified) {
+    throw new AppError(
+      "User account is not verified",
+      403,
+      "USER_NOT_VERIFIED"
+    );
+  }
+
+  // Validate password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new AppError("Invalid email or password", 401, "AUTH_FAILED");
+  }
+
+  // Remove password field before returning user
+  const userObj = user.toObject() as Omit<IUser, "password"> & {
+    password?: string;
+  };
+  delete userObj.password;
+
+  // Generate JWT token
+  const accessToken = generateAccessToken(String(user._id), user.role);
+
+  return { user: userObj, accessToken };
+};
 // Verify OTP for signup
 export const verifyOtp = async (email: string, otp: string): Promise<IUser> => {
   const user = await UserModel.findOne({ email: email.toLowerCase() }).select(
@@ -230,7 +281,6 @@ export const createUser = async (input: CreateUserInput): Promise<IUser> => {
     isVerified: false,
     isBlocked: false,
     isApproved: false,
-    activityLogs: [],
   };
 
   const user = await UserModel.create(userData);
@@ -355,7 +405,6 @@ export const updateUser = async (
 
   user.set({
     ...updateData,
-    activityLogs: [...user.activityLogs, activityLog],
   });
 
   await user.save();
@@ -380,36 +429,49 @@ export const updatePassword = async (
   await user.save();
 };
 
-// Soft delete user
 export const softDeleteUser = async (
   userId: string,
   deletedBy: { name: string; managerId: string }
 ): Promise<void> => {
-  if (!Types.ObjectId.isValid(userId)) {
-    throw new AppError("Invalid user ID", 400, "INVALID_ID");
-  }
+  const session = await startSession();
 
-  const user = await UserModel.findById(userId);
-  if (!user) {
-    throw new AppError("User not found", 404, "USER_NOT_FOUND");
-  }
+  try {
+    session.startTransaction();
 
-  user.set({
-    isBlocked: true,
-    activityLogs: [
-      ...user.activityLogs,
-      {
-        action: "blocked",
-        performedBy: {
-          name: deletedBy.name,
-          managerId: new Types.ObjectId(deletedBy.managerId),
-        },
-        timestamp: new Date(),
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new AppError("Invalid user ID", 400, "INVALID_ID");
+    }
+
+    const user = await UserModel.findById(userId).session(session);
+    if (!user) {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
+
+    const activity = new ActivityLogModel({
+      action: "blocked",
+      performedBy: {
+        name: deletedBy.name,
+        managerId: new Types.ObjectId(deletedBy.managerId),
       },
-    ],
-  });
+      timestamp: new Date(),
+      entity: "User",
+      entityId: user._id,
+    });
 
-  await user.save();
+    await activity.save({ session });
+
+    user.isBlocked = true;
+    user.isDeleted = true;
+
+    await user.save({ session });
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 
 // Add activity log
@@ -426,14 +488,14 @@ export const addActivityLog = async (
     throw new AppError("User not found", 404, "USER_NOT_FOUND");
   }
 
-  user.activityLogs.push({
-    action: log.action,
-    performedBy: {
-      name: log.performedBy.name,
-      managerId: new Types.ObjectId(log.performedBy.managerId),
-    },
-    timestamp: new Date(),
-  });
+  // user.activityLogs.push({
+  //   action: log.action,
+  //   performedBy: {
+  //     name: log.performedBy.name,
+  //     managerId: new Types.ObjectId(log.performedBy.managerId),
+  //   },
+  //   timestamp: new Date(),
+  // });
 
   await user.save();
 };
@@ -482,14 +544,26 @@ export const joinMess = async (input: JoinMessInput): Promise<IUser | null> => {
   // Update user's messId and set isApproved to false (pending approval)
   user.messId = new Types.ObjectId(messId);
   user.isApproved = false;
-  user.activityLogs.push({
+  // user.activityLogs.push({
+  //   action: "joined_mess",
+  //   performedBy: {
+  //     name: performedBy.name,
+  //     managerId: new Types.ObjectId(performedBy.managerId),
+  //   },
+  //   timestamp: new Date(),
+  // });
+
+  const activity = new ActivityLogModel({
     action: "joined_mess",
     performedBy: {
       name: performedBy.name,
-      managerId: new Types.ObjectId(performedBy.managerId),
     },
     timestamp: new Date(),
+    entity: "User",
+    entityId: user._id,
   });
+  await activity.save();
+  // Save the updated user
 
   const savedUser = await user.save();
   return savedUser;
@@ -505,33 +579,49 @@ export const approveMessJoin = async (
     throw new AppError("Invalid user ID", 400, "INVALID_USER_ID");
   }
 
-  const user = await UserModel.findById(userId);
-  if (!user) {
-    throw new AppError("User not found", 404, "USER_NOT_FOUND");
+  const session = await startSession();
+  try {
+    session.startTransaction();
+
+    const user = await UserModel.findById(userId).session(session);
+    if (!user) {
+      throw new AppError("User not found", 404, "USER_NOT_FOUND");
+    }
+
+    if (!user.messId) {
+      throw new AppError("User is not associated with a mess", 400, "NO_MESS");
+    }
+
+    if (user.isApproved) {
+      throw new AppError(
+        "User is already an approved member of the mess",
+        400,
+        "ALREADY_APPROVED"
+      );
+    }
+
+    // Approve the user
+    user.isApproved = true;
+
+    const activity = new ActivityLogModel({
+      action: "approved",
+      performedBy: {
+        name: performedBy.name,
+        managerId: new Types.ObjectId(performedBy.managerId),
+      },
+      timestamp: new Date(),
+      entity: "User",
+      entityId: user._id,
+    });
+
+    await activity.save({ session });
+    await user.save({ session });
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  if (!user.messId) {
-    throw new AppError("User is not associated with a mess", 400, "NO_MESS");
-  }
-
-  if (user.isApproved) {
-    throw new AppError(
-      "User is already an approved member of the mess",
-      400,
-      "ALREADY_APPROVED"
-    );
-  }
-
-  // Approve the user
-  user.isApproved = true;
-  user.activityLogs.push({
-    action: "approved",
-    performedBy: {
-      name: performedBy.name,
-      managerId: new Types.ObjectId(performedBy.managerId),
-    },
-    timestamp: new Date(),
-  });
-
-  await user.save();
 };

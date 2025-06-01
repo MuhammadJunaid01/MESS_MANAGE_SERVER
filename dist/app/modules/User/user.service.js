@@ -23,11 +23,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.approveMessJoin = exports.joinMess = exports.addActivityLog = exports.softDeleteUser = exports.updatePassword = exports.updateUser = exports.getUsers = exports.getUserByEmail = exports.getUserById = exports.createUser = exports.resetPassword = exports.forgotPassword = exports.verifyOtp = exports.signUpUser = void 0;
+exports.approveMessJoin = exports.joinMess = exports.addActivityLog = exports.softDeleteUser = exports.updatePassword = exports.updateUser = exports.getUsers = exports.getUserByEmail = exports.getUserById = exports.createUser = exports.resetPassword = exports.forgotPassword = exports.verifyOtp = exports.signIn = exports.signUpUser = void 0;
 const crypto_1 = __importDefault(require("crypto"));
 const mongoose_1 = require("mongoose");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const config_1 = __importDefault(require("../../config"));
+const builder_1 = require("../../lib/builder");
 const sendEmail_1 = require("../../lib/utils/sendEmail");
 const errors_1 = require("../../middlewares/errors");
+const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
 const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
 const user_interface_1 = require("./user.interface");
 const user_model_1 = __importDefault(require("./user.model"));
@@ -52,7 +56,7 @@ const signUpUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     // Convert messId to ObjectId if provided
     const userData = Object.assign(Object.assign(Object.assign(Object.assign({}, rest), { email: email.toLowerCase(), password, // Will be hashed by pre-save middleware
-        role }), (messId && { messId: new mongoose_1.Types.ObjectId(messId) })), { balance: 0, isVerified: false, isBlocked: false, isApproved: false, activityLogs: [], otp,
+        role }), (messId && { messId: new mongoose_1.Types.ObjectId(messId) })), { balance: 0, isVerified: false, isBlocked: false, isApproved: false, otp,
         otpExpires });
     const user = yield user_model_1.default.create(userData);
     // Send OTP email
@@ -67,6 +71,38 @@ const signUpUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
     return user;
 });
 exports.signUpUser = signUpUser;
+const signIn = (input) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = input;
+    console.log("HIT");
+    // Find user by email (lowercase), include password for validation
+    const user = yield user_model_1.default.findOne({
+        email: email,
+    }).select("+password");
+    console.log("user", user);
+    if (!user) {
+        throw new errors_1.AppError("Invalid email or password", 401, "AUTH_FAILED");
+    }
+    // Check if user is blocked
+    if (user.isBlocked) {
+        throw new errors_1.AppError("User account is blocked", 403, "USER_BLOCKED");
+    }
+    // Check if user is verified
+    if (config_1.default.nodeEnv !== "development" && !user.isVerified) {
+        throw new errors_1.AppError("User account is not verified", 403, "USER_NOT_VERIFIED");
+    }
+    // Validate password
+    const isPasswordValid = yield bcryptjs_1.default.compare(password, user.password);
+    if (!isPasswordValid) {
+        throw new errors_1.AppError("Invalid email or password", 401, "AUTH_FAILED");
+    }
+    // Remove password field before returning user
+    const userObj = user.toObject();
+    delete userObj.password;
+    // Generate JWT token
+    const accessToken = (0, builder_1.generateAccessToken)(String(user._id), user.role);
+    return { user: userObj, accessToken };
+});
+exports.signIn = signIn;
 // Verify OTP for signup
 const verifyOtp = (email, otp) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.default.findOne({ email: email.toLowerCase() }).select("+otp +otpExpires");
@@ -158,7 +194,7 @@ const createUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
         throw new errors_1.AppError("Email already exists", 400, "EMAIL_EXISTS");
     }
     const userData = Object.assign(Object.assign({}, rest), { email: email.toLowerCase(), password,
-        role, balance: 0, isVerified: false, isBlocked: false, isApproved: false, activityLogs: [] });
+        role, balance: 0, isVerified: false, isBlocked: false, isApproved: false });
     const user = yield user_model_1.default.create(userData);
     return user;
 });
@@ -261,7 +297,7 @@ const updateUser = (userId, input, updatedBy) => __awaiter(void 0, void 0, void 
         updateData.isApproved = input.isApproved;
         activityLog.action = input.isApproved ? "approved" : "rejected";
     }
-    user.set(Object.assign(Object.assign({}, updateData), { activityLogs: [...user.activityLogs, activityLog] }));
+    user.set(Object.assign({}, updateData));
     yield user.save();
     return user;
 });
@@ -279,30 +315,40 @@ const updatePassword = (userId, newPassword) => __awaiter(void 0, void 0, void 0
     yield user.save();
 });
 exports.updatePassword = updatePassword;
-// Soft delete user
 const softDeleteUser = (userId, deletedBy) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!mongoose_1.Types.ObjectId.isValid(userId)) {
-        throw new errors_1.AppError("Invalid user ID", 400, "INVALID_ID");
-    }
-    const user = yield user_model_1.default.findById(userId);
-    if (!user) {
-        throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
-    }
-    user.set({
-        isBlocked: true,
-        activityLogs: [
-            ...user.activityLogs,
-            {
-                action: "blocked",
-                performedBy: {
-                    name: deletedBy.name,
-                    managerId: new mongoose_1.Types.ObjectId(deletedBy.managerId),
-                },
-                timestamp: new Date(),
+    const session = yield (0, mongoose_1.startSession)();
+    try {
+        session.startTransaction();
+        if (!mongoose_1.Types.ObjectId.isValid(userId)) {
+            throw new errors_1.AppError("Invalid user ID", 400, "INVALID_ID");
+        }
+        const user = yield user_model_1.default.findById(userId).session(session);
+        if (!user) {
+            throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
+        }
+        const activity = new activity_schema_1.default({
+            action: "blocked",
+            performedBy: {
+                name: deletedBy.name,
+                managerId: new mongoose_1.Types.ObjectId(deletedBy.managerId),
             },
-        ],
-    });
-    yield user.save();
+            timestamp: new Date(),
+            entity: "User",
+            entityId: user._id,
+        });
+        yield activity.save({ session });
+        user.isBlocked = true;
+        user.isDeleted = true;
+        yield user.save({ session });
+        yield session.commitTransaction();
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        throw error;
+    }
+    finally {
+        session.endSession();
+    }
 });
 exports.softDeleteUser = softDeleteUser;
 // Add activity log
@@ -314,14 +360,14 @@ const addActivityLog = (userId, log) => __awaiter(void 0, void 0, void 0, functi
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
-    user.activityLogs.push({
-        action: log.action,
-        performedBy: {
-            name: log.performedBy.name,
-            managerId: new mongoose_1.Types.ObjectId(log.performedBy.managerId),
-        },
-        timestamp: new Date(),
-    });
+    // user.activityLogs.push({
+    //   action: log.action,
+    //   performedBy: {
+    //     name: log.performedBy.name,
+    //     managerId: new Types.ObjectId(log.performedBy.managerId),
+    //   },
+    //   timestamp: new Date(),
+    // });
     yield user.save();
 });
 exports.addActivityLog = addActivityLog;
@@ -348,14 +394,25 @@ const joinMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
     // Update user's messId and set isApproved to false (pending approval)
     user.messId = new mongoose_1.Types.ObjectId(messId);
     user.isApproved = false;
-    user.activityLogs.push({
+    // user.activityLogs.push({
+    //   action: "joined_mess",
+    //   performedBy: {
+    //     name: performedBy.name,
+    //     managerId: new Types.ObjectId(performedBy.managerId),
+    //   },
+    //   timestamp: new Date(),
+    // });
+    const activity = new activity_schema_1.default({
         action: "joined_mess",
         performedBy: {
             name: performedBy.name,
-            managerId: new mongoose_1.Types.ObjectId(performedBy.managerId),
         },
         timestamp: new Date(),
+        entity: "User",
+        entityId: user._id,
     });
+    yield activity.save();
+    // Save the updated user
     const savedUser = yield user.save();
     return savedUser;
 });
@@ -366,26 +423,41 @@ const approveMessJoin = (input) => __awaiter(void 0, void 0, void 0, function* (
     if (!mongoose_1.Types.ObjectId.isValid(userId)) {
         throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
     }
-    const user = yield user_model_1.default.findById(userId);
-    if (!user) {
-        throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
+    const session = yield (0, mongoose_1.startSession)();
+    try {
+        session.startTransaction();
+        const user = yield user_model_1.default.findById(userId).session(session);
+        if (!user) {
+            throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
+        }
+        if (!user.messId) {
+            throw new errors_1.AppError("User is not associated with a mess", 400, "NO_MESS");
+        }
+        if (user.isApproved) {
+            throw new errors_1.AppError("User is already an approved member of the mess", 400, "ALREADY_APPROVED");
+        }
+        // Approve the user
+        user.isApproved = true;
+        const activity = new activity_schema_1.default({
+            action: "approved",
+            performedBy: {
+                name: performedBy.name,
+                managerId: new mongoose_1.Types.ObjectId(performedBy.managerId),
+            },
+            timestamp: new Date(),
+            entity: "User",
+            entityId: user._id,
+        });
+        yield activity.save({ session });
+        yield user.save({ session });
+        yield session.commitTransaction();
     }
-    if (!user.messId) {
-        throw new errors_1.AppError("User is not associated with a mess", 400, "NO_MESS");
+    catch (error) {
+        yield session.abortTransaction();
+        throw error;
     }
-    if (user.isApproved) {
-        throw new errors_1.AppError("User is already an approved member of the mess", 400, "ALREADY_APPROVED");
+    finally {
+        session.endSession();
     }
-    // Approve the user
-    user.isApproved = true;
-    user.activityLogs.push({
-        action: "approved",
-        performedBy: {
-            name: performedBy.name,
-            managerId: new mongoose_1.Types.ObjectId(performedBy.managerId),
-        },
-        timestamp: new Date(),
-    });
-    yield user.save();
 });
 exports.approveMessJoin = approveMessJoin;

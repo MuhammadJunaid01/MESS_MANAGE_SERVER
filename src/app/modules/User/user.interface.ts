@@ -50,5 +50,5 @@ export interface IUser extends Document {
   resetToken?: string;
   resetTokenExpires?: Date;
   refreshToken?: string;
-  activityLogs: IActivityLog[];
+  isDeleted?: boolean;
 }

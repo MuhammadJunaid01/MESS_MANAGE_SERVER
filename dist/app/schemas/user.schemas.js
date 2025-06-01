@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addActivityLogSchema = exports.softDeleteUserSchema = exports.updatePasswordSchema = exports.updateUserSchema = exports.getUsersSchema = exports.getUserByEmailSchema = exports.getUserByIdSchema = exports.createUserSchema = exports.approveMessJoinSchema = exports.joinMessSchema = exports.resetPasswordSchema = exports.forgotPasswordSchema = exports.verifyOtpSchema = exports.signUpSchema = void 0;
+exports.addActivityLogSchema = exports.softDeleteUserSchema = exports.updatePasswordSchema = exports.updateUserSchema = exports.getUsersSchema = exports.getUserByEmailSchema = exports.getUserByIdSchema = exports.createUserSchema = exports.approveMessJoinSchema = exports.joinMessSchema = exports.resetPasswordSchema = exports.forgotPasswordSchema = exports.verifyOtpSchema = exports.signInSchema = exports.signUpSchema = void 0;
 const zod_1 = require("zod");
 const user_interface_1 = require("../modules/User/user.interface");
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
@@ -24,6 +24,16 @@ exports.signUpSchema = zod_1.z.object({
             .optional(),
         role: zod_1.z.enum(Object.values(user_interface_1.UserRole)).optional(),
         messId: zod_1.z.string().regex(objectIdRegex, "Invalid mess ID").optional(),
+    }),
+});
+exports.signInSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        email: zod_1.z
+            .string({ required_error: "Email is required" })
+            .email("Invalid email format"),
+        password: zod_1.z
+            .string({ required_error: "Password is required" })
+            .min(8, "Password must be at least 8 characters"),
     }),
 });
 exports.verifyOtpSchema = zod_1.z.object({

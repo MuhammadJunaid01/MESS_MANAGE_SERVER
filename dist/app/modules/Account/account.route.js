@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.accountRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+const middlewares_1 = require("../../middlewares");
 const auth_1 = require("../../middlewares/auth");
 const sanitize_middleware_1 = require("../../middlewares/sanitize.middleware");
 const validation_1 = require("../../middlewares/validation");
@@ -23,10 +24,10 @@ const getLimiter = (0, express_rate_limit_1.default)({
 // Protected routes (require authentication)
 router.use(auth_1.protect);
 // Account routes
-router.post("/", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.createAccountSchema), (0, auth_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), account_controller_1.createAccountController);
+router.post("/", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.createAccountSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), account_controller_1.createAccountController);
 router.get("/:accountId", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.getAccountByIdSchema), account_controller_1.getAccountByIdController);
 router.get("/", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.getAccountsSchema), account_controller_1.getAccountsController);
-router.delete("/:accountId", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.deleteAccountSchema), (0, auth_1.restrictTo)(user_interface_1.UserRole.Admin), account_controller_1.deleteAccountController);
+router.delete("/:accountId", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.deleteAccountSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin), account_controller_1.deleteAccountController);
 // Transaction routes (nested under account)
-router.post("/:accountId/transactions", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.createTransactionSchema), (0, auth_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), account_controller_1.createTransactionController);
+router.post("/:accountId/transactions", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.createTransactionSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), account_controller_1.createTransactionController);
 router.get("/:accountId/transactions", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(account_schema_1.getTransactionsSchema), account_controller_1.getTransactionsController);

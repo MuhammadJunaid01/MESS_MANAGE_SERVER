@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { protect, restrictTo } from "../../middlewares/auth";
+import { restrictTo } from "../../middlewares";
+import { protect } from "../../middlewares/auth";
 import { validate } from "../../middlewares/validation";
 import {
   addActivityLogSchema,
@@ -11,6 +12,7 @@ import {
   getUsersSchema,
   joinMessSchema,
   resetPasswordSchema,
+  signInSchema,
   signUpSchema,
   softDeleteUserSchema,
   updatePasswordSchema,
@@ -27,6 +29,7 @@ import {
   getUsersController,
   joinMessController,
   resetPasswordController,
+  signInController,
   signUpUserController,
   softDeleteUserController,
   updatePasswordController,
@@ -39,6 +42,7 @@ const router = Router();
 
 // Public routes
 router.post("/signup", validate(signUpSchema), signUpUserController);
+router.post("/signin", validate(signInSchema), signInController);
 router.post("/verify-otp", validate(verifyOtpSchema), verifyOtpController);
 router.post(
   "/forgot-password",

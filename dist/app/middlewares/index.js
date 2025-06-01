@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.catchAsync = exports.roleMiddleware = exports.authMiddleware = void 0;
+exports.restrictTo = exports.catchAsync = exports.roleMiddleware = exports.authMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_model_1 = __importDefault(require("../modules/User/user.model"));
 const errors_1 = require("./errors");
@@ -48,3 +48,12 @@ const catchAsync = (fn) => {
     };
 };
 exports.catchAsync = catchAsync;
+const restrictTo = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            throw new errors_1.AppError("You do not have permission to perform this action", 403, "FORBIDDEN");
+        }
+        next();
+    };
+};
+exports.restrictTo = restrictTo;

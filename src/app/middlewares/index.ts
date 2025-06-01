@@ -1,5 +1,6 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
+import { UserRole } from "../modules/User/user.interface";
 import UserModel from "../modules/User/user.model";
 import { AppError } from "./errors";
 
@@ -35,5 +36,17 @@ export const roleMiddleware =
 export const catchAsync = (fn: RequestHandler) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch((err) => next(err));
+  };
+};
+export const restrictTo = (...roles: UserRole[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      throw new AppError(
+        "You do not have permission to perform this action",
+        403,
+        "FORBIDDEN"
+      );
+    }
+    next();
   };
 };

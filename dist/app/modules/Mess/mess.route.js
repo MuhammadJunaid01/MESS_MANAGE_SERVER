@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.messRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+const middlewares_1 = require("../../middlewares");
 const auth_1 = require("../../middlewares/auth");
 const validation_1 = require("../../middlewares/validation");
 const mess_schema_1 = require("../../schemas/mess.schema");
@@ -22,8 +23,8 @@ const getLimiter = (0, express_rate_limit_1.default)({
 // Protected routes (require authentication)
 router.use(auth_1.protect);
 // Mess routes
-router.post("/", (0, validation_1.validate)(mess_schema_1.createMessSchema), (0, auth_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), mess_controller_1.createMessController);
+router.post("/", (0, validation_1.validate)(mess_schema_1.createMessSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), mess_controller_1.createMessController);
 router.get("/:messId", getLimiter, (0, validation_1.validate)(mess_schema_1.getMessByIdSchema), mess_controller_1.getMessByIdController);
 router.get("/", getLimiter, (0, validation_1.validate)(mess_schema_1.getMessesSchema), mess_controller_1.getMessesController);
-router.patch("/:messId", (0, validation_1.validate)(mess_schema_1.updateMessSchema), (0, auth_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), mess_controller_1.updateMessController);
-router.delete("/:messId", (0, validation_1.validate)(mess_schema_1.deleteMessSchema), (0, auth_1.restrictTo)(user_interface_1.UserRole.Admin), mess_controller_1.deleteMessController);
+router.patch("/:messId", (0, validation_1.validate)(mess_schema_1.updateMessSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), mess_controller_1.updateMessController);
+router.delete("/:messId", (0, validation_1.validate)(mess_schema_1.deleteMessSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin), mess_controller_1.deleteMessController);

@@ -15,18 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const mongoose_1 = require("mongoose");
 const user_interface_1 = require("./user.interface");
-const ActivityLogSchema = new mongoose_1.Schema({
-    action: {
-        type: String,
-        enum: ["approved", "rejected", "blocked", "unblocked"],
-        required: true,
-    },
-    performedBy: {
-        name: { type: String, required: true },
-        managerId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-    },
-    timestamp: { type: Date, default: Date.now },
-});
 const UserSchema = new mongoose_1.Schema({
     name: { type: String, required: true, trim: true },
     email: {
@@ -75,7 +63,7 @@ const UserSchema = new mongoose_1.Schema({
     resetToken: { type: String, select: false },
     resetTokenExpires: { type: Date, select: false },
     refreshToken: { type: String, select: false },
-    activityLogs: [ActivityLogSchema],
+    isDeleted: { type: Boolean, default: false },
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
