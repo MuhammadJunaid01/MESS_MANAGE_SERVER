@@ -61,26 +61,7 @@ EMAIL_USER=<smtp-user>
 EMAIL_PASS=<smtp-password>
 ```
 
-Adjust the values according to your environment.
-
-## Running the Server
-
-### Development Mode
-
-Runs the server with automatic reload on code changes:
-
-```bash
-yarn dev
-```
-
-### Production Mode
-
-Build the TypeScript code and start the server:
-
-```bash
-yarn build
-yarn start
-```
+## Application Structure
 
 ```
 └── 📁src
@@ -183,6 +164,27 @@ yarn start
         └── sudu-code.txt
     └── app.ts
     └── server.ts
+```
+
+Adjust the values according to your environment.
+
+## Running the Server
+
+### Development Mode
+
+Runs the server with automatic reload on code changes:
+
+```bash
+yarn dev
+```
+
+### Production Mode
+
+Build the TypeScript code and start the server:
+
+```bash
+yarn build
+yarn start
 ```
 
 ## API Endpoints Overview
