@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
+import { Types } from "mongoose";
 import { AuthUser } from "../../interfaces/global.interface";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";
 import {
   createMeal,
+  createMealsForOneMonth,
   deleteMeal,
   getMealById,
   getMeals,
@@ -32,6 +34,32 @@ export const createMealController = catchAsync(
       date: new Date(date),
       meals,
     });
+
+    sendResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "Meal created successfully",
+      data: { meal },
+    });
+  }
+);
+export const createMealForOneMonthController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    console.log("HIT createMealForOneMonthController");
+    const authUser = req.user;
+
+    if (!authUser) {
+      throw new AppError(
+        "Unauthorized: No authenticated user",
+        401,
+        "UNAUTHORIZED"
+      );
+    }
+    const messId = authUser.messId;
+    if (!messId) {
+      throw new AppError("Invalid messId", 400, "INVALID_MESS_ID");
+    }
+    const meal = await createMealsForOneMonth(new Types.ObjectId(messId));
 
     sendResponse(res, {
       statusCode: 201,
@@ -160,7 +188,7 @@ export const deleteMealController = catchAsync(
 // Toggle meals for date range
 export const toggleMealsForDateRangeController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { userId, messId, startDate, endDate, meals } = req.body;
+    const { startDate, endDate, meals } = req.body;
     const authUser = req.user as AuthUser;
 
     if (!authUser) {
@@ -169,6 +197,12 @@ export const toggleMealsForDateRangeController = catchAsync(
         401,
         "UNAUTHORIZED"
       );
+    }
+    const userId = new Types.ObjectId(authUser.userId);
+    const messId = new Types.ObjectId(authUser.messId);
+
+    if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(messId)) {
+      throw new AppError("Invalid user or mess ID", 400, "INVALID_ID");
     }
 
     const updatedMeals = await toggleMealsForDateRange({

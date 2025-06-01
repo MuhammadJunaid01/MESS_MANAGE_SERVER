@@ -12,7 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNextMessId = exports.sendResponse = void 0;
+exports.getNextMonthDetails = exports.getNextMessId = exports.sendResponse = void 0;
+const date_fns_1 = require("date-fns");
 const counter_schema_1 = __importDefault(require("../../modules/Counter/counter.schema"));
 const sendResponse = (res, { statusCode, message, success, data, meta }) => {
     return res
@@ -25,3 +26,14 @@ const getNextMessId = () => __awaiter(void 0, void 0, void 0, function* () {
     return counter.sequenceValue;
 });
 exports.getNextMessId = getNextMessId;
+const getNextMonthDetails = () => {
+    // Get the first day of the next month
+    const nextMonthStart = (0, date_fns_1.startOfMonth)((0, date_fns_1.addMonths)(new Date(), 1));
+    // Get the total number of days in the next month
+    const daysInNextMonth = (0, date_fns_1.getDaysInMonth)(nextMonthStart);
+    // Extract the year and month
+    const year = nextMonthStart.getFullYear();
+    const month = nextMonthStart.getMonth();
+    return { year, month, daysInNextMonth };
+};
+exports.getNextMonthDetails = getNextMonthDetails;

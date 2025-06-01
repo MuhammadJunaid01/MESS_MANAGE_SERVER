@@ -1,5 +1,13 @@
-import { isAfter, isBefore, parseISO, startOfDay } from "date-fns";
+import {
+  getDaysInMonth,
+  isAfter,
+  isBefore,
+  parseISO,
+  startOfDay,
+  startOfMonth,
+} from "date-fns";
 import { startSession, Types } from "mongoose";
+import { getNextMonthDetails } from "../../lib/utils";
 import { AppError } from "../../middlewares/errors";
 import ActivityLogModel from "../Activity/activity.schema";
 import MessModel from "../Mess/mess.schema";
@@ -13,16 +21,16 @@ interface MealInput {
   userId: string;
   messId: string;
   date: Date;
-  meals: { type: MealType; isActive: boolean }[];
+  meals: { type: MealType; isActive: boolean; numberOfMeals: number }[];
 }
 
 // Interface for date range meal toggle input
 interface ToggleMealInput {
-  userId: string;
-  messId: string;
+  userId: Types.ObjectId;
+  messId: Types.ObjectId;
   startDate: Date;
   endDate: Date;
-  meals: { type: MealType; isActive: boolean }[];
+  meals: { type: MealType; isActive: boolean; numberOfMeals: number }[];
 }
 
 // Create a new meal
@@ -460,5 +468,85 @@ export const toggleMealsForDateRange = async (
     throw error;
   } finally {
     session.endSession();
+  }
+};
+export const createMealsForOneMonth = async (messId: Types.ObjectId) => {
+  try {
+    console.log(`Running meal creation cron job for mess ${messId}`);
+
+    // Fetch the specified mess
+    const mess = await MessModel.findOne({
+      _id: messId,
+      isDeleted: false,
+      status: "active",
+    });
+
+    if (!mess) {
+      throw new Error(`Mess with ID ${messId} not found or inactive.`);
+    }
+
+    const currentMonth = startOfMonth(new Date());
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = getDaysInMonth(currentMonth);
+
+    // Check if meals are already created for the current month
+    const existingMeals = await MealModel.exists({
+      messId: mess._id,
+      date: {
+        $gte: new Date(year, month, 1),
+        $lte: new Date(year, month, daysInMonth),
+      },
+    });
+
+    if (existingMeals) {
+      throw new Error(
+        `Meals already exist for mess ${mess._id} for the current month.`
+      );
+    }
+
+    // Fetch all approved users for the mess
+    const users = await UserModel.find({
+      messId: mess._id,
+      isApproved: true,
+      isBlocked: false,
+      isVerified: true,
+    });
+
+    if (users.length === 0) {
+      console.log(`No users found for mess ${mess._id}.`);
+      return;
+    }
+
+    const bulkOps = [];
+
+    for (const user of users) {
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        bulkOps.push({
+          insertOne: {
+            document: {
+              userId: user._id,
+              messId: mess._id,
+              date,
+              meals: [
+                { type: MealType.Breakfast, isActive: true, numberOfMeals: 0 },
+                { type: MealType.Lunch, isActive: true, numberOfMeals: 0 },
+                { type: MealType.Dinner, isActive: true, numberOfMeals: 0 },
+              ],
+            },
+          },
+        });
+      }
+    }
+
+    if (bulkOps.length > 0) {
+      await MealModel.bulkWrite(bulkOps, { ordered: false });
+      console.log(
+        `Created meals for mess ${mess._id} for ${users.length} users.`
+      );
+    }
+  } catch (err) {
+    throw err;
   }
 };

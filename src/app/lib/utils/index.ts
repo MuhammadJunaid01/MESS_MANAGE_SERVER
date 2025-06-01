@@ -1,3 +1,4 @@
+import { addMonths, getDaysInMonth, startOfMonth } from "date-fns";
 import { Response } from "express";
 import CounterModel from "../../modules/Counter/counter.schema";
 export interface IMeta {
@@ -28,4 +29,17 @@ export const getNextMessId = async (): Promise<number> => {
     { new: true, upsert: true }
   );
   return counter.sequenceValue;
+};
+export const getNextMonthDetails = () => {
+  // Get the first day of the next month
+  const nextMonthStart = startOfMonth(addMonths(new Date(), 1));
+
+  // Get the total number of days in the next month
+  const daysInNextMonth = getDaysInMonth(nextMonthStart);
+
+  // Extract the year and month
+  const year = nextMonthStart.getFullYear();
+  const month = nextMonthStart.getMonth();
+
+  return { year, month, daysInNextMonth };
 };

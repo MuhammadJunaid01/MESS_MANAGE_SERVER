@@ -9,6 +9,7 @@ export enum MealType {
 export interface IMealEntry {
   type: MealType;
   isActive: boolean;
+  numberOfMeals: number; // Added field to track the number of meals
 }
 
 export interface IMeal extends Document {

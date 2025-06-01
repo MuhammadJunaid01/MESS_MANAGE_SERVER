@@ -9,6 +9,9 @@ const mealEntrySchema = zod_1.z.object({
         message: "Invalid meal type",
     }),
     isActive: zod_1.z.boolean(),
+    numberOfMeals: zod_1.z
+        .number({ message: "Number of meals must be a number" })
+        .int({ message: "Number of meals must be an integer" }),
 });
 exports.createMealSchema = zod_1.z.object({
     body: zod_1.z.object({
@@ -66,8 +69,6 @@ exports.deleteMealSchema = zod_1.z.object({
 });
 exports.toggleMealsForDateRangeSchema = zod_1.z.object({
     body: zod_1.z.object({
-        userId: zod_1.z.string().regex(objectIdRegex, "Invalid user ID"),
-        messId: zod_1.z.string().regex(objectIdRegex, "Invalid mess ID"),
         startDate: zod_1.z.string().datetime({ message: "Invalid startDate format" }),
         endDate: zod_1.z.string().datetime({ message: "Invalid endDate format" }),
         meals: zod_1.z.array(mealEntrySchema).min(1, "At least one meal is required"),

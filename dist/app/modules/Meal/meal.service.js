@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toggleMealsForDateRange = exports.deleteMeal = exports.updateMeal = exports.getMeals = exports.getMealById = exports.createMeal = void 0;
+exports.createMealsForOneMonth = exports.toggleMealsForDateRange = exports.deleteMeal = exports.updateMeal = exports.getMeals = exports.getMealById = exports.createMeal = void 0;
 const date_fns_1 = require("date-fns");
 const mongoose_1 = require("mongoose");
 const errors_1 = require("../../middlewares/errors");
@@ -344,3 +344,71 @@ const toggleMealsForDateRange = (input) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.toggleMealsForDateRange = toggleMealsForDateRange;
+const createMealsForOneMonth = (messId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log(`Running meal creation cron job for mess ${messId}`);
+        // Fetch the specified mess
+        const mess = yield mess_schema_1.default.findOne({
+            _id: messId,
+            isDeleted: false,
+            status: "active",
+        });
+        if (!mess) {
+            throw new Error(`Mess with ID ${messId} not found or inactive.`);
+        }
+        const currentMonth = (0, date_fns_1.startOfMonth)(new Date());
+        const year = currentMonth.getFullYear();
+        const month = currentMonth.getMonth();
+        const daysInMonth = (0, date_fns_1.getDaysInMonth)(currentMonth);
+        // Check if meals are already created for the current month
+        const existingMeals = yield meal_schema_1.default.exists({
+            messId: mess._id,
+            date: {
+                $gte: new Date(year, month, 1),
+                $lte: new Date(year, month, daysInMonth),
+            },
+        });
+        if (existingMeals) {
+            throw new Error(`Meals already exist for mess ${mess._id} for the current month.`);
+        }
+        // Fetch all approved users for the mess
+        const users = yield user_model_1.default.find({
+            messId: mess._id,
+            isApproved: true,
+            isBlocked: false,
+            isVerified: true,
+        });
+        if (users.length === 0) {
+            console.log(`No users found for mess ${mess._id}.`);
+            return;
+        }
+        const bulkOps = [];
+        for (const user of users) {
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                bulkOps.push({
+                    insertOne: {
+                        document: {
+                            userId: user._id,
+                            messId: mess._id,
+                            date,
+                            meals: [
+                                { type: meal_interface_1.MealType.Breakfast, isActive: true, numberOfMeals: 0 },
+                                { type: meal_interface_1.MealType.Lunch, isActive: true, numberOfMeals: 0 },
+                                { type: meal_interface_1.MealType.Dinner, isActive: true, numberOfMeals: 0 },
+                            ],
+                        },
+                    },
+                });
+            }
+        }
+        if (bulkOps.length > 0) {
+            yield meal_schema_1.default.bulkWrite(bulkOps, { ordered: false });
+            console.log(`Created meals for mess ${mess._id} for ${users.length} users.`);
+        }
+    }
+    catch (err) {
+        throw err;
+    }
+});
+exports.createMealsForOneMonth = createMealsForOneMonth;

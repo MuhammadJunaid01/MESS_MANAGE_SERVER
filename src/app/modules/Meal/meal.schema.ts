@@ -1,10 +1,14 @@
 import { Schema, model } from "mongoose";
 import { IMeal, IMealEntry, MealType } from "./meal.interface";
 
-const MealEntrySchema = new Schema<IMealEntry>({
-  type: { type: String, enum: Object.values(MealType), required: true },
-  isActive: { type: Boolean, required: true, default: true },
-});
+const MealEntrySchema = new Schema<IMealEntry>(
+  {
+    type: { type: String, enum: Object.values(MealType), required: true },
+    isActive: { type: Boolean, required: true, default: true },
+    numberOfMeals: { type: Number, required: true, default: 0 },
+  },
+  { _id: false }
+);
 
 const MealSchema = new Schema<IMeal>({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },

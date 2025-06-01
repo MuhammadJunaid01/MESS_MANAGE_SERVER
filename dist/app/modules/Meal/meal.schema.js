@@ -5,7 +5,8 @@ const meal_interface_1 = require("./meal.interface");
 const MealEntrySchema = new mongoose_1.Schema({
     type: { type: String, enum: Object.values(meal_interface_1.MealType), required: true },
     isActive: { type: Boolean, required: true, default: true },
-});
+    numberOfMeals: { type: Number, required: true, default: 0 },
+}, { _id: false });
 const MealSchema = new mongoose_1.Schema({
     userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     messId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Mess", required: true },

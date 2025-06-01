@@ -15,6 +15,7 @@ import {
 import { UserRole } from "../User/user.interface";
 import {
   createMealController,
+  createMealForOneMonthController,
   deleteMealController,
   getMealByIdController,
   getMealsController,
@@ -34,6 +35,13 @@ const getLimiter = rateLimit({
 // Protected routes (require authentication)
 router.use(protect);
 
+router.get("/create-for-one-month", createMealForOneMonthController);
+router.post(
+  "/toggle",
+  // sanitizeInput,
+  validate(toggleMealsForDateRangeSchema),
+  toggleMealsForDateRangeController
+);
 // Meal routes
 router.post(
   "/",
@@ -68,11 +76,4 @@ router.delete(
   restrictTo(UserRole.Admin, UserRole.Manager),
   deleteMealController
 );
-router.post(
-  "/toggle",
-  sanitizeInput,
-  validate(toggleMealsForDateRangeSchema),
-  toggleMealsForDateRangeController
-);
-
 export { router as mealRouter };

@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toggleMealsForDateRangeController = exports.deleteMealController = exports.updateMealController = exports.getMealsController = exports.getMealByIdController = exports.createMealController = void 0;
+exports.toggleMealsForDateRangeController = exports.deleteMealController = exports.updateMealController = exports.getMealsController = exports.getMealByIdController = exports.createMealForOneMonthController = exports.createMealController = void 0;
+const mongoose_1 = require("mongoose");
 const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
 const errors_1 = require("../../middlewares/errors");
@@ -27,6 +28,24 @@ exports.createMealController = (0, middlewares_1.catchAsync)((req, res, next) =>
         date: new Date(date),
         meals,
     });
+    (0, utils_1.sendResponse)(res, {
+        statusCode: 201,
+        success: true,
+        message: "Meal created successfully",
+        data: { meal },
+    });
+}));
+exports.createMealForOneMonthController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("HIT createMealForOneMonthController");
+    const authUser = req.user;
+    if (!authUser) {
+        throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
+    }
+    const messId = authUser.messId;
+    if (!messId) {
+        throw new errors_1.AppError("Invalid messId", 400, "INVALID_MESS_ID");
+    }
+    const meal = yield (0, meal_service_1.createMealsForOneMonth)(new mongoose_1.Types.ObjectId(messId));
     (0, utils_1.sendResponse)(res, {
         statusCode: 201,
         success: true,
@@ -108,10 +127,15 @@ exports.deleteMealController = (0, middlewares_1.catchAsync)((req, res, next) =>
 }));
 // Toggle meals for date range
 exports.toggleMealsForDateRangeController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, messId, startDate, endDate, meals } = req.body;
+    const { startDate, endDate, meals } = req.body;
     const authUser = req.user;
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
+    }
+    const userId = new mongoose_1.Types.ObjectId(authUser.userId);
+    const messId = new mongoose_1.Types.ObjectId(authUser.messId);
+    if (!mongoose_1.Types.ObjectId.isValid(userId) || !mongoose_1.Types.ObjectId.isValid(messId)) {
+        throw new errors_1.AppError("Invalid user or mess ID", 400, "INVALID_ID");
     }
     const updatedMeals = yield (0, meal_service_1.toggleMealsForDateRange)({
         userId,

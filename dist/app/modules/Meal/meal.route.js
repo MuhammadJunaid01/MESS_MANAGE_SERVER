@@ -23,10 +23,13 @@ const getLimiter = (0, express_rate_limit_1.default)({
 });
 // Protected routes (require authentication)
 router.use(auth_1.protect);
+router.get("/create-for-one-month", meal_controller_1.createMealForOneMonthController);
+router.post("/toggle", 
+// sanitizeInput,
+(0, validation_1.validate)(meal_schema_1.toggleMealsForDateRangeSchema), meal_controller_1.toggleMealsForDateRangeController);
 // Meal routes
 router.post("/", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.createMealSchema), meal_controller_1.createMealController);
 router.get("/:mealId", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.getMealByIdSchema), meal_controller_1.getMealByIdController);
 router.get("/", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.getMealsSchema), meal_controller_1.getMealsController);
 router.patch("/:mealId", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.updateMealSchema), meal_controller_1.updateMealController);
 router.delete("/:mealId", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.deleteMealSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), meal_controller_1.deleteMealController);
-router.post("/toggle", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.toggleMealsForDateRangeSchema), meal_controller_1.toggleMealsForDateRangeController);
