@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.softDeleteMess = exports.updateMess = exports.getMesses = exports.getMessById = exports.createMess = void 0;
+exports.approveMessJoin = exports.softDeleteMess = exports.updateMess = exports.getMesses = exports.getMessById = exports.getAllUnapprovedUsers = exports.approveJoiningMess = exports.joinMess = exports.createMess = void 0;
 const mongoose_1 = require("mongoose");
 const global_interface_1 = require("../../interfaces/global.interface");
 const utils_1 = require("../../lib/utils");
@@ -69,14 +69,145 @@ const createMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.createMess = createMess;
+// Join a user to a mess
+const joinMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield (0, mongoose_1.startSession)();
+    session.startTransaction();
+    try {
+        const { userId, messId, performedBy } = input;
+        console.log("performedBy", performedBy);
+        if (!mongoose_1.Types.ObjectId.isValid(userId)) {
+            throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
+        }
+        if (!mongoose_1.Types.ObjectId.isValid(messId)) {
+            throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+        }
+        const user = yield user_model_1.default.findById(userId).session(session);
+        if (!user) {
+            throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
+        }
+        const mess = yield mess_schema_1.default.findById(messId).session(session);
+        if (!mess) {
+            throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
+        }
+        if (user.messId && user.messId.toString() === messId.toString()) {
+            throw new errors_1.AppError("User is already a member of this mess", 400, "ALREADY_MESS_MEMBER");
+        }
+        // Update user's messId and set isApproved to false (pending approval)
+        user.messId = new mongoose_1.Types.ObjectId(messId);
+        user.isApproved = false;
+        const activity = new activity_schema_1.default({
+            action: global_interface_1.IStatus.JoinMess,
+            messId: mess._id,
+            performedBy: {
+                name: performedBy.name,
+                userId: new mongoose_1.Types.ObjectId(performedBy.userId),
+            },
+            timestamp: new Date(),
+            entity: "User",
+            entityId: user._id,
+        });
+        yield activity.save({ session });
+        // Save the updated user
+        const savedUser = yield user.save({ session });
+        yield session.commitTransaction();
+        return savedUser;
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        throw error;
+    }
+    finally {
+        session.endSession();
+    }
+});
+exports.joinMess = joinMess;
+const approveJoiningMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
+    const session = yield (0, mongoose_1.startSession)();
+    try {
+        session.startTransaction();
+        const { userId, messId, performedBy } = input;
+        if (!mongoose_1.Types.ObjectId.isValid(userId)) {
+            throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
+        }
+        if (!mongoose_1.Types.ObjectId.isValid(messId)) {
+            throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+        }
+        // Find user with session
+        const user = yield user_model_1.default.findById(userId).session(session);
+        if (!user) {
+            throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
+        }
+        // Check if user is actually waiting for approval for this mess
+        if (!user.messId || user.messId.toString() !== messId.toString()) {
+            throw new errors_1.AppError("User is not joining this mess or mess ID mismatch", 400, "INVALID_MEMBERSHIP");
+        }
+        // check status
+        if (user.isApproved) {
+            throw new errors_1.AppError("User is already approved", 400, "ALREADY_APPROVED");
+        }
+        // Approve user by setting isApproved to true
+        user.isApproved = true;
+        // Log the approval activity
+        const activity = new activity_schema_1.default({
+            action: global_interface_1.IStatus.Approved,
+            messId: messId,
+            performedBy: {
+                name: performedBy.name,
+                userId: new mongoose_1.Types.ObjectId(performedBy.userId),
+            },
+            timestamp: new Date(),
+            entity: "User",
+            entityId: user._id,
+        });
+        // Save both documents inside the session transaction
+        yield activity.save({ session });
+        const savedUser = yield user.save({ session });
+        // Commit the transaction
+        yield session.commitTransaction();
+        return savedUser;
+    }
+    catch (error) {
+        // Abort transaction if error occurs
+        yield session.abortTransaction();
+        throw error;
+    }
+    finally {
+        // End the session in all cases
+        session.endSession();
+    }
+});
+exports.approveJoiningMess = approveJoiningMess;
+const getAllUnapprovedUsers = (_a) => __awaiter(void 0, [_a], void 0, function* ({ messId, page = 1, limit = 10, search = "", }) {
+    const filter = {
+        messId: messId,
+        isApproved: false,
+    };
+    console.log("HIT HIT HIT");
+    if (search.trim()) {
+        // Simple case-insensitive search on name or email (adjust fields as needed)
+        filter.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+        ];
+    }
+    const skip = (page - 1) * limit;
+    // Get total count for pagination meta
+    const total = yield user_model_1.default.countDocuments(filter);
+    // Get paginated users
+    const users = yield user_model_1.default.find(filter).skip(skip).limit(limit).exec();
+    return { users, total };
+});
+exports.getAllUnapprovedUsers = getAllUnapprovedUsers;
 // Get mess by ID
 const getMessById = (messId) => __awaiter(void 0, void 0, void 0, function* () {
     if (!mongoose_1.Types.ObjectId.isValid(messId)) {
         throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
     }
-    const mess = yield mess_schema_1.default.findOne({ _id: messId, isDeleted: false })
-        .select("-activityLogs")
-        .populate("createdBy", "name email");
+    const mess = yield mess_schema_1.default.findOne({
+        _id: messId,
+        isDeleted: false,
+    }).populate("createdBy", "name email");
     if (!mess) {
         throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
     }
@@ -197,3 +328,48 @@ const softDeleteMess = (messId, deletedBy) => __awaiter(void 0, void 0, void 0, 
     yield mess.save();
 });
 exports.softDeleteMess = softDeleteMess;
+// Approve a user's mess join request
+const approveMessJoin = (input) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId, performedBy } = input;
+    if (!mongoose_1.Types.ObjectId.isValid(userId)) {
+        throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
+    }
+    const session = yield (0, mongoose_1.startSession)();
+    try {
+        session.startTransaction();
+        const user = yield user_model_1.default.findById(userId).session(session);
+        if (!user) {
+            throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
+        }
+        if (!user.messId) {
+            throw new errors_1.AppError("User is not associated with a mess", 400, "NO_MESS");
+        }
+        if (user.isApproved) {
+            throw new errors_1.AppError("User is already an approved member of the mess", 400, "ALREADY_APPROVED");
+        }
+        // Approve the user
+        user.isApproved = true;
+        const activity = new activity_schema_1.default({
+            action: global_interface_1.IStatus.Approved,
+            messId: user.messId,
+            performedBy: {
+                name: performedBy.name,
+                userId: new mongoose_1.Types.ObjectId(performedBy.managerId),
+            },
+            timestamp: new Date(),
+            entity: "User",
+            entityId: user._id,
+        });
+        yield activity.save({ session });
+        yield user.save({ session });
+        yield session.commitTransaction();
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        throw error;
+    }
+    finally {
+        session.endSession();
+    }
+});
+exports.approveMessJoin = approveMessJoin;

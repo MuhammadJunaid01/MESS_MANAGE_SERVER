@@ -10,7 +10,6 @@ import {
   getUserByEmailSchema,
   getUserByIdSchema,
   getUsersSchema,
-  joinMessSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
@@ -21,13 +20,11 @@ import {
 } from "../../schemas/user.schemas";
 import {
   addActivityLogController,
-  approveMessJoinController,
   createUserController,
   forgotPasswordController,
   getUserByEmailController,
   getUserByIdController,
   getUsersController,
-  joinMessController,
   resetPasswordController,
   signInController,
   signUpUserController,
@@ -58,14 +55,6 @@ router.post(
 // Protected routes (require authentication)
 router.use(protect);
 
-// User routes
-router.post("/join-mess", validate(joinMessSchema), joinMessController);
-router.post(
-  "/users/:userId/approve-mess",
-  validate(approveMessJoinSchema),
-  restrictTo(UserRole.Admin, UserRole.Manager),
-  approveMessJoinController
-);
 router.get(
   "/users/:userId",
   validate(getUserByIdSchema),

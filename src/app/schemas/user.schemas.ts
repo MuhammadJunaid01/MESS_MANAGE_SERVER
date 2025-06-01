@@ -65,13 +65,6 @@ export const resetPasswordSchema = z.object({
   }),
 });
 
-export const joinMessSchema = z.object({
-  body: z.object({
-    userId: z.string().regex(objectIdRegex, "Invalid user ID"),
-    messId: z.string().regex(objectIdRegex, "Invalid mess ID"),
-  }),
-});
-
 export const approveMessJoinSchema = z.object({
   params: z.object({
     userId: z.string().regex(objectIdRegex, "Invalid user ID"),

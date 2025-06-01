@@ -15,15 +15,12 @@ export const protect = catchAsync(
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       throw new AppError("No or invalid token provided", 401, "UNAUTHORIZED");
     }
-
+    console.log("HIT PROTECT");
     const token = authHeader.replace("Bearer ", ""); // Correctly replace "Bearer " prefix
-    console.log("token", token);
-
     if (!token) {
       throw new AppError("No token provided", 401, "UNAUTHORIZED");
     }
 
-    console.log("config.secretToken", config.secretToken);
     try {
       // Verify the token using the secret key
       const decoded = jwt.verify(
@@ -36,8 +33,12 @@ export const protect = catchAsync(
       }
       // if (user.role === UserRole.Admin);
       if (user.messId && user._id) {
+        console.log(
+          "USER MESS ID FROMhgjhgjhgjhgjghjhgjghjhgjhg  PROTEXYT",
+          user?.messId
+        );
         const authUser: AuthUser = {
-          userId: user._id as string,
+          userId: user?._id as string,
           name: user.name,
           email: user.email,
           role: user.role,
@@ -45,7 +46,12 @@ export const protect = catchAsync(
         };
         req.user = authUser;
       } else {
-        req.user = decoded;
+        req.user = {
+          userId: user._id as string,
+          name: user?.name,
+          email: user?.email,
+          role: user?.role,
+        };
         console.log("decoded", decoded);
       }
       // Attach decoded user data to the request object

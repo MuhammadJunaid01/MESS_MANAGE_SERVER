@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addActivityLogSchema = exports.softDeleteUserSchema = exports.updatePasswordSchema = exports.updateUserSchema = exports.getUsersSchema = exports.getUserByEmailSchema = exports.getUserByIdSchema = exports.createUserSchema = exports.approveMessJoinSchema = exports.joinMessSchema = exports.resetPasswordSchema = exports.forgotPasswordSchema = exports.verifyOtpSchema = exports.signInSchema = exports.signUpSchema = void 0;
+exports.addActivityLogSchema = exports.softDeleteUserSchema = exports.updatePasswordSchema = exports.updateUserSchema = exports.getUsersSchema = exports.getUserByEmailSchema = exports.getUserByIdSchema = exports.createUserSchema = exports.approveMessJoinSchema = exports.resetPasswordSchema = exports.forgotPasswordSchema = exports.verifyOtpSchema = exports.signInSchema = exports.signUpSchema = void 0;
 const zod_1 = require("zod");
 const user_interface_1 = require("../modules/User/user.interface");
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
@@ -61,12 +61,6 @@ exports.resetPasswordSchema = zod_1.z.object({
         newPassword: zod_1.z
             .string()
             .min(8, "New password must be at least 8 characters"),
-    }),
-});
-exports.joinMessSchema = zod_1.z.object({
-    body: zod_1.z.object({
-        userId: zod_1.z.string().regex(objectIdRegex, "Invalid user ID"),
-        messId: zod_1.z.string().regex(objectIdRegex, "Invalid mess ID"),
     }),
 });
 exports.approveMessJoinSchema = zod_1.z.object({

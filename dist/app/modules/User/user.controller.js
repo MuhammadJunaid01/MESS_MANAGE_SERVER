@@ -9,54 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addActivityLogController = exports.softDeleteUserController = exports.updatePasswordController = exports.updateUserController = exports.getUsersController = exports.getUserByEmailController = exports.getUserByIdController = exports.createUserController = exports.resetPasswordController = exports.forgotPasswordController = exports.verifyOtpController = exports.signInController = exports.signUpUserController = exports.approveMessJoinController = exports.joinMessController = void 0;
+exports.addActivityLogController = exports.softDeleteUserController = exports.updatePasswordController = exports.updateUserController = exports.getUsersController = exports.getUserByEmailController = exports.getUserByIdController = exports.createUserController = exports.resetPasswordController = exports.forgotPasswordController = exports.verifyOtpController = exports.signInController = exports.signUpUserController = void 0;
 const user_service_1 = require("./user.service");
 const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
 const errors_1 = require("../../middlewares/errors");
-// Join mess controller
-exports.joinMessController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, messId } = req.body;
-    const authUser = req.user;
-    if (!authUser) {
-        throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
-    }
-    yield (0, user_service_1.joinMess)({
-        userId,
-        messId,
-        performedBy: {
-            name: authUser.name,
-            managerId: authUser.userId,
-        },
-    });
-    (0, utils_1.sendResponse)(res, {
-        statusCode: 200,
-        success: true,
-        message: "User joined mess successfully, pending approval",
-        data: null,
-    });
-}));
-// Approve mess join controller
-exports.approveMessJoinController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.params;
-    const authUser = req.user;
-    if (!authUser) {
-        throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
-    }
-    yield (0, user_service_1.approveMessJoin)({
-        userId,
-        performedBy: {
-            name: authUser.name,
-            managerId: authUser.userId,
-        },
-    });
-    (0, utils_1.sendResponse)(res, {
-        statusCode: 200,
-        success: true,
-        message: "Mess join approved successfully",
-        data: null,
-    });
-}));
 // Sign up controller
 exports.signUpUserController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, gender, dateOfBirth, password, phone, address, profilePicture, nid, role, messId, } = req.body;

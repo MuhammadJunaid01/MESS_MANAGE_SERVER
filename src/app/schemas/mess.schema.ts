@@ -20,7 +20,11 @@ const locationSchema = z.object({
   country: z.string().max(100).optional(),
   postalCode: z.string().max(20).optional(),
 });
-
+export const joinMessSchema = z.object({
+  body: z.object({
+    messId: z.string().regex(objectIdRegex, "Invalid mess ID"),
+  }),
+});
 export const createMessSchema = z.object({
   body: z.object({
     name: z.string().min(1, "Name is required").max(100, "Name too long"),

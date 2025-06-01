@@ -10,6 +10,7 @@ const middlewares_1 = require("../../middlewares");
 const auth_1 = require("../../middlewares/auth");
 const validation_1 = require("../../middlewares/validation");
 const mess_schema_1 = require("../../schemas/mess.schema");
+const user_schemas_1 = require("../../schemas/user.schemas");
 const user_interface_1 = require("../User/user.interface");
 const mess_controller_1 = require("./mess.controller");
 const router = express_1.default.Router();
@@ -25,6 +26,10 @@ console.log("hiy");
 router.use(auth_1.protect);
 // Mess routes
 router.post("/", (0, validation_1.validate)(mess_schema_1.createMessSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), mess_controller_1.createMessController);
+router.get("/unapproved-users", getLimiter, (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), mess_controller_1.getUnapprovedUsersController);
+router.post("/join-mess", (0, validation_1.validate)(mess_schema_1.joinMessSchema), mess_controller_1.joinMessController);
+// User routes
+router.post("/:userId/approve-mess", (0, validation_1.validate)(user_schemas_1.approveMessJoinSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), mess_controller_1.approveMessJoinController);
 router.get("/:messId", getLimiter, (0, validation_1.validate)(mess_schema_1.getMessByIdSchema), mess_controller_1.getMessByIdController);
 router.get("/", getLimiter, (0, validation_1.validate)(mess_schema_1.getMessesSchema), mess_controller_1.getMessesController);
 router.patch("/:messId", (0, validation_1.validate)(mess_schema_1.updateMessSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), mess_controller_1.updateMessController);

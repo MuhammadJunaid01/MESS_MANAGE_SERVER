@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteMessSchema = exports.updateMessSchema = exports.getMessesSchema = exports.getMessByIdSchema = exports.createMessSchema = void 0;
+exports.deleteMessSchema = exports.updateMessSchema = exports.getMessesSchema = exports.getMessByIdSchema = exports.createMessSchema = exports.joinMessSchema = void 0;
 const zod_1 = require("zod");
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 const locationSchema = zod_1.z.object({
@@ -16,6 +16,11 @@ const locationSchema = zod_1.z.object({
     state: zod_1.z.string().max(100).optional(),
     country: zod_1.z.string().max(100).optional(),
     postalCode: zod_1.z.string().max(20).optional(),
+});
+exports.joinMessSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        messId: zod_1.z.string().regex(objectIdRegex, "Invalid mess ID"),
+    }),
 });
 exports.createMessSchema = zod_1.z.object({
     body: zod_1.z.object({

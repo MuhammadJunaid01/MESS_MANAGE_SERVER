@@ -8,14 +8,19 @@ import {
   deleteMessSchema,
   getMessByIdSchema,
   getMessesSchema,
+  joinMessSchema,
   updateMessSchema,
 } from "../../schemas/mess.schema";
+import { approveMessJoinSchema } from "../../schemas/user.schemas";
 import { UserRole } from "../User/user.interface";
 import {
+  approveMessJoinController,
   createMessController,
   deleteMessController,
   getMessByIdController,
   getMessesController,
+  getUnapprovedUsersController,
+  joinMessController,
   updateMessController,
 } from "./mess.controller";
 
@@ -37,6 +42,20 @@ router.post(
   validate(createMessSchema),
   restrictTo(UserRole.Admin, UserRole.Manager),
   createMessController
+);
+router.get(
+  "/unapproved-users",
+  getLimiter,
+  restrictTo(UserRole.Admin, UserRole.Manager),
+  getUnapprovedUsersController
+);
+router.post("/join-mess", validate(joinMessSchema), joinMessController);
+// User routes
+router.post(
+  "/:userId/approve-mess",
+  validate(approveMessJoinSchema),
+  restrictTo(UserRole.Admin, UserRole.Manager),
+  approveMessJoinController
 );
 router.get(
   "/:messId",

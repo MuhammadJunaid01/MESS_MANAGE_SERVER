@@ -1,13 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import {
   addActivityLog,
-  approveMessJoin,
   createUser,
   forgotPassword,
   getUserByEmail,
   getUserById,
   getUsers,
-  joinMess,
   resetPassword,
   signIn,
   signUpUser,
@@ -22,69 +20,6 @@ import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";
 import { UserRole } from "./user.interface";
-
-// Join mess controller
-export const joinMessController = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { userId, messId } = req.body;
-    const authUser = req.user as AuthUser | undefined;
-
-    if (!authUser) {
-      throw new AppError(
-        "Unauthorized: No authenticated user",
-        401,
-        "UNAUTHORIZED"
-      );
-    }
-
-    await joinMess({
-      userId,
-      messId,
-      performedBy: {
-        name: authUser.name,
-        managerId: authUser.userId,
-      },
-    });
-
-    sendResponse(res, {
-      statusCode: 200,
-      success: true,
-      message: "User joined mess successfully, pending approval",
-      data: null,
-    });
-  }
-);
-
-// Approve mess join controller
-export const approveMessJoinController = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { userId } = req.params;
-    const authUser = req.user as AuthUser | undefined;
-
-    if (!authUser) {
-      throw new AppError(
-        "Unauthorized: No authenticated user",
-        401,
-        "UNAUTHORIZED"
-      );
-    }
-
-    await approveMessJoin({
-      userId,
-      performedBy: {
-        name: authUser.name,
-        managerId: authUser.userId,
-      },
-    });
-
-    sendResponse(res, {
-      statusCode: 200,
-      success: true,
-      message: "Mess join approved successfully",
-      data: null,
-    });
-  }
-);
 
 // Sign up controller
 export const signUpUserController = catchAsync(

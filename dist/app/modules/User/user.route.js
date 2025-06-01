@@ -18,9 +18,6 @@ router.post("/forgot-password", (0, validation_1.validate)(user_schemas_1.forgot
 router.post("/reset-password", (0, validation_1.validate)(user_schemas_1.resetPasswordSchema), user_controller_1.resetPasswordController);
 // Protected routes (require authentication)
 router.use(auth_1.protect);
-// User routes
-router.post("/join-mess", (0, validation_1.validate)(user_schemas_1.joinMessSchema), user_controller_1.joinMessController);
-router.post("/users/:userId/approve-mess", (0, validation_1.validate)(user_schemas_1.approveMessJoinSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), user_controller_1.approveMessJoinController);
 router.get("/users/:userId", (0, validation_1.validate)(user_schemas_1.getUserByIdSchema), user_controller_1.getUserByIdController);
 router.get("/users/email", (0, validation_1.validate)(user_schemas_1.getUserByEmailSchema), user_controller_1.getUserByEmailController);
 router.get("/users", (0, validation_1.validate)(user_schemas_1.getUsersSchema), user_controller_1.getUsersController);

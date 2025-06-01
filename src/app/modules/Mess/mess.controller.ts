@@ -5,9 +5,12 @@ import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";
 import {
+  approveMessJoin,
   createMess,
+  getAllUnapprovedUsers,
   getMessById,
   getMesses,
+  joinMess,
   softDeleteMess,
   updateMess,
 } from "./mess.service";
@@ -47,7 +50,36 @@ export const createMessController = catchAsync(
     });
   }
 );
+// Approve mess join controller
+export const approveMessJoinController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req.params;
+    const authUser = req.user as AuthUser | undefined;
 
+    if (!authUser) {
+      throw new AppError(
+        "Unauthorized: No authenticated user",
+        401,
+        "UNAUTHORIZED"
+      );
+    }
+
+    await approveMessJoin({
+      userId,
+      performedBy: {
+        name: authUser.name,
+        managerId: authUser.userId,
+      },
+    });
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Mess join approved successfully",
+      data: null,
+    });
+  }
+);
 // Get mess by ID
 export const getMessByIdController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -63,7 +95,83 @@ export const getMessByIdController = catchAsync(
     });
   }
 );
+export const getUnapprovedUsersController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authUser = req.user as AuthUser | undefined;
+    console.log("HIT");
+    if (!authUser) {
+      throw new AppError(
+        "Unauthorized: No authenticated user",
+        401,
+        "UNAUTHORIZED"
+      );
+    }
+    const { page = "1", limit = "10", search = "" } = req.query;
+    const messId = authUser.messId;
+    console.log("messId", messId);
+    if (!messId) {
+      throw new AppError(
+        "messId query parameter is required",
+        400,
+        "BAD_REQUEST"
+      );
+    }
 
+    const pageNum = parseInt(page as string, 10);
+    const limitNum = parseInt(limit as string, 10);
+
+    const { users, total } = await getAllUnapprovedUsers({
+      messId,
+      page: pageNum,
+      limit: limitNum,
+      search: search as string,
+    });
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Unapproved users fetched successfully",
+      data: users,
+      meta: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  }
+);
+// Join mess controller
+export const joinMessController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { messId } = req.body;
+    const authUser = req.user as AuthUser | undefined;
+
+    if (!authUser) {
+      throw new AppError(
+        "Unauthorized: No authenticated user",
+        401,
+        "UNAUTHORIZED"
+      );
+    }
+
+    await joinMess({
+      userId: new Types.ObjectId(authUser.userId),
+      messId: new Types.ObjectId(messId),
+      performedBy: {
+        name: authUser.name,
+        userId: authUser.userId,
+      },
+    });
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "User joined mess successfully, pending approval",
+      data: null,
+    });
+  }
+);
 // Get messes
 export const getMessesController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {

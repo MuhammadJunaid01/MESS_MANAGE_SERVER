@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.approveMessJoin = exports.joinMess = exports.addActivityLog = exports.softDeleteUser = exports.updatePassword = exports.updateUser = exports.getUsers = exports.getUserByEmail = exports.getUserById = exports.createUser = exports.resetPassword = exports.forgotPassword = exports.verifyOtp = exports.signIn = exports.signUpUser = void 0;
+exports.addActivityLog = exports.softDeleteUser = exports.updatePassword = exports.updateUser = exports.getUsers = exports.getUserByEmail = exports.getUserById = exports.createUser = exports.resetPassword = exports.forgotPassword = exports.verifyOtp = exports.signIn = exports.signUpUser = void 0;
 const crypto_1 = __importDefault(require("crypto"));
 const mongoose_1 = require("mongoose");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -32,7 +32,6 @@ const builder_1 = require("../../lib/builder");
 const sendEmail_1 = require("../../lib/utils/sendEmail");
 const errors_1 = require("../../middlewares/errors");
 const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
-const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
 const user_interface_1 = require("./user.interface");
 const user_model_1 = __importDefault(require("./user.model"));
 // Generate a 6-digit OTP
@@ -363,93 +362,4 @@ const addActivityLog = (userId, log) => __awaiter(void 0, void 0, void 0, functi
     yield user.save();
 });
 exports.addActivityLog = addActivityLog;
-// Join a user to a mess
-const joinMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, messId, performedBy } = input;
-    if (!mongoose_1.Types.ObjectId.isValid(userId)) {
-        throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
-    }
-    if (!mongoose_1.Types.ObjectId.isValid(messId)) {
-        throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
-    }
-    const user = yield user_model_1.default.findById(userId);
-    if (!user) {
-        throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
-    }
-    const mess = yield mess_schema_1.default.findById(messId);
-    if (!mess) {
-        throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
-    }
-    if (user.messId && user.messId.toString() === messId) {
-        throw new errors_1.AppError("User is already a member of this mess", 400, "ALREADY_MESS_MEMBER");
-    }
-    // Update user's messId and set isApproved to false (pending approval)
-    user.messId = new mongoose_1.Types.ObjectId(messId);
-    user.isApproved = false;
-    // user.activityLogs.push({
-    //   action: "joined_mess",
-    //   performedBy: {
-    //     name: performedBy.name,
-    //     managerId: new Types.ObjectId(performedBy.managerId),
-    //   },
-    //   timestamp: new Date(),
-    // });
-    const activity = new activity_schema_1.default({
-        action: "joined_mess",
-        performedBy: {
-            name: performedBy.name,
-        },
-        timestamp: new Date(),
-        entity: "User",
-        entityId: user._id,
-    });
-    yield activity.save();
-    // Save the updated user
-    const savedUser = yield user.save();
-    return savedUser;
-});
-exports.joinMess = joinMess;
-// Approve a user's mess join request
-const approveMessJoin = (input) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, performedBy } = input;
-    if (!mongoose_1.Types.ObjectId.isValid(userId)) {
-        throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
-    }
-    const session = yield (0, mongoose_1.startSession)();
-    try {
-        session.startTransaction();
-        const user = yield user_model_1.default.findById(userId).session(session);
-        if (!user) {
-            throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
-        }
-        if (!user.messId) {
-            throw new errors_1.AppError("User is not associated with a mess", 400, "NO_MESS");
-        }
-        if (user.isApproved) {
-            throw new errors_1.AppError("User is already an approved member of the mess", 400, "ALREADY_APPROVED");
-        }
-        // Approve the user
-        user.isApproved = true;
-        const activity = new activity_schema_1.default({
-            action: "approved",
-            performedBy: {
-                name: performedBy.name,
-                managerId: new mongoose_1.Types.ObjectId(performedBy.managerId),
-            },
-            timestamp: new Date(),
-            entity: "User",
-            entityId: user._id,
-        });
-        yield activity.save({ session });
-        yield user.save({ session });
-        yield session.commitTransaction();
-    }
-    catch (error) {
-        yield session.abortTransaction();
-        throw error;
-    }
-    finally {
-        session.endSession();
-    }
-});
-exports.approveMessJoin = approveMessJoin;
+// Interface for approving mess join input

@@ -14,4 +14,8 @@ var IStatus;
     IStatus["Rejected"] = "rejected";
     IStatus["Deleted"] = "deleted";
     IStatus["Pending"] = "pending";
+    IStatus["Activated"] = "activated";
+    IStatus["Deactivated"] = "deactivated";
+    IStatus["JoinMess"] = "joinMess";
+    IStatus["LeaveMess"] = "leaveMess";
 })(IStatus || (exports.IStatus = IStatus = {}));

@@ -47,6 +47,10 @@ export enum IStatus {
   Rejected = "rejected",
   Deleted = "deleted",
   Pending = "pending",
+  Activated = "activated",
+  Deactivated = "deactivated",
+  JoinMess = "joinMess",
+  LeaveMess = "leaveMess",
 }
 export type TErrorReturnType = {
   statusCode: number;
@@ -68,5 +72,5 @@ export interface AuthUser {
   name: string;
   email: string;
   role: UserRole;
-  messId: Types.ObjectId;
+  messId?: Types.ObjectId;
 }

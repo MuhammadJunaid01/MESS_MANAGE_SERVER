@@ -25,12 +25,11 @@ exports.protect = (0, __1.catchAsync)((req, res, next) => __awaiter(void 0, void
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         throw new errors_1.AppError("No or invalid token provided", 401, "UNAUTHORIZED");
     }
+    console.log("HIT PROTECT");
     const token = authHeader.replace("Bearer ", ""); // Correctly replace "Bearer " prefix
-    console.log("token", token);
     if (!token) {
         throw new errors_1.AppError("No token provided", 401, "UNAUTHORIZED");
     }
-    console.log("config.secretToken", config_1.default.secretToken);
     try {
         // Verify the token using the secret key
         const decoded = jsonwebtoken_1.default.verify(token, config_1.default.secretToken || "secret" // Use secret from config or fallback to "secret"
@@ -41,8 +40,9 @@ exports.protect = (0, __1.catchAsync)((req, res, next) => __awaiter(void 0, void
         }
         // if (user.role === UserRole.Admin);
         if (user.messId && user._id) {
+            console.log("USER MESS ID FROMhgjhgjhgjhgjghjhgjghjhgjhg  PROTEXYT", user === null || user === void 0 ? void 0 : user.messId);
             const authUser = {
-                userId: user._id,
+                userId: user === null || user === void 0 ? void 0 : user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
@@ -51,7 +51,12 @@ exports.protect = (0, __1.catchAsync)((req, res, next) => __awaiter(void 0, void
             req.user = authUser;
         }
         else {
-            req.user = decoded;
+            req.user = {
+                userId: user._id,
+                name: user === null || user === void 0 ? void 0 : user.name,
+                email: user === null || user === void 0 ? void 0 : user.email,
+                role: user === null || user === void 0 ? void 0 : user.role,
+            };
             console.log("decoded", decoded);
         }
         // Attach decoded user data to the request object

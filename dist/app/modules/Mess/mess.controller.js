@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteMessController = exports.updateMessController = exports.getMessesController = exports.getMessByIdController = exports.createMessController = void 0;
+exports.deleteMessController = exports.updateMessController = exports.getMessesController = exports.joinMessController = exports.getUnapprovedUsersController = exports.getMessByIdController = exports.approveMessJoinController = exports.createMessController = void 0;
 const mongoose_1 = require("mongoose");
 const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
@@ -41,6 +41,27 @@ exports.createMessController = (0, middlewares_1.catchAsync)((req, res, next) =>
         },
     });
 }));
+// Approve mess join controller
+exports.approveMessJoinController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const authUser = req.user;
+    if (!authUser) {
+        throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
+    }
+    yield (0, mess_service_1.approveMessJoin)({
+        userId,
+        performedBy: {
+            name: authUser.name,
+            managerId: authUser.userId,
+        },
+    });
+    (0, utils_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Mess join approved successfully",
+        data: null,
+    });
+}));
 // Get mess by ID
 exports.getMessByIdController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { messId } = req.params;
@@ -50,6 +71,61 @@ exports.getMessByIdController = (0, middlewares_1.catchAsync)((req, res, next) =
         success: true,
         message: "Mess retrieved successfully",
         data: { mess },
+    });
+}));
+exports.getUnapprovedUsersController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const authUser = req.user;
+    console.log("HIT");
+    if (!authUser) {
+        throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
+    }
+    const { page = "1", limit = "10", search = "" } = req.query;
+    const messId = authUser.messId;
+    console.log("messId", messId);
+    if (!messId) {
+        throw new errors_1.AppError("messId query parameter is required", 400, "BAD_REQUEST");
+    }
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const { users, total } = yield (0, mess_service_1.getAllUnapprovedUsers)({
+        messId,
+        page: pageNum,
+        limit: limitNum,
+        search: search,
+    });
+    (0, utils_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Unapproved users fetched successfully",
+        data: users,
+        meta: {
+            page: pageNum,
+            limit: limitNum,
+            total,
+            totalPages: Math.ceil(total / limitNum),
+        },
+    });
+}));
+// Join mess controller
+exports.joinMessController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { messId } = req.body;
+    const authUser = req.user;
+    if (!authUser) {
+        throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
+    }
+    yield (0, mess_service_1.joinMess)({
+        userId: new mongoose_1.Types.ObjectId(authUser.userId),
+        messId: new mongoose_1.Types.ObjectId(messId),
+        performedBy: {
+            name: authUser.name,
+            userId: authUser.userId,
+        },
+    });
+    (0, utils_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "User joined mess successfully, pending approval",
+        data: null,
     });
 }));
 // Get messes

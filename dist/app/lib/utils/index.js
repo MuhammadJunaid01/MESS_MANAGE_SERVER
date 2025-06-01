@@ -14,8 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNextMessId = exports.sendResponse = void 0;
 const counter_schema_1 = __importDefault(require("../../modules/Counter/counter.schema"));
-const sendResponse = (res, { statusCode, message, success, data }) => {
-    return res.status(statusCode).json({ success, message, data, statusCode });
+const sendResponse = (res, { statusCode, message, success, data, meta }) => {
+    return res
+        .status(statusCode)
+        .json({ success, message, data, statusCode, meta });
 };
 exports.sendResponse = sendResponse;
 const getNextMessId = () => __awaiter(void 0, void 0, void 0, function* () {
