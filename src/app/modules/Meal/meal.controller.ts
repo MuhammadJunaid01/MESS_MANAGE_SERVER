@@ -4,9 +4,12 @@ import { AuthUser } from "../../interfaces/global.interface";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";
+import { UserRole } from "../User/user.interface";
+import UserModel from "../User/user.model";
 import {
   createMeal,
   createMealsForOneMonth,
+  createMonthlyMealsForUser,
   deleteMeal,
   getMealById,
   getMeals,
@@ -218,6 +221,71 @@ export const toggleMealsForDateRangeController = catchAsync(
       success: true,
       message: "Meals toggled successfully",
       data: { meals: updatedMeals },
+    });
+  }
+);
+export const createMealsForOneMonthUserController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req.body;
+    const authUser = req.user;
+
+    // Validate authenticated user
+    if (!authUser) {
+      throw new AppError(
+        "Unauthorized: No authenticated user",
+        401,
+        "UNAUTHORIZED"
+      );
+    }
+
+    // Validate input
+    if (!userId) {
+      throw new AppError(" userId are required", 400, "MISSING_FIELDS");
+    }
+
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new AppError("Invalid user ID", 400, "INVALID_USER_ID");
+    }
+    console.log("userId", userId);
+    // Check if the authenticated user is authorized
+    const user = await UserModel.findOne({
+      _id: userId,
+      isApproved: true,
+    });
+    if (!user || !user.isApproved || !user.messId) {
+      throw new AppError(
+        "User is not approved or does not belong to a mess",
+        403,
+        "NOT_APPROVED"
+      );
+    }
+
+    if (!Types.ObjectId.isValid(user.messId)) {
+      throw new AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+    }
+
+    const isAdminOrManager = [UserRole.Admin, UserRole.Manager].includes(
+      authUser.role
+    );
+    if (!isAdminOrManager) {
+      throw new AppError(
+        "User is not authorized to create meals for this mess",
+        403,
+        "NOT_MESS_MEMBER"
+      );
+    }
+
+    // Call the service function
+    const result = await createMonthlyMealsForUser(
+      new Types.ObjectId(user.messId),
+      new Types.ObjectId(userId)
+    );
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: result.message,
+      data: null,
     });
   }
 );

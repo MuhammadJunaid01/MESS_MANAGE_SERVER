@@ -16,6 +16,7 @@ import { UserRole } from "../User/user.interface";
 import {
   createMealController,
   createMealForOneMonthController,
+  createMealsForOneMonthUserController,
   deleteMealController,
   getMealByIdController,
   getMealsController,
@@ -36,6 +37,10 @@ const getLimiter = rateLimit({
 router.use(protect);
 
 router.get("/create-for-one-month", createMealForOneMonthController);
+router.post(
+  "/create-monthly-meals-for-user",
+  createMealsForOneMonthUserController
+);
 router.post(
   "/toggle",
   sanitizeInput,

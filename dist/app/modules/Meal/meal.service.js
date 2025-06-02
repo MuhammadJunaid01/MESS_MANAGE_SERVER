@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMealsForOneMonth = exports.toggleMealsForDateRange = exports.deleteMeal = exports.updateMeal = exports.getMeals = exports.getMealById = exports.createMeal = void 0;
+exports.createMonthlyMealsForUser = exports.createMealsForOneMonth = exports.toggleMealsForDateRange = exports.deleteMeal = exports.updateMeal = exports.getMeals = exports.getMealById = exports.createMeal = void 0;
 const date_fns_1 = require("date-fns");
 const mongoose_1 = require("mongoose");
 const errors_1 = require("../../middlewares/errors");
@@ -412,3 +412,81 @@ const createMealsForOneMonth = (messId) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.createMealsForOneMonth = createMealsForOneMonth;
+const createMonthlyMealsForUser = (messId, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log(`Running meal creation for mess ${messId} and user ${userId}`);
+        // Validate messId and userId
+        if (!mongoose_1.Types.ObjectId.isValid(messId)) {
+            throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+        }
+        if (!mongoose_1.Types.ObjectId.isValid(userId)) {
+            throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
+        }
+        // Fetch the specified mess
+        const mess = yield mess_schema_1.default.findOne({
+            _id: messId,
+            isDeleted: false,
+            status: "active",
+        });
+        // console.log()
+        if (!mess) {
+            throw new errors_1.AppError(`Mess with ID ${messId} not found or inactive`, 404, "MESS_NOT_FOUND");
+        }
+        // Fetch the specified user
+        const user = yield user_model_1.default.findOne({
+            _id: userId,
+            messId: mess._id,
+            isApproved: true,
+            isBlocked: false,
+            isVerified: true,
+        });
+        console.log("user", user);
+        if (!user) {
+            throw new errors_1.AppError(`User with ID ${userId} not found, not approved, or does not belong to mess ${messId}`, 404, "USER_NOT_FOUND");
+        }
+        const currentMonth = (0, date_fns_1.startOfMonth)(new Date());
+        const year = currentMonth.getFullYear();
+        const month = currentMonth.getMonth();
+        const daysInMonth = (0, date_fns_1.getDaysInMonth)(currentMonth);
+        // Check if meals are already created for the user for the current month
+        const existingMeals = yield meal_schema_1.default.exists({
+            messId: mess._id,
+            userId: user._id,
+            date: {
+                $gte: new Date(year, month, 1),
+                $lte: new Date(year, month, daysInMonth),
+            },
+        });
+        if (existingMeals) {
+            throw new errors_1.AppError(`Meals already exist for user ${user._id} in mess ${mess._id} for the current month`, 400, "MEALS_ALREADY_EXIST");
+        }
+        const bulkOps = [];
+        // Generate meal entries for the user for each day of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            bulkOps.push({
+                insertOne: {
+                    document: {
+                        userId: user._id,
+                        messId: mess._id,
+                        date,
+                        meals: [
+                            { type: meal_interface_1.MealType.Breakfast, isActive: true, numberOfMeals: 0 },
+                            { type: meal_interface_1.MealType.Lunch, isActive: true, numberOfMeals: 0 },
+                            { type: meal_interface_1.MealType.Dinner, isActive: true, numberOfMeals: 0 },
+                        ],
+                    },
+                },
+            });
+        }
+        if (bulkOps.length > 0) {
+            yield meal_schema_1.default.bulkWrite(bulkOps, { ordered: false });
+            console.log(`Created meals for user ${user._id} in mess ${mess._id} for the current month`);
+        }
+        return { message: `Meals created successfully for user ${user._id}` };
+    }
+    catch (err) {
+        throw err;
+    }
+});
+exports.createMonthlyMealsForUser = createMonthlyMealsForUser;

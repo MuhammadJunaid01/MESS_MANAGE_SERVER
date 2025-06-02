@@ -8,12 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toggleMealsForDateRangeController = exports.deleteMealController = exports.updateMealController = exports.getMealsController = exports.getMealByIdController = exports.createMealForOneMonthController = exports.createMealController = void 0;
+exports.createMealsForOneMonthUserController = exports.toggleMealsForDateRangeController = exports.deleteMealController = exports.updateMealController = exports.getMealsController = exports.getMealByIdController = exports.createMealForOneMonthController = exports.createMealController = void 0;
 const mongoose_1 = require("mongoose");
 const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
 const errors_1 = require("../../middlewares/errors");
+const user_interface_1 = require("../User/user.interface");
+const user_model_1 = __importDefault(require("../User/user.model"));
 const meal_service_1 = require("./meal.service");
 // Create a new meal
 exports.createMealController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -149,5 +154,44 @@ exports.toggleMealsForDateRangeController = (0, middlewares_1.catchAsync)((req, 
         success: true,
         message: "Meals toggled successfully",
         data: { meals: updatedMeals },
+    });
+}));
+exports.createMealsForOneMonthUserController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.body;
+    const authUser = req.user;
+    // Validate authenticated user
+    if (!authUser) {
+        throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
+    }
+    // Validate input
+    if (!userId) {
+        throw new errors_1.AppError(" userId are required", 400, "MISSING_FIELDS");
+    }
+    if (!mongoose_1.Types.ObjectId.isValid(userId)) {
+        throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
+    }
+    console.log("userId", userId);
+    // Check if the authenticated user is authorized
+    const user = yield user_model_1.default.findOne({
+        _id: userId,
+        isApproved: true,
+    });
+    if (!user || !user.isApproved || !user.messId) {
+        throw new errors_1.AppError("User is not approved or does not belong to a mess", 403, "NOT_APPROVED");
+    }
+    if (!mongoose_1.Types.ObjectId.isValid(user.messId)) {
+        throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+    }
+    const isAdminOrManager = [user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager].includes(authUser.role);
+    if (!isAdminOrManager) {
+        throw new errors_1.AppError("User is not authorized to create meals for this mess", 403, "NOT_MESS_MEMBER");
+    }
+    // Call the service function
+    const result = yield (0, meal_service_1.createMonthlyMealsForUser)(new mongoose_1.Types.ObjectId(user.messId), new mongoose_1.Types.ObjectId(userId));
+    (0, utils_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: result.message,
+        data: null,
     });
 }));

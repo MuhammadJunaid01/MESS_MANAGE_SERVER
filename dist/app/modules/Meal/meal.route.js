@@ -24,6 +24,7 @@ const getLimiter = (0, express_rate_limit_1.default)({
 // Protected routes (require authentication)
 router.use(auth_1.protect);
 router.get("/create-for-one-month", meal_controller_1.createMealForOneMonthController);
+router.post("/create-monthly-meals-for-user", meal_controller_1.createMealsForOneMonthUserController);
 router.post("/toggle", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.toggleMealsForDateRangeSchema), meal_controller_1.toggleMealsForDateRangeController);
 // Meal routes
 router.post("/", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.createMealSchema), meal_controller_1.createMealController);

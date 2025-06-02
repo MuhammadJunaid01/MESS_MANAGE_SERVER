@@ -550,3 +550,105 @@ export const createMealsForOneMonth = async (messId: Types.ObjectId) => {
     throw err;
   }
 };
+export const createMonthlyMealsForUser = async (
+  messId: Types.ObjectId,
+  userId: Types.ObjectId
+) => {
+  try {
+    console.log(`Running meal creation for mess ${messId} and user ${userId}`);
+
+    // Validate messId and userId
+    if (!Types.ObjectId.isValid(messId)) {
+      throw new AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+    }
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new AppError("Invalid user ID", 400, "INVALID_USER_ID");
+    }
+
+    // Fetch the specified mess
+    const mess = await MessModel.findOne({
+      _id: messId,
+      isDeleted: false,
+      status: "active",
+    });
+    // console.log()
+    if (!mess) {
+      throw new AppError(
+        `Mess with ID ${messId} not found or inactive`,
+        404,
+        "MESS_NOT_FOUND"
+      );
+    }
+    // Fetch the specified user
+    const user = await UserModel.findOne({
+      _id: userId,
+      messId: mess._id,
+      isApproved: true,
+      isBlocked: false,
+      isVerified: true,
+    });
+    console.log("user", user);
+    if (!user) {
+      throw new AppError(
+        `User with ID ${userId} not found, not approved, or does not belong to mess ${messId}`,
+        404,
+        "USER_NOT_FOUND"
+      );
+    }
+
+    const currentMonth = startOfMonth(new Date());
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = getDaysInMonth(currentMonth);
+
+    // Check if meals are already created for the user for the current month
+    const existingMeals = await MealModel.exists({
+      messId: mess._id,
+      userId: user._id,
+      date: {
+        $gte: new Date(year, month, 1),
+        $lte: new Date(year, month, daysInMonth),
+      },
+    });
+
+    if (existingMeals) {
+      throw new AppError(
+        `Meals already exist for user ${user._id} in mess ${mess._id} for the current month`,
+        400,
+        "MEALS_ALREADY_EXIST"
+      );
+    }
+
+    const bulkOps = [];
+
+    // Generate meal entries for the user for each day of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      bulkOps.push({
+        insertOne: {
+          document: {
+            userId: user._id,
+            messId: mess._id,
+            date,
+            meals: [
+              { type: MealType.Breakfast, isActive: true, numberOfMeals: 0 },
+              { type: MealType.Lunch, isActive: true, numberOfMeals: 0 },
+              { type: MealType.Dinner, isActive: true, numberOfMeals: 0 },
+            ],
+          },
+        },
+      });
+    }
+
+    if (bulkOps.length > 0) {
+      await MealModel.bulkWrite(bulkOps, { ordered: false });
+      console.log(
+        `Created meals for user ${user._id} in mess ${mess._id} for the current month`
+      );
+    }
+
+    return { message: `Meals created successfully for user ${user._id}` };
+  } catch (err) {
+    throw err;
+  }
+};
