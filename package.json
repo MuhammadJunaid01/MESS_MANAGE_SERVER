@@ -7,12 +7,16 @@
     "dev": "yarn build && ts-node-dev --respawn --transpile-only --watch 'src//*.ts' --ignore 'src/migrations' src/server.ts",
     "start": "node ./dist/server.js",
     "build": "tsc",
-    "deploy": "yarn build && npx vercel --prod"
+    "deploy": "yarn build && npx vercel --prod",
+    "prepare": "husky install",
+    "release": "release-it"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
@@ -20,6 +24,9 @@
     "@types/morgan": "^1.9.9",
     "@types/nodemailer": "^6.4.17",
     "@types/sanitize-html": "^2.16.0",
+    "commitlint": "^19.8.1",
+    "husky": "^8.0.0",
+    "release-it": "^19.0.3",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   },
@@ -40,5 +47,62 @@
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.25.41"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}"
+    },
+    "github": {
+      "release": true
+    },
+    "npm": {
+      "publish": false
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "infile": "CHANGELOG.md",
+        "preset": {
+          "name": "conventionalcommits",
+          "types": [
+            {
+              "type": "feat",
+              "section": "Features"
+            },
+            {
+              "type": "fix",
+              "section": "Bug Fixes"
+            },
+            {
+              "type": "docs",
+              "section": "Documentation"
+            },
+            {
+              "type": "style",
+              "section": "Styles"
+            },
+            {
+              "type": "refactor",
+              "section": "Code Refactoring"
+            },
+            {
+              "type": "perf",
+              "section": "Performance Improvements"
+            },
+            {
+              "type": "test",
+              "section": "Tests"
+            },
+            {
+              "type": "build",
+              "section": "Builds"
+            },
+            {
+              "type": "ci",
+              "section": "Continuous Integration"
+            }
+          ]
+        }
+      }
+    }
   }
 }
