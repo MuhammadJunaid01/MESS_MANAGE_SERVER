@@ -134,7 +134,7 @@ EMAIL_PASS=<smtp-password>
                 └── mess.route.ts
                 └── mess.schema.ts
                 └── mess.service.ts
-            └── 📁Repot
+            └── 📁Report
                 └── meal.controller.ts
                 └── report.interface.ts
                 └── report.route.ts
