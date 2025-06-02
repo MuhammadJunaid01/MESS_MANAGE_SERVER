@@ -5,7 +5,6 @@ const zod_1 = require("zod");
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 exports.createSettingSchema = zod_1.z.object({
     body: zod_1.z.object({
-        messId: zod_1.z.string().regex(objectIdRegex, "Invalid mess ID"),
         breakfast: zod_1.z.boolean(),
         lunch: zod_1.z.boolean(),
         dinner: zod_1.z.boolean(),

@@ -1,9 +1,10 @@
-import { Types } from "mongoose";
+import { startSession, Types } from "mongoose";
 import { AppError } from "../../middlewares/errors";
 import MessModel from "../Mess/mess.schema";
 import { UserRole } from "../User/user.interface";
 import UserModel from "../User/user.schema";
-import SettingModel, { IMSetting } from "./MSetting.schema";
+import { IMSetting } from "./MSetting.interface";
+import SettingModel from "./MSetting.schema";
 
 // Interface for setting creation/update input
 interface SettingInput {
@@ -18,57 +19,68 @@ interface SettingInput {
 export const createSetting = async (
   input: SettingInput,
   authUserId: string
-): Promise<IMSetting> => {
-  if (
-    !Types.ObjectId.isValid(input.messId) ||
-    !Types.ObjectId.isValid(authUserId)
-  ) {
-    throw new AppError("Invalid mess or user ID", 400, "INVALID_ID");
+): Promise<IMSetting | null> => {
+  const session = await startSession();
+  session.startTransaction();
+  try {
+    if (
+      !Types.ObjectId.isValid(input.messId) ||
+      !Types.ObjectId.isValid(authUserId)
+    ) {
+      throw new AppError("Invalid mess or user ID", 400, "INVALID_ID");
+    }
+
+    const user = await UserModel.findById(authUserId).session(session);
+    if (!user || !user.isApproved) {
+      throw new AppError("User is not approved", 403, "NOT_APPROVED");
+    }
+
+    // if (user.role !== UserRole.Admin) {
+    //   throw new AppError("Only admins can create settings", 403, "FORBIDDEN");
+    // }
+
+    const mess = await MessModel.findById(input.messId).session(session);
+    if (!mess) {
+      throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
+    }
+
+    if (!user.messId || user.messId.toString() !== input.messId.toString()) {
+      throw new AppError(
+        "User is not a member of this mess",
+        403,
+        "NOT_MESS_MEMBER"
+      );
+    }
+
+    const existingSetting = await SettingModel.findOne({
+      messId: input.messId,
+      isDeleted: false,
+    }).session(session);
+    if (existingSetting) {
+      throw new AppError(
+        "Settings already exist for this mess",
+        400,
+        "SETTINGS_EXIST"
+      );
+    }
+
+    const setting = new SettingModel({
+      messId: new Types.ObjectId(input.messId),
+      breakfast: input.breakfast ?? true,
+      lunch: input.lunch ?? true,
+      dinner: input.dinner ?? true,
+      memberResponsibleForGrocery: input.memberResponsibleForGrocery ?? false,
+    });
+    const newSetting = await setting.save({ session });
+    await session.commitTransaction();
+
+    return newSetting;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
   }
-
-  const user = await UserModel.findById(authUserId);
-  if (!user || !user.isApproved) {
-    throw new AppError("User is not approved", 403, "NOT_APPROVED");
-  }
-
-  if (user.role !== UserRole.Admin) {
-    throw new AppError("Only admins can create settings", 403, "FORBIDDEN");
-  }
-
-  const mess = await MessModel.findById(input.messId);
-  if (!mess) {
-    throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
-  }
-
-  if (!user.messId || user.messId.toString() !== input.messId.toString()) {
-    throw new AppError(
-      "User is not a member of this mess",
-      403,
-      "NOT_MESS_MEMBER"
-    );
-  }
-
-  const existingSetting = await SettingModel.findOne({
-    messId: input.messId,
-    isDeleted: false,
-  });
-  if (existingSetting) {
-    throw new AppError(
-      "Settings already exist for this mess",
-      400,
-      "SETTINGS_EXIST"
-    );
-  }
-
-  const setting = await SettingModel.create({
-    messId: new Types.ObjectId(input.messId),
-    breakfast: input.breakfast ?? true,
-    lunch: input.lunch ?? true,
-    dinner: input.dinner ?? true,
-    memberResponsibleForGrocery: input.memberResponsibleForGrocery ?? false,
-  });
-
-  return setting;
 };
 
 // Get setting by messId

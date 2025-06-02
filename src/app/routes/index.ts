@@ -3,6 +3,7 @@ import { IRoute } from "../interfaces/global.interface";
 import { expenseRouter } from "../modules/Expense/expense.route";
 import { mealRouter } from "../modules/Meal/meal.route";
 import { messRouter } from "../modules/Mess/mess.route";
+import { mSettingRouter } from "../modules/MSetting/MSetting.route";
 import { reportRouter } from "../modules/Report/report.route";
 import { userRouter } from "../modules/User/user.route";
 
@@ -14,6 +15,7 @@ const modules: IRoute[] = [
   { path: "/meal", route: mealRouter },
   { path: "/expense", route: expenseRouter },
   { path: "/report", route: reportRouter },
+  { path: "/settings", route: mSettingRouter },
 ];
 modules.forEach(({ path, route }) => router.use(path, route));
 

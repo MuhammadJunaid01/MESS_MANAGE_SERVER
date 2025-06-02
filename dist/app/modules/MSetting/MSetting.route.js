@@ -24,6 +24,6 @@ const getLimiter = (0, express_rate_limit_1.default)({
 // Protected routes (require authentication)
 router.use(auth_1.protect);
 // Setting routes
-router.post("/settings", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(MSetting_schema_1.createSettingSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin), MSetting_controller_1.createSettingController);
-router.get("/settings/:messId", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(MSetting_schema_1.getSettingSchema), MSetting_controller_1.getSettingController);
-router.patch("/settings/:messId", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(MSetting_schema_1.updateSettingSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin), MSetting_controller_1.updateSettingController);
+router.post("/", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(MSetting_schema_1.createSettingSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager), MSetting_controller_1.createSettingController);
+router.get("/:messId", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(MSetting_schema_1.getSettingSchema), MSetting_controller_1.getSettingController);
+router.patch("/:messId", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(MSetting_schema_1.updateSettingSchema), (0, middlewares_1.restrictTo)(user_interface_1.UserRole.Admin), MSetting_controller_1.updateSettingController);

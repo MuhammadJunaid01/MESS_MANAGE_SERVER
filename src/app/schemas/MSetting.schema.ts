@@ -4,7 +4,6 @@ const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
 export const createSettingSchema = z.object({
   body: z.object({
-    messId: z.string().regex(objectIdRegex, "Invalid mess ID"),
     breakfast: z.boolean(),
     lunch: z.boolean(),
     dinner: z.boolean(),

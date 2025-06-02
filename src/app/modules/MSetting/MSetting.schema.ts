@@ -1,12 +1,5 @@
 import { Document, model, Schema, Types } from "mongoose";
-export interface IMSetting extends Document {
-  breakfast: boolean;
-  lunch: boolean;
-  dinner: boolean;
-  memberResponsibleForGrocery: boolean;
-  messId: Types.ObjectId;
-  isDeleted: boolean;
-}
+import { IMSetting } from "./MSetting.interface";
 
 const SettingSchema = new Schema<IMSetting>(
   {

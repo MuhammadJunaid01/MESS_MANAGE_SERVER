@@ -30,21 +30,21 @@ router.use(protect);
 
 // Setting routes
 router.post(
-  "/settings",
+  "/",
   sanitizeInput,
   validate(createSettingSchema),
-  restrictTo(UserRole.Admin),
+  restrictTo(UserRole.Admin, UserRole.Manager),
   createSettingController
 );
 router.get(
-  "/settings/:messId",
+  "/:messId",
   getLimiter,
   sanitizeInput,
   validate(getSettingSchema),
   getSettingController
 );
 router.patch(
-  "/settings/:messId",
+  "/:messId",
   sanitizeInput,
   validate(updateSettingSchema),
   restrictTo(UserRole.Admin),

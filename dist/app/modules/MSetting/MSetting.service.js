@@ -22,39 +22,52 @@ const MSetting_schema_1 = __importDefault(require("./MSetting.schema"));
 // Create a new setting
 const createSetting = (input, authUserId) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
-    if (!mongoose_1.Types.ObjectId.isValid(input.messId) ||
-        !mongoose_1.Types.ObjectId.isValid(authUserId)) {
-        throw new errors_1.AppError("Invalid mess or user ID", 400, "INVALID_ID");
+    const session = yield (0, mongoose_1.startSession)();
+    session.startTransaction();
+    try {
+        if (!mongoose_1.Types.ObjectId.isValid(input.messId) ||
+            !mongoose_1.Types.ObjectId.isValid(authUserId)) {
+            throw new errors_1.AppError("Invalid mess or user ID", 400, "INVALID_ID");
+        }
+        const user = yield user_schema_1.default.findById(authUserId).session(session);
+        if (!user || !user.isApproved) {
+            throw new errors_1.AppError("User is not approved", 403, "NOT_APPROVED");
+        }
+        // if (user.role !== UserRole.Admin) {
+        //   throw new AppError("Only admins can create settings", 403, "FORBIDDEN");
+        // }
+        const mess = yield mess_schema_1.default.findById(input.messId).session(session);
+        if (!mess) {
+            throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
+        }
+        if (!user.messId || user.messId.toString() !== input.messId.toString()) {
+            throw new errors_1.AppError("User is not a member of this mess", 403, "NOT_MESS_MEMBER");
+        }
+        const existingSetting = yield MSetting_schema_1.default.findOne({
+            messId: input.messId,
+            isDeleted: false,
+        }).session(session);
+        if (existingSetting) {
+            throw new errors_1.AppError("Settings already exist for this mess", 400, "SETTINGS_EXIST");
+        }
+        const setting = new MSetting_schema_1.default({
+            messId: new mongoose_1.Types.ObjectId(input.messId),
+            breakfast: (_a = input.breakfast) !== null && _a !== void 0 ? _a : true,
+            lunch: (_b = input.lunch) !== null && _b !== void 0 ? _b : true,
+            dinner: (_c = input.dinner) !== null && _c !== void 0 ? _c : true,
+            memberResponsibleForGrocery: (_d = input.memberResponsibleForGrocery) !== null && _d !== void 0 ? _d : false,
+        });
+        const newSetting = yield setting.save({ session });
+        yield session.commitTransaction();
+        return newSetting;
     }
-    const user = yield user_schema_1.default.findById(authUserId);
-    if (!user || !user.isApproved) {
-        throw new errors_1.AppError("User is not approved", 403, "NOT_APPROVED");
+    catch (error) {
+        yield session.abortTransaction();
+        throw error;
     }
-    if (user.role !== user_interface_1.UserRole.Admin) {
-        throw new errors_1.AppError("Only admins can create settings", 403, "FORBIDDEN");
+    finally {
+        yield session.endSession();
     }
-    const mess = yield mess_schema_1.default.findById(input.messId);
-    if (!mess) {
-        throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
-    }
-    if (!user.messId || user.messId.toString() !== input.messId.toString()) {
-        throw new errors_1.AppError("User is not a member of this mess", 403, "NOT_MESS_MEMBER");
-    }
-    const existingSetting = yield MSetting_schema_1.default.findOne({
-        messId: input.messId,
-        isDeleted: false,
-    });
-    if (existingSetting) {
-        throw new errors_1.AppError("Settings already exist for this mess", 400, "SETTINGS_EXIST");
-    }
-    const setting = yield MSetting_schema_1.default.create({
-        messId: new mongoose_1.Types.ObjectId(input.messId),
-        breakfast: (_a = input.breakfast) !== null && _a !== void 0 ? _a : true,
-        lunch: (_b = input.lunch) !== null && _b !== void 0 ? _b : true,
-        dinner: (_c = input.dinner) !== null && _c !== void 0 ? _c : true,
-        memberResponsibleForGrocery: (_d = input.memberResponsibleForGrocery) !== null && _d !== void 0 ? _d : false,
-    });
-    return setting;
 });
 exports.createSetting = createSetting;
 // Get setting by messId

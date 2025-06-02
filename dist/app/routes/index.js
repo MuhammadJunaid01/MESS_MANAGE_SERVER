@@ -4,6 +4,7 @@ const express_1 = require("express");
 const expense_route_1 = require("../modules/Expense/expense.route");
 const meal_route_1 = require("../modules/Meal/meal.route");
 const mess_route_1 = require("../modules/Mess/mess.route");
+const MSetting_route_1 = require("../modules/MSetting/MSetting.route");
 const report_route_1 = require("../modules/Report/report.route");
 const user_route_1 = require("../modules/User/user.route");
 const router = (0, express_1.Router)();
@@ -13,6 +14,7 @@ const modules = [
     { path: "/meal", route: meal_route_1.mealRouter },
     { path: "/expense", route: expense_route_1.expenseRouter },
     { path: "/report", route: report_route_1.reportRouter },
+    { path: "/settings", route: MSetting_route_1.mSettingRouter },
 ];
 modules.forEach(({ path, route }) => router.use(path, route));
 exports.default = router;
