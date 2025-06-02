@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/server.js",
   "scripts": {
@@ -8,7 +8,6 @@
     "start": "node ./dist/server.js",
     "build": "tsc",
     "deploy": "yarn build && npx vercel --prod",
-    "prepare": "husky install",
     "release": "release-it",
     "commit": "git add . && git-cz && git push"
   },
@@ -23,11 +22,9 @@
     "@types/morgan": "^1.9.9",
     "@types/nodemailer": "^6.4.17",
     "@types/sanitize-html": "^2.16.0",
-    "husky": "^8.0.0",
     "release-it": "^19.0.3",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3",
-    "cz-conventional-changelog": "^3.3.0"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -46,13 +43,5 @@
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.25.41"
-  },
-  "npm": {
-    "publish": false
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
   }
 }
