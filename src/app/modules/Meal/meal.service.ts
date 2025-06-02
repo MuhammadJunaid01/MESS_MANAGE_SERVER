@@ -1,4 +1,5 @@
 import {
+  addDays,
   endOfDay,
   getDaysInMonth,
   isAfter,
@@ -412,7 +413,7 @@ export const toggleMealsForDateRange = async (
       );
     }
 
-    // Validate that all meal types in input are enabled in settings
+    // Validate meal types against mess settings
     const enabledMealTypes: { [key in MealType]?: boolean } = {
       [MealType.Breakfast]: setting.breakfast,
       [MealType.Lunch]: setting.lunch,
@@ -425,36 +426,31 @@ export const toggleMealsForDateRange = async (
     if (invalidMealTypes.length > 0) {
       const invalidTypes = invalidMealTypes.map((m) => m.type).join(", ");
       throw new AppError(
-        `Meal types [${invalidTypes}] are not enabled in mess settings`,
+        `Meal types [${invalidTypes}] are not enabled`,
         400,
         "INVALID_MEAL_TYPES"
       );
     }
 
-    // Validate user and mess IDs
+    // Validate user and mess existence
     if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(messId)) {
       throw new AppError("Invalid user or mess ID", 400, "INVALID_ID");
     }
 
-    // Validate mess existence
     const mess = await MessModel.findById(messId).session(session);
-    if (!mess) {
-      throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
-    }
+    if (!mess) throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
 
-    // Validate user membership
     const user = await UserModel.findOne({
       _id: userId,
       messId,
       isApproved: true,
     }).session(session);
-    if (!user) {
+    if (!user)
       throw new AppError(
-        "User is not an approved member of this mess",
+        "User is not an approved member",
         403,
         "NOT_MESS_MEMBER"
       );
-    }
 
     // Validate date range
     const start = parseISO(new Date(startDate).toISOString());
@@ -467,7 +463,7 @@ export const toggleMealsForDateRange = async (
       );
     }
 
-    // Prevent toggling meals for past dates
+    // Prevent toggling for past dates
     const todayMidnight = startOfDay(new Date());
     if (isBefore(start, todayMidnight)) {
       throw new AppError(
@@ -477,47 +473,34 @@ export const toggleMealsForDateRange = async (
       );
     }
 
-    // Validate meal types
-    const validMealTypes = Object.values(MealType);
-    if (!meals.every((m) => validMealTypes.includes(m.type))) {
-      throw new AppError("Invalid meal type", 400, "INVALID_MEAL_TYPE");
-    }
-
     const updatedMeals: IMeal[] = [];
-    let currentDate = new Date(start);
+    let currentDate = start;
 
     // Iterate through the date range
-    while (currentDate <= end) {
-      const date = new Date(currentDate);
-      let meal = await MealModel.findOne({ userId, messId, date }).session(
+    while (!isAfter(currentDate, end)) {
+      const date = startOfDay(currentDate);
+
+      const meal = await MealModel.findOne({ userId, messId, date }).session(
         session
       );
 
       if (meal) {
-        // Update existing meal document with new meals array
+        // Update meals array for the existing meal document
         meal.meals = meals;
         await meal.save({ session });
         updatedMeals.push(meal);
       } else {
-        // Create new meal document
-        const newMeal = await MealModel.create(
-          [
-            {
-              userId: new Types.ObjectId(userId),
-              messId: new Types.ObjectId(messId),
-              date,
-              meals,
-            },
-          ],
-          { session }
+        console.log(
+          `No existing meal for user ${userId} on ${date}. Skipping.`
         );
-        updatedMeals.push(newMeal[0]);
       }
 
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentDate = addDays(currentDate, 1);
     }
 
     await session.commitTransaction();
+    console.log("HIT toggleMealsForDateRange");
+    console.log("updatedMeals", updatedMeals);
     return updatedMeals;
   } catch (error) {
     await session.abortTransaction();
@@ -526,6 +509,7 @@ export const toggleMealsForDateRange = async (
     session.endSession();
   }
 };
+
 export const createMealsForOneMonth = async (messId: Types.ObjectId) => {
   try {
     console.log(`Running meal creation cron job for mess ${messId}`);

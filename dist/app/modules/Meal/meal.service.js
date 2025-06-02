@@ -287,7 +287,7 @@ const toggleMealsForDateRange = (input) => __awaiter(void 0, void 0, void 0, fun
         if (!setting) {
             throw new errors_1.AppError("Settings not found for mess", 404, "SETTINGS_NOT_FOUND");
         }
-        // Validate that all meal types in input are enabled in settings
+        // Validate meal types against mess settings
         const enabledMealTypes = {
             [meal_interface_1.MealType.Breakfast]: setting.breakfast,
             [meal_interface_1.MealType.Lunch]: setting.lunch,
@@ -296,69 +296,53 @@ const toggleMealsForDateRange = (input) => __awaiter(void 0, void 0, void 0, fun
         const invalidMealTypes = meals.filter((meal) => !enabledMealTypes[meal.type]);
         if (invalidMealTypes.length > 0) {
             const invalidTypes = invalidMealTypes.map((m) => m.type).join(", ");
-            throw new errors_1.AppError(`Meal types [${invalidTypes}] are not enabled in mess settings`, 400, "INVALID_MEAL_TYPES");
+            throw new errors_1.AppError(`Meal types [${invalidTypes}] are not enabled`, 400, "INVALID_MEAL_TYPES");
         }
-        // Validate user and mess IDs
+        // Validate user and mess existence
         if (!mongoose_1.Types.ObjectId.isValid(userId) || !mongoose_1.Types.ObjectId.isValid(messId)) {
             throw new errors_1.AppError("Invalid user or mess ID", 400, "INVALID_ID");
         }
-        // Validate mess existence
         const mess = yield mess_schema_1.default.findById(messId).session(session);
-        if (!mess) {
+        if (!mess)
             throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
-        }
-        // Validate user membership
         const user = yield user_schema_1.default.findOne({
             _id: userId,
             messId,
             isApproved: true,
         }).session(session);
-        if (!user) {
-            throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
-        }
+        if (!user)
+            throw new errors_1.AppError("User is not an approved member", 403, "NOT_MESS_MEMBER");
         // Validate date range
         const start = (0, date_fns_1.parseISO)(new Date(startDate).toISOString());
         const end = (0, date_fns_1.parseISO)(new Date(endDate).toISOString());
         if ((0, date_fns_1.isAfter)(start, end)) {
             throw new errors_1.AppError("Start date must be before end date", 400, "INVALID_DATE_RANGE");
         }
-        // Prevent toggling meals for past dates
+        // Prevent toggling for past dates
         const todayMidnight = (0, date_fns_1.startOfDay)(new Date());
         if ((0, date_fns_1.isBefore)(start, todayMidnight)) {
             throw new errors_1.AppError("Cannot toggle meals for past dates", 400, "INVALID_DATE");
         }
-        // Validate meal types
-        const validMealTypes = Object.values(meal_interface_1.MealType);
-        if (!meals.every((m) => validMealTypes.includes(m.type))) {
-            throw new errors_1.AppError("Invalid meal type", 400, "INVALID_MEAL_TYPE");
-        }
         const updatedMeals = [];
-        let currentDate = new Date(start);
+        let currentDate = start;
         // Iterate through the date range
-        while (currentDate <= end) {
-            const date = new Date(currentDate);
-            let meal = yield meal_schema_1.default.findOne({ userId, messId, date }).session(session);
+        while (!(0, date_fns_1.isAfter)(currentDate, end)) {
+            const date = (0, date_fns_1.startOfDay)(currentDate);
+            const meal = yield meal_schema_1.default.findOne({ userId, messId, date }).session(session);
             if (meal) {
-                // Update existing meal document with new meals array
+                // Update meals array for the existing meal document
                 meal.meals = meals;
                 yield meal.save({ session });
                 updatedMeals.push(meal);
             }
             else {
-                // Create new meal document
-                const newMeal = yield meal_schema_1.default.create([
-                    {
-                        userId: new mongoose_1.Types.ObjectId(userId),
-                        messId: new mongoose_1.Types.ObjectId(messId),
-                        date,
-                        meals,
-                    },
-                ], { session });
-                updatedMeals.push(newMeal[0]);
+                console.log(`No existing meal for user ${userId} on ${date}. Skipping.`);
             }
-            currentDate.setDate(currentDate.getDate() + 1);
+            currentDate = (0, date_fns_1.addDays)(currentDate, 1);
         }
         yield session.commitTransaction();
+        console.log("HIT toggleMealsForDateRange");
+        console.log("updatedMeals", updatedMeals);
         return updatedMeals;
     }
     catch (error) {
