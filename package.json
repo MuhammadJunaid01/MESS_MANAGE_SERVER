@@ -8,7 +8,7 @@
     "start": "node ./dist/server.js",
     "build": "tsc",
     "deploy": "yarn build && npx vercel --prod",
-    "release": "yarn build && release-it",
+    "release": "release-it",
     "commit": "git add . && git-cz && git push"
   },
   "keywords": [],
