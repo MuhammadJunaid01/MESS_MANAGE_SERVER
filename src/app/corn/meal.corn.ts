@@ -2,7 +2,7 @@ import cron from "node-cron";
 import { MealType } from "../modules/Meal/meal.interface";
 import MealModel from "../modules/Meal/meal.schema";
 import MessModel from "../modules/Mess/mess.schema";
-import UserModel from "../modules/User/user.model";
+import UserModel from "../modules/User/user.schema";
 
 export const scheduleMealCreation = () => {
   cron.schedule("0 0 1 * *", async () => {

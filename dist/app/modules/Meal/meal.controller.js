@@ -18,7 +18,7 @@ const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
 const errors_1 = require("../../middlewares/errors");
 const user_interface_1 = require("../User/user.interface");
-const user_model_1 = __importDefault(require("../User/user.model"));
+const user_schema_1 = __importDefault(require("../User/user.schema"));
 const meal_service_1 = require("./meal.service");
 // Create a new meal
 exports.createMealController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -172,7 +172,7 @@ exports.createMealsForOneMonthUserController = (0, middlewares_1.catchAsync)((re
     }
     console.log("userId", userId);
     // Check if the authenticated user is authorized
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: userId,
         isApproved: true,
     });

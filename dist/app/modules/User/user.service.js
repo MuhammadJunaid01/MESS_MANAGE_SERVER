@@ -33,7 +33,7 @@ const sendEmail_1 = require("../../lib/utils/sendEmail");
 const errors_1 = require("../../middlewares/errors");
 const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
 const user_interface_1 = require("./user.interface");
-const user_model_1 = __importDefault(require("./user.model"));
+const user_schema_1 = __importDefault(require("./user.schema"));
 // Generate a 6-digit OTP
 const generateOtp = () => {
     return crypto_1.default.randomInt(100000, 999999).toString().padStart(6, "0");
@@ -46,7 +46,7 @@ const generateResetToken = () => {
 const signUpUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password, role = user_interface_1.UserRole.Viewer, messId } = input, rest = __rest(input, ["email", "password", "role", "messId"]);
     // Check if email already exists
-    const existingUser = yield user_model_1.default.findOne({ email });
+    const existingUser = yield user_schema_1.default.findOne({ email });
     if (existingUser) {
         throw new errors_1.AppError("Email already exists", 400, "EMAIL_EXISTS");
     }
@@ -57,14 +57,14 @@ const signUpUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = Object.assign(Object.assign(Object.assign(Object.assign({}, rest), { email: email.toLowerCase(), password, // Will be hashed by pre-save middleware
         role }), (messId && { messId: new mongoose_1.Types.ObjectId(messId) })), { balance: 0, isVerified: false, isBlocked: false, isApproved: false, otp,
         otpExpires });
-    const user = yield user_model_1.default.create(userData);
+    const user = yield user_schema_1.default.create(userData);
     // Send OTP email
     try {
         yield (0, sendEmail_1.sendOtpEmail)(user.email, otp, user.name, "10 minutes");
     }
     catch (err) {
         // Delete user if email fails
-        yield user_model_1.default.deleteOne({ _id: user._id });
+        yield user_schema_1.default.deleteOne({ _id: user._id });
         throw new errors_1.AppError("Failed to send OTP email", 500, "EMAIL_SEND_FAILED");
     }
     return user;
@@ -74,7 +74,7 @@ const signIn = (input) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = input;
     console.log("HIT");
     // Find user by email (lowercase), include password for validation
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         email: email,
     }).select("+password");
     if (!user) {
@@ -103,7 +103,7 @@ const signIn = (input) => __awaiter(void 0, void 0, void 0, function* () {
 exports.signIn = signIn;
 // Verify OTP for signup
 const verifyOtp = (email, otp) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.default.findOne({ email: email }).select("+otp +otpExpires");
+    const user = yield user_schema_1.default.findOne({ email: email }).select("+otp +otpExpires");
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
@@ -127,7 +127,7 @@ const verifyOtp = (email, otp) => __awaiter(void 0, void 0, void 0, function* ()
 exports.verifyOtp = verifyOtp;
 // Forgot password: Generate and send OTP
 const forgotPassword = (email) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.default.findOne({ email: email.toLowerCase() }).select("+otp +otpExpires +resetToken +resetTokenExpires");
+    const user = yield user_schema_1.default.findOne({ email: email.toLowerCase() }).select("+otp +otpExpires +resetToken +resetTokenExpires");
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
@@ -158,7 +158,7 @@ const forgotPassword = (email) => __awaiter(void 0, void 0, void 0, function* ()
 exports.forgotPassword = forgotPassword;
 // Reset password with OTP and reset token
 const resetPassword = (email, otp, resetToken, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.default.findOne({ email: email.toLowerCase() }).select("+otp +otpExpires +resetToken +resetTokenExpires +password");
+    const user = yield user_schema_1.default.findOne({ email: email.toLowerCase() }).select("+otp +otpExpires +resetToken +resetTokenExpires +password");
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
@@ -180,13 +180,13 @@ exports.resetPassword = resetPassword;
 // Create a new user (non-OTP version, for admin use)
 const createUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password, role = user_interface_1.UserRole.Viewer, messId } = input, rest = __rest(input, ["email", "password", "role", "messId"]);
-    const existingUser = yield user_model_1.default.findOne({ email });
+    const existingUser = yield user_schema_1.default.findOne({ email });
     if (existingUser) {
         throw new errors_1.AppError("Email already exists", 400, "EMAIL_EXISTS");
     }
     const userData = Object.assign(Object.assign({}, rest), { email: email.toLowerCase(), password,
         role, balance: 0, isVerified: false, isBlocked: false, isApproved: false });
-    const user = yield user_model_1.default.create(userData);
+    const user = yield user_schema_1.default.create(userData);
     return user;
 });
 exports.createUser = createUser;
@@ -195,7 +195,7 @@ const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     if (!mongoose_1.Types.ObjectId.isValid(userId)) {
         throw new errors_1.AppError("Invalid user ID", 400, "INVALID_ID");
     }
-    const user = yield user_model_1.default.findById(userId).select("-password -otp -resetToken -refreshToken");
+    const user = yield user_schema_1.default.findById(userId).select("-password -otp -resetToken -refreshToken");
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
@@ -204,7 +204,7 @@ const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getUserById = getUserById;
 // Get user by email
 const getUserByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_model_1.default.findOne({ email: email.toLowerCase() }).select("-password -otp -resetToken -refreshToken");
+    const user = yield user_schema_1.default.findOne({ email: email.toLowerCase() }).select("-password -otp -resetToken -refreshToken");
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
@@ -229,7 +229,7 @@ const getUsers = (...args_1) => __awaiter(void 0, [...args_1], void 0, function*
     if (typeof filters.isApproved === "boolean") {
         query.isApproved = filters.isApproved;
     }
-    return user_model_1.default.find(query)
+    return user_schema_1.default.find(query)
         .select("-password -otp -resetToken -refreshToken")
         .limit(filters.limit || 100)
         .skip(filters.skip || 0)
@@ -241,7 +241,7 @@ const updateUser = (userId, input, updatedBy) => __awaiter(void 0, void 0, void 
     if (!mongoose_1.Types.ObjectId.isValid(userId)) {
         throw new errors_1.AppError("Invalid user ID", 400, "INVALID_ID");
     }
-    const user = yield user_model_1.default.findById(userId);
+    const user = yield user_schema_1.default.findById(userId);
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
@@ -298,7 +298,7 @@ const updatePassword = (userId, newPassword) => __awaiter(void 0, void 0, void 0
     if (!mongoose_1.Types.ObjectId.isValid(userId)) {
         throw new errors_1.AppError("Invalid user ID", 400, "INVALID_ID");
     }
-    const user = yield user_model_1.default.findById(userId);
+    const user = yield user_schema_1.default.findById(userId);
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }
@@ -313,7 +313,7 @@ const softDeleteUser = (userId, deletedBy) => __awaiter(void 0, void 0, void 0, 
         if (!mongoose_1.Types.ObjectId.isValid(userId)) {
             throw new errors_1.AppError("Invalid user ID", 400, "INVALID_ID");
         }
-        const user = yield user_model_1.default.findById(userId).session(session);
+        const user = yield user_schema_1.default.findById(userId).session(session);
         if (!user) {
             throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
         }
@@ -347,7 +347,7 @@ const addActivityLog = (userId, log) => __awaiter(void 0, void 0, void 0, functi
     if (!mongoose_1.Types.ObjectId.isValid(userId)) {
         throw new errors_1.AppError("Invalid user ID", 400, "INVALID_ID");
     }
-    const user = yield user_model_1.default.findById(userId);
+    const user = yield user_schema_1.default.findById(userId);
     if (!user) {
         throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
     }

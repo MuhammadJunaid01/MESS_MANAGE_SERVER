@@ -17,7 +17,7 @@ const node_cron_1 = __importDefault(require("node-cron"));
 const meal_interface_1 = require("../modules/Meal/meal.interface");
 const meal_schema_1 = __importDefault(require("../modules/Meal/meal.schema"));
 const mess_schema_1 = __importDefault(require("../modules/Mess/mess.schema"));
-const user_model_1 = __importDefault(require("../modules/User/user.model"));
+const user_schema_1 = __importDefault(require("../modules/User/user.schema"));
 const scheduleMealCreation = () => {
     node_cron_1.default.schedule("0 0 1 * *", () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("Running meal creation cron job for upcoming month");
@@ -33,7 +33,7 @@ const scheduleMealCreation = () => {
             const month = nextMonth.getMonth();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             for (const mess of messes) {
-                const users = yield user_model_1.default.find({
+                const users = yield user_schema_1.default.find({
                     messId: mess._id,
                     isApproved: true,
                     isBlocked: false,

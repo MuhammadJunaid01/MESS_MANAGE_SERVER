@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
 import { UserRole } from "../modules/User/user.interface";
-import UserModel from "../modules/User/user.model";
+import UserModel from "../modules/User/user.schema";
 import { AppError } from "./errors";
 export const notFoundMiddleware = (
   req: Request,

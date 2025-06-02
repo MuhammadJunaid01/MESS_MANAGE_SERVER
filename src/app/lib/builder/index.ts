@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import config from "../../config";
 import { AppError } from "../../middlewares/errors";
 import { UserRole } from "../../modules/User/user.interface";
-import UserModel from "../../modules/User/user.model";
+import UserModel from "../../modules/User/user.schema";
 const JWT_SECRET = config.secretToken || "your_jwt_secret";
 const JWT_REFRESH_SECRET =
   config.secretRefreshToken || "your_refresh_jwt_secret";

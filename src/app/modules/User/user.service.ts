@@ -9,7 +9,7 @@ import { AppError } from "../../middlewares/errors";
 import ActivityLogModel from "../Activity/activity.schema";
 import MessModel from "../Mess/mess.schema";
 import { Gender, IActivityLog, IUser, UserRole } from "./user.interface";
-import UserModel from "./user.model";
+import UserModel from "./user.schema";
 // Interface for user creation input
 interface CreateUserInput {
   name: string;

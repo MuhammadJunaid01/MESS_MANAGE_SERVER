@@ -1,13 +1,5 @@
 import { Document, Types } from "mongoose";
 import { ILocation } from "../../interfaces/global.interface";
-export interface IActivityLog {
-  action: "created" | "updated" | "deleted" | "activated" | "deactivated";
-  performedBy: {
-    name: string;
-    userId: Types.ObjectId;
-  };
-  timestamp: Date;
-}
 
 export interface IMess extends Document {
   messId: number;
@@ -17,7 +9,6 @@ export interface IMess extends Document {
   location: ILocation;
   status: "active" | "inactive";
   isDeleted: boolean;
-  activityLogs: IActivityLog[];
   createdAt: Date;
   updatedAt: Date;
 }

@@ -7,7 +7,7 @@ import { MealType } from "../Meal/meal.interface";
 import MealModel from "../Meal/meal.schema";
 import MessModel from "../Mess/mess.schema";
 import { UserRole } from "../User/user.interface";
-import UserModel from "../User/user.model";
+import UserModel from "../User/user.schema";
 import {
   IUsersMeal,
   MealReportFilters,

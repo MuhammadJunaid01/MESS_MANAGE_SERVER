@@ -16,7 +16,7 @@ exports.getRecentActivities = void 0;
 const mongoose_1 = require("mongoose");
 const errors_1 = require("../../middlewares/errors");
 const user_interface_1 = require("../User/user.interface");
-const user_model_1 = __importDefault(require("../User/user.model"));
+const user_schema_1 = __importDefault(require("../User/user.schema"));
 const activity_schema_1 = __importDefault(require("./activity.schema"));
 // Interface for activity filters
 // Get recent activities
@@ -30,7 +30,7 @@ const getRecentActivities = (filters, authUserId) => __awaiter(void 0, void 0, v
     if (filters.userId && !mongoose_1.Types.ObjectId.isValid(filters.userId)) {
         throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
     }
-    const user = yield user_model_1.default.findById(authUserId);
+    const user = yield user_schema_1.default.findById(authUserId);
     if (!user || !user.isApproved) {
         throw new errors_1.AppError("User is not approved", 403, "NOT_APPROVED");
     }

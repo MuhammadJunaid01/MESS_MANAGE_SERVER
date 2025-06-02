@@ -16,7 +16,7 @@ exports.protect = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const __1 = require("..");
 const config_1 = __importDefault(require("../../config"));
-const user_model_1 = __importDefault(require("../../modules/User/user.model"));
+const user_schema_1 = __importDefault(require("../../modules/User/user.schema"));
 const errors_1 = require("../errors");
 // JWT authentication middleware
 exports.protect = (0, __1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -34,7 +34,7 @@ exports.protect = (0, __1.catchAsync)((req, res, next) => __awaiter(void 0, void
         // Verify the token using the secret key
         const decoded = jsonwebtoken_1.default.verify(token, config_1.default.secretToken || "secret" // Use secret from config or fallback to "secret"
         );
-        const user = yield user_model_1.default.findById(decoded.userId);
+        const user = yield user_schema_1.default.findById(decoded.userId);
         if (!user) {
             throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
         }

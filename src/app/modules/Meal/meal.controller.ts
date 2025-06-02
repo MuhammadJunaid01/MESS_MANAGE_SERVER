@@ -5,7 +5,7 @@ import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";
 import { UserRole } from "../User/user.interface";
-import UserModel from "../User/user.model";
+import UserModel from "../User/user.schema";
 import {
   createMeal,
   createMealsForOneMonth,

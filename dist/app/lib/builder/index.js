@@ -16,7 +16,7 @@ exports.generateRefreshToken = exports.generateAccessToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config"));
 const errors_1 = require("../../middlewares/errors");
-const user_model_1 = __importDefault(require("../../modules/User/user.model"));
+const user_schema_1 = __importDefault(require("../../modules/User/user.schema"));
 const JWT_SECRET = config_1.default.secretToken || "your_jwt_secret";
 const JWT_REFRESH_SECRET = config_1.default.secretRefreshToken || "your_refresh_jwt_secret";
 const ACCESS_TOKEN_EXPIRY = config_1.default.accessTokenExpiration || "1h";
@@ -43,7 +43,7 @@ const generateRefreshToken = (userId) => __awaiter(void 0, void 0, void 0, funct
             expiresIn: "7d", // Refresh token expires in 7 days
         });
         // Optionally store the refresh token in the database, associated with the user
-        yield user_model_1.default.findByIdAndUpdate(userId, { refreshToken });
+        yield user_schema_1.default.findByIdAndUpdate(userId, { refreshToken });
         return refreshToken;
     }
     catch (error) {

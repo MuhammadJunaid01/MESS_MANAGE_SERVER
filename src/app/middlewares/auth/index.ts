@@ -4,7 +4,7 @@ import { catchAsync } from "..";
 import config from "../../config";
 import { AuthUser } from "../../interfaces/global.interface";
 import { UserRole } from "../../modules/User/user.interface";
-import UserModel from "../../modules/User/user.model";
+import UserModel from "../../modules/User/user.schema";
 import { AppError } from "../errors";
 
 // JWT authentication middleware

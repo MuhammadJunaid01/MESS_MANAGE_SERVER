@@ -18,7 +18,7 @@ const global_interface_1 = require("../../interfaces/global.interface");
 const utils_1 = require("../../lib/utils");
 const errors_1 = require("../../middlewares/errors");
 const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
-const user_model_1 = __importDefault(require("../User/user.model"));
+const user_schema_1 = __importDefault(require("../User/user.schema"));
 const mess_schema_1 = __importDefault(require("./mess.schema"));
 // Interface for activity log input
 // Create a new mess
@@ -30,7 +30,7 @@ const createMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mess_schema_1.default.startSession();
     session.startTransaction();
     try {
-        const user = yield user_model_1.default.findById(createdBy).session(session);
+        const user = yield user_schema_1.default.findById(createdBy).session(session);
         if (!user) {
             throw new errors_1.AppError("Creator not found", 404, "USER_NOT_FOUND");
         }
@@ -82,7 +82,7 @@ const joinMess = (input) => __awaiter(void 0, void 0, void 0, function* () {
         if (!mongoose_1.Types.ObjectId.isValid(messId)) {
             throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
         }
-        const user = yield user_model_1.default.findById(userId).session(session);
+        const user = yield user_schema_1.default.findById(userId).session(session);
         if (!user) {
             throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
         }
@@ -134,7 +134,7 @@ const approveJoiningMess = (input) => __awaiter(void 0, void 0, void 0, function
             throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
         }
         // Find user with session
-        const user = yield user_model_1.default.findById(userId).session(session);
+        const user = yield user_schema_1.default.findById(userId).session(session);
         if (!user) {
             throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
         }
@@ -193,9 +193,9 @@ const getAllUnapprovedUsers = (_a) => __awaiter(void 0, [_a], void 0, function* 
     }
     const skip = (page - 1) * limit;
     // Get total count for pagination meta
-    const total = yield user_model_1.default.countDocuments(filter);
+    const total = yield user_schema_1.default.countDocuments(filter);
     // Get paginated users
-    const users = yield user_model_1.default.find(filter).skip(skip).limit(limit).exec();
+    const users = yield user_schema_1.default.find(filter).skip(skip).limit(limit).exec();
     return { users, total };
 });
 exports.getAllUnapprovedUsers = getAllUnapprovedUsers;
@@ -300,32 +300,41 @@ const updateMess = (messId, input, updatedBy) => __awaiter(void 0, void 0, void 
 exports.updateMess = updateMess;
 // Soft delete mess
 const softDeleteMess = (messId, deletedBy) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!mongoose_1.Types.ObjectId.isValid(messId)) {
-        throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
-    }
-    if (!mongoose_1.Types.ObjectId.isValid(deletedBy.userId)) {
-        throw new errors_1.AppError("Invalid deleter ID", 400, "INVALID_USER_ID");
-    }
-    const mess = yield mess_schema_1.default.findOne({ _id: messId, isDeleted: false });
-    if (!mess) {
-        throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
-    }
-    mess.set({
-        isDeleted: true,
-        updatedBy: new mongoose_1.Types.ObjectId(deletedBy.userId),
-        activityLogs: [
-            ...mess.activityLogs,
-            {
-                action: "deleted",
-                performedBy: {
-                    name: deletedBy.name,
-                    userId: new mongoose_1.Types.ObjectId(deletedBy.userId),
-                },
-                timestamp: new Date(),
+    const session = yield (0, mongoose_1.startSession)();
+    try {
+        session.startTransaction();
+        if (!mongoose_1.Types.ObjectId.isValid(messId)) {
+            throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+        }
+        if (!mongoose_1.Types.ObjectId.isValid(deletedBy.userId)) {
+            throw new errors_1.AppError("Invalid deleter ID", 400, "INVALID_USER_ID");
+        }
+        const mess = yield mess_schema_1.default.findOne({ _id: messId, isDeleted: false });
+        if (!mess) {
+            throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
+        }
+        yield mess.save({ session });
+        const activity = new activity_schema_1.default({
+            messId: mess._id,
+            entity: "Mess",
+            entityId: mess._id,
+            action: global_interface_1.IStatus.Deleted,
+            performedBy: {
+                userId: new mongoose_1.Types.ObjectId(deletedBy.userId),
+                name: deletedBy.name,
             },
-        ],
-    });
-    yield mess.save();
+            timestamp: new Date(),
+        });
+        yield activity.save({ session });
+        yield session.commitTransaction();
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        throw error;
+    }
+    finally {
+        session.endSession();
+    }
 });
 exports.softDeleteMess = softDeleteMess;
 // Approve a user's mess join request
@@ -337,7 +346,7 @@ const approveMessJoin = (input) => __awaiter(void 0, void 0, void 0, function* (
     const session = yield (0, mongoose_1.startSession)();
     try {
         session.startTransaction();
-        const user = yield user_model_1.default.findById(userId).session(session);
+        const user = yield user_schema_1.default.findById(userId).session(session);
         if (!user) {
             throw new errors_1.AppError("User not found", 404, "USER_NOT_FOUND");
         }

@@ -22,7 +22,7 @@ const meal_interface_1 = require("../Meal/meal.interface");
 const meal_schema_1 = __importDefault(require("../Meal/meal.schema"));
 const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
 const user_interface_1 = require("../User/user.interface");
-const user_model_1 = __importDefault(require("../User/user.model"));
+const user_schema_1 = __importDefault(require("../User/user.schema"));
 const generateMealReport = (filters, authUserId) => __awaiter(void 0, void 0, void 0, function* () {
     if (!filters) {
         throw new errors_1.AppError("Filters object is required", 400, "MISSING_FILTERS");
@@ -36,7 +36,7 @@ const generateMealReport = (filters, authUserId) => __awaiter(void 0, void 0, vo
     if (filters.userId && !mongoose_1.Types.ObjectId.isValid(filters.userId)) {
         throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
     }
-    const user = yield user_model_1.default.findById(authUserId);
+    const user = yield user_schema_1.default.findById(authUserId);
     if (!user || !user.isApproved) {
         throw new errors_1.AppError("User is not approved", 403, "NOT_APPROVED");
     }
@@ -249,7 +249,7 @@ const generateMealReport = (filters, authUserId) => __awaiter(void 0, void 0, vo
             delete result._id.messId;
         }
         if (item._id.userId) {
-            const user = yield user_model_1.default.findById(item._id.userId).select("name email");
+            const user = yield user_schema_1.default.findById(item._id.userId).select("name email");
             result._id.user = user
                 ? { _id: user._id, name: user.name, email: user.email }
                 : null;
@@ -275,7 +275,7 @@ const generateUsersMealReport = (filters, authUserId) => __awaiter(void 0, void 
     if (filters.messId && !mongoose_1.Types.ObjectId.isValid(filters.messId)) {
         throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
     }
-    const user = yield user_model_1.default.findById(authUserId);
+    const user = yield user_schema_1.default.findById(authUserId);
     if (!user || !user.isApproved) {
         throw new errors_1.AppError("User is not approved", 403, "NOT_APPROVED");
     }
@@ -348,7 +348,7 @@ const generateUsersMealReport = (filters, authUserId) => __awaiter(void 0, void 
     // Merge meal and expense data
     const report = yield Promise.all(mealResults.map((mealItem) => __awaiter(void 0, void 0, void 0, function* () {
         const expenseItem = expenseResults.find((exp) => { var _a, _b; return ((_a = exp._id) === null || _a === void 0 ? void 0 : _a.toString()) === ((_b = mealItem._id) === null || _b === void 0 ? void 0 : _b.toString()); });
-        const user = yield user_model_1.default.findById(mealItem._id).select("name");
+        const user = yield user_schema_1.default.findById(mealItem._id).select("name");
         if (!user) {
             return null; // Skip if user not found
         }

@@ -12,7 +12,7 @@ import { AppError } from "../../middlewares/errors";
 import ActivityLogModel from "../Activity/activity.schema";
 import MessModel from "../Mess/mess.schema";
 import { UserRole } from "../User/user.interface";
-import UserModel from "../User/user.model";
+import UserModel from "../User/user.schema";
 import { IMeal, MealType } from "./meal.interface";
 import MealModel from "./meal.schema";
 

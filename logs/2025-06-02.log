@@ -414,3 +414,36 @@
 [2025-06-02 15:08:27] INFO: Connected to MongoDB
 [2025-06-02 15:08:27] INFO: Scheduled meal creation cron job
 [2025-06-02 15:08:27] INFO: Server running on http://localhost:5000
+[2025-06-02 16:12:43] INFO: Application setup complete
+[2025-06-02 16:12:43] INFO: Connected to MongoDB
+[2025-06-02 16:12:43] INFO: Scheduled meal creation cron job
+[2025-06-02 16:12:43] INFO: Server running on http://localhost:5000
+[2025-06-02 17:45:28] INFO: GET /api/v1/report 401 7.469 ms
+[2025-06-02 17:48:20] INFO: Application setup complete
+[2025-06-02 17:48:21] INFO: Connected to MongoDB
+[2025-06-02 17:48:21] INFO: Scheduled meal creation cron job
+[2025-06-02 17:48:21] INFO: Server running on http://localhost:5000
+[2025-06-02 17:57:08] INFO: Application setup complete
+[2025-06-02 17:57:08] INFO: Connected to MongoDB
+[2025-06-02 17:57:08] INFO: Scheduled meal creation cron job
+[2025-06-02 17:57:08] INFO: Server running on http://localhost:5000
+[2025-06-02 18:15:39] INFO: Application setup complete
+[2025-06-02 18:15:39] INFO: Connected to MongoDB
+[2025-06-02 18:15:39] INFO: Scheduled meal creation cron job
+[2025-06-02 18:15:39] INFO: Server running on http://localhost:5000
+[2025-06-02 18:15:56] INFO: Application setup complete
+[2025-06-02 18:15:56] INFO: Connected to MongoDB
+[2025-06-02 18:15:56] INFO: Scheduled meal creation cron job
+[2025-06-02 18:15:56] INFO: Server running on http://localhost:5000
+[2025-06-02 18:16:11] INFO: Application setup complete
+[2025-06-02 18:16:11] INFO: Connected to MongoDB
+[2025-06-02 18:16:11] INFO: Scheduled meal creation cron job
+[2025-06-02 18:16:11] INFO: Server running on http://localhost:5000
+[2025-06-02 18:16:37] INFO: Application setup complete
+[2025-06-02 18:16:37] INFO: Connected to MongoDB
+[2025-06-02 18:16:37] INFO: Scheduled meal creation cron job
+[2025-06-02 18:16:37] INFO: Server running on http://localhost:5000
+[2025-06-02 18:17:48] INFO: Application setup complete
+[2025-06-02 18:17:48] INFO: Connected to MongoDB
+[2025-06-02 18:17:48] INFO: Scheduled meal creation cron job
+[2025-06-02 18:17:48] INFO: Server running on http://localhost:5000

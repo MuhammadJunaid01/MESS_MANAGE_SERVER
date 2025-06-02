@@ -4,7 +4,7 @@ import MessModel from "../Mess/mess.schema";
 import { ITransaction } from "../Transaction/transaction.interface";
 import TransactionModel from "../Transaction/transaction.schema";
 import { UserRole } from "../User/user.interface";
-import UserModel from "../User/user.model";
+import UserModel from "../User/user.schema";
 import {
   IAccount,
   IActivityAction,

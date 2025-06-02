@@ -19,7 +19,7 @@ const errors_1 = require("../../middlewares/errors");
 const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
 const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
 const user_interface_1 = require("../User/user.interface");
-const user_model_1 = __importDefault(require("../User/user.model"));
+const user_schema_1 = __importDefault(require("../User/user.schema"));
 const expense_interface_1 = require("./expense.interface");
 const expense_schema_1 = __importDefault(require("./expense.schema"));
 // Create a new expense
@@ -38,7 +38,7 @@ const createExpense = (input, createdBy) => __awaiter(void 0, void 0, void 0, fu
         if (!mess || mess.isDeleted) {
             throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
         }
-        const user = yield user_model_1.default.findOne({
+        const user = yield user_schema_1.default.findOne({
             _id: createdBy.userId,
             messId,
             isApproved: true,
@@ -105,7 +105,7 @@ const getExpenseById = (expenseId, userId) => __awaiter(void 0, void 0, void 0, 
     if (!expense) {
         throw new errors_1.AppError("Expense not found", 404, "EXPENSE_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: userId,
         messId: expense.messId,
         isApproved: true,
@@ -124,7 +124,7 @@ const getExpenses = (filters, userId) => __awaiter(void 0, void 0, void 0, funct
     if (filters.messId && !mongoose_1.Types.ObjectId.isValid(filters.messId)) {
         throw new errors_1.AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
     }
-    const user = yield user_model_1.default.findOne(Object.assign(Object.assign({ _id: userId }, (filters.messId ? { messId: filters.messId } : {})), { isApproved: true }));
+    const user = yield user_schema_1.default.findOne(Object.assign(Object.assign({ _id: userId }, (filters.messId ? { messId: filters.messId } : {})), { isApproved: true }));
     if (!user) {
         throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
     }
@@ -169,7 +169,7 @@ const updateExpense = (expenseId, input, updatedBy) => __awaiter(void 0, void 0,
     if (!expense) {
         throw new errors_1.AppError("Expense not found", 404, "EXPENSE_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: updatedBy.userId,
         messId: expense.messId,
         isApproved: true,
@@ -224,7 +224,7 @@ const updateExpenseStatus = (expenseId, input, performedBy) => __awaiter(void 0,
     if (!expense) {
         throw new errors_1.AppError("Expense not found", 404, "EXPENSE_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: performedBy.userId,
         messId: expense.messId,
         isApproved: true,
@@ -268,7 +268,7 @@ const softDeleteExpense = (expenseId, deletedBy) => __awaiter(void 0, void 0, vo
     if (!expense) {
         throw new errors_1.AppError("Expense not found", 404, "EXPENSE_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: deletedBy.userId,
         messId: expense.messId,
         isApproved: true,

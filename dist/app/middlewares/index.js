@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.restrictTo = exports.catchAsync = exports.roleMiddleware = exports.authMiddleware = exports.notFoundMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const user_model_1 = __importDefault(require("../modules/User/user.model"));
+const user_schema_1 = __importDefault(require("../modules/User/user.schema"));
 const errors_1 = require("./errors");
 const notFoundMiddleware = (req, res, next) => {
     const error = {
@@ -31,7 +31,7 @@ const authMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         return res.status(401).json({ message: "No token provided" });
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || "secret");
-        const user = yield user_model_1.default.findById(decoded.id);
+        const user = yield user_schema_1.default.findById(decoded.id);
         if (!user)
             return res.status(401).json({ message: "Unauthorized" });
         req.user = user;

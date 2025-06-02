@@ -1,7 +1,7 @@
 import { PipelineStage, Types } from "mongoose";
 import { AppError } from "../../middlewares/errors";
 import { UserRole } from "../User/user.interface";
-import UserModel from "../User/user.model";
+import UserModel from "../User/user.schema";
 import { ActivityFilters, IActivityLog } from "./activity.interface";
 import ActivityLogModel from "./activity.schema";
 

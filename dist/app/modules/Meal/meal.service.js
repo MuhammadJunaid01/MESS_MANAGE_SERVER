@@ -19,7 +19,7 @@ const errors_1 = require("../../middlewares/errors");
 const activity_schema_1 = __importDefault(require("../Activity/activity.schema"));
 const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
 const user_interface_1 = require("../User/user.interface");
-const user_model_1 = __importDefault(require("../User/user.model"));
+const user_schema_1 = __importDefault(require("../User/user.schema"));
 const meal_interface_1 = require("./meal.interface");
 const meal_schema_1 = __importDefault(require("./meal.schema"));
 // Create a new meal
@@ -38,7 +38,7 @@ const createMeal = (input) => __awaiter(void 0, void 0, void 0, function* () {
             throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
         }
         // Check if the user is approved and belongs to the mess
-        const user = yield user_model_1.default.findOne({
+        const user = yield user_schema_1.default.findOne({
             _id: userId,
             messId,
             isApproved: true,
@@ -109,7 +109,7 @@ const getMealById = (mealId, userId) => __awaiter(void 0, void 0, void 0, functi
     if (!meal) {
         throw new errors_1.AppError("Meal not found", 404, "MEAL_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: userId,
         messId: meal.messId,
         isApproved: true,
@@ -134,7 +134,7 @@ const getMeals = (filters, userId) => __awaiter(void 0, void 0, void 0, function
         if (filters.userId && !mongoose_1.Types.ObjectId.isValid(filters.userId)) {
             throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
         }
-        const user = yield user_model_1.default.findOne(Object.assign({ _id: userId }, (filters.messId ? { messId: filters.messId } : {}))).session(session);
+        const user = yield user_schema_1.default.findOne(Object.assign({ _id: userId }, (filters.messId ? { messId: filters.messId } : {}))).session(session);
         if (!user) {
             throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
         }
@@ -181,7 +181,7 @@ const updateMeal = (mealId, input) => __awaiter(void 0, void 0, void 0, function
         if (!meal) {
             throw new errors_1.AppError("Meal not found", 404, "MEAL_NOT_FOUND");
         }
-        const user = yield user_model_1.default.findOne({
+        const user = yield user_schema_1.default.findOne({
             _id: input.userId || meal.userId,
             messId: meal.messId,
             isApproved: true,
@@ -243,7 +243,7 @@ const deleteMeal = (mealId, userId) => __awaiter(void 0, void 0, void 0, functio
         if (!meal) {
             throw new errors_1.AppError("Meal not found", 404, "MEAL_NOT_FOUND");
         }
-        const user = yield user_model_1.default.findOne({
+        const user = yield user_schema_1.default.findOne({
             _id: userId,
             messId: meal.messId,
             isVerified: true,
@@ -288,7 +288,7 @@ const toggleMealsForDateRange = (input) => __awaiter(void 0, void 0, void 0, fun
         if (!mess) {
             throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
         }
-        const user = yield user_model_1.default.findOne({
+        const user = yield user_schema_1.default.findOne({
             _id: userId,
             messId,
             isApproved: true,
@@ -372,7 +372,7 @@ const createMealsForOneMonth = (messId) => __awaiter(void 0, void 0, void 0, fun
             throw new Error(`Meals already exist for mess ${mess._id} for the current month.`);
         }
         // Fetch all approved users for the mess
-        const users = yield user_model_1.default.find({
+        const users = yield user_schema_1.default.find({
             messId: mess._id,
             isApproved: true,
             isBlocked: false,
@@ -433,7 +433,7 @@ const createMonthlyMealsForUser = (messId, userId) => __awaiter(void 0, void 0, 
             throw new errors_1.AppError(`Mess with ID ${messId} not found or inactive`, 404, "MESS_NOT_FOUND");
         }
         // Fetch the specified user
-        const user = yield user_model_1.default.findOne({
+        const user = yield user_schema_1.default.findOne({
             _id: userId,
             messId: mess._id,
             isApproved: true,

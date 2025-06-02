@@ -18,7 +18,7 @@ const errors_1 = require("../../middlewares/errors");
 const mess_schema_1 = __importDefault(require("../Mess/mess.schema"));
 const transaction_schema_1 = __importDefault(require("../Transaction/transaction.schema"));
 const user_interface_1 = require("../User/user.interface");
-const user_model_1 = __importDefault(require("../User/user.model"));
+const user_schema_1 = __importDefault(require("../User/user.schema"));
 const account_interface_1 = require("./account.interface");
 const account_schema_1 = __importDefault(require("./account.schema"));
 // Create a new account
@@ -34,7 +34,7 @@ const createAccount = (input, createdBy) => __awaiter(void 0, void 0, void 0, fu
     if (!mess || mess.isDeleted) {
         throw new errors_1.AppError("Mess not found", 404, "MESS_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: userId,
         messId,
         isApproved: true,
@@ -42,7 +42,7 @@ const createAccount = (input, createdBy) => __awaiter(void 0, void 0, void 0, fu
     if (!user) {
         throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
     }
-    const creator = yield user_model_1.default.findById(createdBy.userId);
+    const creator = yield user_schema_1.default.findById(createdBy.userId);
     if (!creator || ![user_interface_1.UserRole.Admin, user_interface_1.UserRole.Manager].includes(creator.role)) {
         throw new errors_1.AppError("Only admins or managers can create accounts", 403, "FORBIDDEN");
     }
@@ -88,7 +88,7 @@ const getAccountById = (accountId, userId) => __awaiter(void 0, void 0, void 0, 
     if (!account) {
         throw new errors_1.AppError("Account not found", 404, "ACCOUNT_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: userId,
         messId: account.messId,
         isApproved: true,
@@ -110,7 +110,7 @@ const getAccounts = (filters, userId) => __awaiter(void 0, void 0, void 0, funct
     if (filters.userId && !mongoose_1.Types.ObjectId.isValid(filters.userId)) {
         throw new errors_1.AppError("Invalid user ID", 400, "INVALID_USER_ID");
     }
-    const user = yield user_model_1.default.findOne(Object.assign(Object.assign({ _id: userId }, (filters.messId ? { messId: filters.messId } : {})), { isApproved: true }));
+    const user = yield user_schema_1.default.findOne(Object.assign(Object.assign({ _id: userId }, (filters.messId ? { messId: filters.messId } : {})), { isApproved: true }));
     if (!user) {
         throw new errors_1.AppError("User is not an approved member of this mess", 403, "NOT_MESS_MEMBER");
     }
@@ -141,7 +141,7 @@ const createTransaction = (input, createdBy) => __awaiter(void 0, void 0, void 0
     if (!account) {
         throw new errors_1.AppError("Account not found", 404, "ACCOUNT_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: createdBy.userId,
         messId: account.messId,
         isApproved: true,
@@ -200,7 +200,7 @@ const getTransactions = (filters, userId) => __awaiter(void 0, void 0, void 0, f
     if (!account) {
         throw new errors_1.AppError("Account not found", 404, "ACCOUNT_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: userId,
         messId: account.messId,
         isApproved: true,
@@ -239,7 +239,7 @@ const softDeleteAccount = (accountId, deletedBy) => __awaiter(void 0, void 0, vo
     if (!account) {
         throw new errors_1.AppError("Account not found", 404, "ACCOUNT_NOT_FOUND");
     }
-    const user = yield user_model_1.default.findOne({
+    const user = yield user_schema_1.default.findOne({
         _id: deletedBy.userId,
         messId: account.messId,
         isApproved: true,

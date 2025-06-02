@@ -4,7 +4,7 @@ import { getNextMessId } from "../../lib/utils";
 import { AppError } from "../../middlewares/errors";
 import ActivityLogModel from "../Activity/activity.schema";
 import { IUser } from "../User/user.interface";
-import UserModel from "../User/user.model";
+import UserModel from "../User/user.schema";
 import { IMess } from "./mess.interface";
 import MessModel from "./mess.schema";
 interface GetUnapprovedUsersOptions {
@@ -383,36 +383,43 @@ export const softDeleteMess = async (
   messId: string,
   deletedBy: { name: string; userId: string }
 ): Promise<void> => {
-  if (!Types.ObjectId.isValid(messId)) {
-    throw new AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
-  }
+  const session = await startSession();
+  try {
+    session.startTransaction();
 
-  if (!Types.ObjectId.isValid(deletedBy.userId)) {
-    throw new AppError("Invalid deleter ID", 400, "INVALID_USER_ID");
-  }
+    if (!Types.ObjectId.isValid(messId)) {
+      throw new AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+    }
 
-  const mess = await MessModel.findOne({ _id: messId, isDeleted: false });
-  if (!mess) {
-    throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
-  }
+    if (!Types.ObjectId.isValid(deletedBy.userId)) {
+      throw new AppError("Invalid deleter ID", 400, "INVALID_USER_ID");
+    }
 
-  mess.set({
-    isDeleted: true,
-    updatedBy: new Types.ObjectId(deletedBy.userId),
-    activityLogs: [
-      ...mess.activityLogs,
-      {
-        action: "deleted",
-        performedBy: {
-          name: deletedBy.name,
-          userId: new Types.ObjectId(deletedBy.userId),
-        },
-        timestamp: new Date(),
+    const mess = await MessModel.findOne({ _id: messId, isDeleted: false });
+    if (!mess) {
+      throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
+    }
+
+    await mess.save({ session });
+    const activity = new ActivityLogModel({
+      messId: mess._id,
+      entity: "Mess",
+      entityId: mess._id,
+      action: IStatus.Deleted,
+      performedBy: {
+        userId: new Types.ObjectId(deletedBy.userId),
+        name: deletedBy.name,
       },
-    ],
-  });
-
-  await mess.save();
+      timestamp: new Date(),
+    });
+    await activity.save({ session });
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 // Approve a user's mess join request
 export const approveMessJoin = async (
