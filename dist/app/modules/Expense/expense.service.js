@@ -49,38 +49,32 @@ const createExpense = (input, createdBy) => __awaiter(void 0, void 0, void 0, fu
         if (items && category !== expense_interface_1.ExpenseCategory.Grocery) {
             throw new errors_1.AppError("Items can only be specified for Grocery expenses", 400, "INVALID_ITEMS");
         }
-        const expense = yield expense_schema_1.default.create([
-            {
-                messId: new mongoose_1.Types.ObjectId(messId),
-                category,
-                amount,
-                description,
-                date,
-                items,
-                createdBy: new mongoose_1.Types.ObjectId(createdBy.userId),
-                activityLogs: [
-                    {
-                        action: "created",
-                        performedBy: {
-                            userId: new mongoose_1.Types.ObjectId(createdBy.userId),
-                            name: createdBy.name,
-                        },
-                        timestamp: new Date(),
-                    },
-                ],
+        const expense = new expense_schema_1.default({
+            messId: new mongoose_1.Types.ObjectId(messId),
+            category,
+            amount,
+            description,
+            date,
+            items,
+            createdBy: new mongoose_1.Types.ObjectId(createdBy.userId),
+        });
+        const newExpense = yield expense.save({ session });
+        // Create activity log
+        const activity = new activity_schema_1.default({
+            messId: messId,
+            entity: "Expense",
+            entityId: newExpense._id,
+            action: "created",
+            performedBy: {
+                userId: new mongoose_1.Types.ObjectId(createdBy.userId),
+                name: createdBy.name,
             },
-        ], { session });
-        yield activity_schema_1.default.create([
-            {
-                messId: messId,
-                entity: "Expense",
-                entityId: expense[0]._id,
-                action: "created",
-            },
-        ], { session });
+            timestamp: new Date(),
+        });
+        yield activity.save({ session });
         // Commit the transaction
         yield session.commitTransaction();
-        return expense[0];
+        return newExpense;
     }
     catch (error) {
         // Abort transaction on error

@@ -59,7 +59,6 @@ export const protect = catchAsync(
       // Proceed to the next middleware
       next();
     } catch (err) {
-      console.error("JWT verification error:", err); // Log the error for debugging
       throw new AppError("Invalid token", 401, "INVALID_TOKEN");
     }
   }

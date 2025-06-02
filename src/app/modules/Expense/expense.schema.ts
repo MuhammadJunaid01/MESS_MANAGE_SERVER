@@ -61,7 +61,7 @@ const ExpenseSchema = new Schema<IExpense>(
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     updatedBy: { type: Schema.Types.ObjectId, ref: "User" },
     deletedBy: { type: Schema.Types.ObjectId, ref: "User" },
-    deletedAt: { type: Date, default: new Date() },
+    deletedAt: { type: Date, default: null },
     items: {
       type: [GroceryItemSchema],
       default: undefined,

@@ -10,7 +10,7 @@ import ExpenseModel from "./expense.schema";
 
 // Interface for expense creation input
 interface CreateExpenseInput {
-  messId: string;
+  messId: Types.ObjectId;
   category: ExpenseCategory;
   amount: number;
   description: string;
@@ -44,7 +44,7 @@ interface ActivityLogInput {
 // Create a new expense
 export const createExpense = async (
   input: CreateExpenseInput,
-  createdBy: { userId: string; name: string }
+  createdBy: { userId: Types.ObjectId; name: string }
 ): Promise<IExpense> => {
   const session = await startSession();
   session.startTransaction();
@@ -87,46 +87,32 @@ export const createExpense = async (
       );
     }
 
-    const expense = await ExpenseModel.create(
-      [
-        {
-          messId: new Types.ObjectId(messId),
-          category,
-          amount,
-          description,
-          date,
-          items,
-          createdBy: new Types.ObjectId(createdBy.userId),
-          activityLogs: [
-            {
-              action: "created",
-              performedBy: {
-                userId: new Types.ObjectId(createdBy.userId),
-                name: createdBy.name,
-              },
-              timestamp: new Date(),
-            },
-          ],
-        },
-      ],
-      { session }
-    );
-
-    await ActivityLogModel.create(
-      [
-        {
-          messId: messId,
-          entity: "Expense",
-          entityId: expense[0]._id,
-          action: "created",
-        },
-      ],
-      { session }
-    );
-
+    const expense = new ExpenseModel({
+      messId: new Types.ObjectId(messId),
+      category,
+      amount,
+      description,
+      date,
+      items,
+      createdBy: new Types.ObjectId(createdBy.userId),
+    });
+    const newExpense = await expense.save({ session });
+    // Create activity log
+    const activity = new ActivityLogModel({
+      messId: messId,
+      entity: "Expense",
+      entityId: newExpense._id,
+      action: "created",
+      performedBy: {
+        userId: new Types.ObjectId(createdBy.userId),
+        name: createdBy.name,
+      },
+      timestamp: new Date(),
+    });
+    await activity.save({ session });
     // Commit the transaction
     await session.commitTransaction();
-    return expense[0];
+    return newExpense;
   } catch (error) {
     // Abort transaction on error
     await session.abortTransaction();

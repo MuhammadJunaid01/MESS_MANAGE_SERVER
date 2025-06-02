@@ -51,7 +51,7 @@ const ExpenseSchema = new mongoose_1.Schema({
     createdBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     updatedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
     deletedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
-    deletedAt: { type: Date, default: new Date() },
+    deletedAt: { type: Date, default: null },
     items: {
         type: [GroceryItemSchema],
         default: undefined,

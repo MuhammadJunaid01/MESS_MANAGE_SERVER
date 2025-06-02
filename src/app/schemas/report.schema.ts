@@ -4,7 +4,7 @@ const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 
 export const getMealReportSchema = z.object({
   query: z.object({
-    messId: z.string().regex(objectIdRegex, "Invalid mess ID").optional(),
+    // messId: z.string().regex(objectIdRegex, "Invalid mess ID").optional(),
     userId: z.string().regex(objectIdRegex, "Invalid user ID").optional(),
     dateFrom: z
       .string()

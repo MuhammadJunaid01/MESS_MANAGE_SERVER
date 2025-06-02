@@ -59,7 +59,7 @@ app.use((0, morgan_1.default)(morganFormat, { stream: logger_1.stream }));
 // Default root route
 app.get("/", (req, res) => {
     logger_1.logger.info("Root route accessed");
-    res.send("Welcome to the My Mess API 🤝");
+    res.json({ message: "Welcome to the Mess Manager API" });
 });
 // API routes
 app.use("/api/v1", routes_1.default);

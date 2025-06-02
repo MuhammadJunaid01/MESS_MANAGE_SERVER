@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { Types } from "mongoose";
 import { AuthUser, IStatus } from "../../interfaces/global.interface";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
@@ -16,7 +17,7 @@ import {
 // Create expense
 export const createExpenseController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { messId, category, amount, description, date, items } = req.body;
+    const { category, amount, description, date, items } = req.body;
     const authUser = req.user as AuthUser;
 
     if (!authUser) {
@@ -25,6 +26,11 @@ export const createExpenseController = catchAsync(
         401,
         "UNAUTHORIZED"
       );
+    }
+    const messId = new Types.ObjectId(authUser.messId);
+    const userId = new Types.ObjectId(authUser.userId);
+    if (!Types.ObjectId.isValid(messId) || !Types.ObjectId.isValid(userId)) {
+      throw new AppError("Invalid mess ID or user ID", 400, "INVALID_MESS_ID ");
     }
 
     const expense = await createExpense(
@@ -36,14 +42,14 @@ export const createExpenseController = catchAsync(
         date: new Date(date),
         items,
       },
-      { userId: authUser.userId, name: authUser.name }
+      { userId: userId, name: authUser.name }
     );
 
     sendResponse(res, {
       statusCode: 201,
       success: true,
       message: "Expense created successfully",
-      data: { expense },
+      data: expense,
     });
   }
 );
@@ -113,7 +119,7 @@ export const getExpensesController = catchAsync(
       statusCode: 200,
       success: true,
       message: "Expenses retrieved successfully",
-      data: { expenses },
+      data: expenses,
     });
   }
 );

@@ -18,7 +18,6 @@ const groceryItemSchema = zod_1.z.object({
 });
 exports.createExpenseSchema = zod_1.z.object({
     body: zod_1.z.object({
-        messId: zod_1.z.string().regex(objectIdRegex, "Invalid mess ID"),
         category: zod_1.z.enum(Object.values(expense_interface_1.ExpenseCategory), {
             message: "Invalid category",
         }),

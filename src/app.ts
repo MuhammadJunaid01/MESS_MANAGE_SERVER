@@ -26,7 +26,7 @@ app.use(morgan(morganFormat, { stream }));
 // Default root route
 app.get("/", (req: Request, res: Response) => {
   logger.info("Root route accessed");
-  res.send("Welcome to the My Mess API 🤝");
+  res.json({ message: "Welcome to the Mess Manager API" });
 });
 
 // API routes

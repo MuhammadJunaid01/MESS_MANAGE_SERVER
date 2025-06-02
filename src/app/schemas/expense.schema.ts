@@ -22,7 +22,6 @@ const groceryItemSchema = z.object({
 
 export const createExpenseSchema = z.object({
   body: z.object({
-    messId: z.string().regex(objectIdRegex, "Invalid mess ID"),
     category: z.enum(Object.values(ExpenseCategory) as [string, ...string[]], {
       message: "Invalid category",
     }),

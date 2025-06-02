@@ -10,16 +10,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteExpenseController = exports.updateExpenseStatusController = exports.updateExpenseController = exports.getExpensesController = exports.getExpenseByIdController = exports.createExpenseController = void 0;
+const mongoose_1 = require("mongoose");
 const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
 const errors_1 = require("../../middlewares/errors");
 const expense_service_1 = require("./expense.service");
 // Create expense
 exports.createExpenseController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { messId, category, amount, description, date, items } = req.body;
+    const { category, amount, description, date, items } = req.body;
     const authUser = req.user;
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
+    }
+    const messId = new mongoose_1.Types.ObjectId(authUser.messId);
+    const userId = new mongoose_1.Types.ObjectId(authUser.userId);
+    if (!mongoose_1.Types.ObjectId.isValid(messId) || !mongoose_1.Types.ObjectId.isValid(userId)) {
+        throw new errors_1.AppError("Invalid mess ID or user ID", 400, "INVALID_MESS_ID ");
     }
     const expense = yield (0, expense_service_1.createExpense)({
         messId,
@@ -28,12 +34,12 @@ exports.createExpenseController = (0, middlewares_1.catchAsync)((req, res, next)
         description,
         date: new Date(date),
         items,
-    }, { userId: authUser.userId, name: authUser.name });
+    }, { userId: userId, name: authUser.name });
     (0, utils_1.sendResponse)(res, {
         statusCode: 201,
         success: true,
         message: "Expense created successfully",
-        data: { expense },
+        data: expense,
     });
 }));
 // Get expense by ID
@@ -73,7 +79,7 @@ exports.getExpensesController = (0, middlewares_1.catchAsync)((req, res, next) =
         statusCode: 200,
         success: true,
         message: "Expenses retrieved successfully",
-        data: { expenses },
+        data: expenses,
     });
 }));
 // Update expense

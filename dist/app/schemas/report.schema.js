@@ -5,7 +5,7 @@ const zod_1 = require("zod");
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
 exports.getMealReportSchema = zod_1.z.object({
     query: zod_1.z.object({
-        messId: zod_1.z.string().regex(objectIdRegex, "Invalid mess ID").optional(),
+        // messId: z.string().regex(objectIdRegex, "Invalid mess ID").optional(),
         userId: zod_1.z.string().regex(objectIdRegex, "Invalid user ID").optional(),
         dateFrom: zod_1.z
             .string()

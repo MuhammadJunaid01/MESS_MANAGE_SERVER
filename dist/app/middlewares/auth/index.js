@@ -64,7 +64,6 @@ exports.protect = (0, __1.catchAsync)((req, res, next) => __awaiter(void 0, void
         next();
     }
     catch (err) {
-        console.error("JWT verification error:", err); // Log the error for debugging
         throw new errors_1.AppError("Invalid token", 401, "INVALID_TOKEN");
     }
 }));
