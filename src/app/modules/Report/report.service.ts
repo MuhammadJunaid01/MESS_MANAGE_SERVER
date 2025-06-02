@@ -39,7 +39,6 @@ export const generateMealReport = async (
   if (!user || !user.isApproved) {
     throw new AppError("User is not approved", 403, "NOT_APPROVED");
   }
-
   // Restrict to user's mess unless Admin/Manager
   // const isAdminOrManager = [UserRole.Admin, UserRole.Manager].includes(
   //   user.role

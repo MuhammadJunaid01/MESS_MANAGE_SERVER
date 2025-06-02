@@ -406,3 +406,11 @@
 [2025-06-02 15:03:42] INFO: Connected to MongoDB
 [2025-06-02 15:03:42] INFO: Scheduled meal creation cron job
 [2025-06-02 15:03:42] INFO: Server running on http://localhost:5000
+[2025-06-02 15:07:23] INFO: Application setup complete
+[2025-06-02 15:07:23] INFO: Connected to MongoDB
+[2025-06-02 15:07:23] INFO: Scheduled meal creation cron job
+[2025-06-02 15:07:23] INFO: Server running on http://localhost:5000
+[2025-06-02 15:08:27] INFO: Application setup complete
+[2025-06-02 15:08:27] INFO: Connected to MongoDB
+[2025-06-02 15:08:27] INFO: Scheduled meal creation cron job
+[2025-06-02 15:08:27] INFO: Server running on http://localhost:5000
