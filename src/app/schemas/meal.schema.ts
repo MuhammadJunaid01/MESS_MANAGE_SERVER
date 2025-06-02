@@ -27,7 +27,37 @@ export const getMealByIdSchema = z.object({
     mealId: z.string().regex(objectIdRegex, "Invalid meal ID"),
   }),
 });
-
+export const getMealDetailsByUserIdSchema = z.object({
+  query: z
+    .object({
+      userId: z
+        .string({ required_error: "userId is required" })
+        .regex(objectIdRegex, "Invalid user ID"),
+      messId: z
+        .string({ required_error: "messId is required" })
+        .regex(objectIdRegex, "Invalid mess ID"),
+      from: z
+        .string()
+        .optional()
+        .refine((val) => !val || !isNaN(Date.parse(val)), {
+          message: "Invalid from date format",
+        }),
+      to: z
+        .string()
+        .optional()
+        .refine((val) => !val || !isNaN(Date.parse(val)), {
+          message: "Invalid to date format",
+        }),
+    })
+    .refine(
+      (data) =>
+        !data.from || !data.to || new Date(data.from) <= new Date(data.to),
+      {
+        message: "from date must be before or equal to to date",
+        path: ["from", "to"],
+      }
+    ),
+});
 export const getMealsSchema = z.object({
   query: z.object({
     messId: z.string().regex(objectIdRegex, "Invalid mess ID").optional(),

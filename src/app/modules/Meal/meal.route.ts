@@ -8,6 +8,7 @@ import {
   createMealSchema,
   deleteMealSchema,
   getMealByIdSchema,
+  getMealDetailsByUserIdSchema,
   getMealsSchema,
   toggleMealsForDateRangeSchema,
   updateMealSchema,
@@ -19,6 +20,7 @@ import {
   createMealsForOneMonthUserController,
   deleteMealController,
   getMealByIdController,
+  getMealDetailsByUserIdController,
   getMealsController,
   toggleMealsForDateRangeController,
   updateMealController,
@@ -53,6 +55,12 @@ router.post(
   sanitizeInput,
   validate(createMealSchema),
   createMealController
+);
+router.get(
+  "/meal-details",
+  getLimiter,
+  validate(getMealDetailsByUserIdSchema),
+  getMealDetailsByUserIdController
 );
 router.get(
   "/:mealId",

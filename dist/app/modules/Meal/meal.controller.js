@@ -12,7 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMealsForOneMonthUserController = exports.toggleMealsForDateRangeController = exports.deleteMealController = exports.updateMealController = exports.getMealsController = exports.getMealByIdController = exports.createMealForOneMonthController = exports.createMealController = void 0;
+exports.createMealsForOneMonthUserController = exports.toggleMealsForDateRangeController = exports.deleteMealController = exports.updateMealController = exports.getMealsController = exports.getMealDetailsByUserIdController = exports.getMealByIdController = exports.createMealForOneMonthController = exports.createMealController = void 0;
+const date_fns_1 = require("date-fns");
 const mongoose_1 = require("mongoose");
 const utils_1 = require("../../lib/utils");
 const middlewares_1 = require("../../middlewares");
@@ -73,6 +74,34 @@ exports.getMealByIdController = (0, middlewares_1.catchAsync)((req, res, next) =
         data: { meal },
     });
 }));
+exports.getMealDetailsByUserIdController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { from, to, userId, messId } = req.query;
+    const authUser = req.user;
+    if (!authUser) {
+        throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
+    }
+    // Validate query parameters
+    if (!userId || !messId) {
+        throw new errors_1.AppError("userId and messId are required", 400, "MISSING_PARAMETERS");
+    }
+    // Use current month as default if dates are not provided
+    const currentDate = new Date();
+    const defaultFrom = (0, date_fns_1.startOfMonth)(currentDate);
+    const defaultTo = (0, date_fns_1.endOfMonth)(currentDate);
+    const input = {
+        from: from ? new Date(from) : defaultFrom,
+        to: to ? new Date(to) : defaultTo,
+        userId: new mongoose_1.Types.ObjectId(userId),
+        messId: new mongoose_1.Types.ObjectId(messId),
+    };
+    const mealDetails = yield (0, meal_service_1.getMealDetailsByUserId)(input);
+    (0, utils_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Meal details retrieved successfully",
+        data: mealDetails,
+    });
+}));
 // Get meals with filters
 exports.getMealsController = (0, middlewares_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { messId, userId, dateFrom, dateTo, limit, skip } = req.query;
@@ -80,11 +109,15 @@ exports.getMealsController = (0, middlewares_1.catchAsync)((req, res, next) => _
     if (!authUser) {
         throw new errors_1.AppError("Unauthorized: No authenticated user", 401, "UNAUTHORIZED");
     }
+    // Set default date range to current month if dateFrom and dateTo are undefined
+    const currentDate = new Date();
+    const defaultDateFrom = (0, date_fns_1.startOfMonth)(currentDate);
+    const defaultDateTo = (0, date_fns_1.endOfMonth)(currentDate);
     const meals = yield (0, meal_service_1.getMeals)({
         messId: messId,
         userId: userId,
-        dateFrom: dateFrom ? new Date(dateFrom) : undefined,
-        dateTo: dateTo ? new Date(dateTo) : undefined,
+        dateFrom: dateFrom ? new Date(dateFrom) : defaultDateFrom,
+        dateTo: dateTo ? new Date(dateTo) : defaultDateTo,
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
     }, authUser.userId);

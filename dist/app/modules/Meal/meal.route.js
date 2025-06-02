@@ -28,6 +28,7 @@ router.post("/create-monthly-meals-for-user", meal_controller_1.createMealsForOn
 router.post("/toggle", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.toggleMealsForDateRangeSchema), meal_controller_1.toggleMealsForDateRangeController);
 // Meal routes
 router.post("/", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.createMealSchema), meal_controller_1.createMealController);
+router.get("/meal-details", getLimiter, (0, validation_1.validate)(meal_schema_1.getMealDetailsByUserIdSchema), meal_controller_1.getMealDetailsByUserIdController);
 router.get("/:mealId", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.getMealByIdSchema), meal_controller_1.getMealByIdController);
 router.get("/", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.getMealsSchema), meal_controller_1.getMealsController);
 router.patch("/:mealId", sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(meal_schema_1.updateMealSchema), meal_controller_1.updateMealController);

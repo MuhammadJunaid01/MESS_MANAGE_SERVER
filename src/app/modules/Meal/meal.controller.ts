@@ -1,3 +1,4 @@
+import { endOfMonth, startOfMonth } from "date-fns";
 import { NextFunction, Request, Response } from "express";
 import { Types } from "mongoose";
 import { AuthUser } from "../../interfaces/global.interface";
@@ -12,7 +13,9 @@ import {
   createMonthlyMealsForUser,
   deleteMeal,
   getMealById,
+  getMealDetailsByUserId,
   getMeals,
+  IMealDetailsInputByUserId,
   toggleMealsForDateRange,
   updateMeal,
 } from "./meal.service";
@@ -97,7 +100,50 @@ export const getMealByIdController = catchAsync(
     });
   }
 );
+export const getMealDetailsByUserIdController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { from, to, userId, messId } = req.query;
+    const authUser = req.user as AuthUser;
 
+    if (!authUser) {
+      throw new AppError(
+        "Unauthorized: No authenticated user",
+        401,
+        "UNAUTHORIZED"
+      );
+    }
+
+    // Validate query parameters
+    if (!userId || !messId) {
+      throw new AppError(
+        "userId and messId are required",
+        400,
+        "MISSING_PARAMETERS"
+      );
+    }
+
+    // Use current month as default if dates are not provided
+    const currentDate = new Date();
+    const defaultFrom = startOfMonth(currentDate);
+    const defaultTo = endOfMonth(currentDate);
+
+    const input: IMealDetailsInputByUserId = {
+      from: from ? new Date(from as string) : defaultFrom,
+      to: to ? new Date(to as string) : defaultTo,
+      userId: new Types.ObjectId(userId as string),
+      messId: new Types.ObjectId(messId as string),
+    };
+
+    const mealDetails = await getMealDetailsByUserId(input);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Meal details retrieved successfully",
+      data: mealDetails,
+    });
+  }
+);
 // Get meals with filters
 export const getMealsController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -112,12 +158,17 @@ export const getMealsController = catchAsync(
       );
     }
 
+    // Set default date range to current month if dateFrom and dateTo are undefined
+    const currentDate = new Date();
+    const defaultDateFrom = startOfMonth(currentDate);
+    const defaultDateTo = endOfMonth(currentDate);
+
     const meals = await getMeals(
       {
         messId: messId as string | undefined,
         userId: userId as string | undefined,
-        dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
-        dateTo: dateTo ? new Date(dateTo as string) : undefined,
+        dateFrom: dateFrom ? new Date(dateFrom as string) : defaultDateFrom,
+        dateTo: dateTo ? new Date(dateTo as string) : defaultDateTo,
         limit: limit ? Number(limit) : undefined,
         skip: skip ? Number(skip) : undefined,
       },

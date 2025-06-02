@@ -1,7 +1,9 @@
 import {
+  endOfDay,
   getDaysInMonth,
   isAfter,
   isBefore,
+  isValid,
   parseISO,
   startOfDay,
   startOfMonth,
@@ -11,11 +13,29 @@ import { getNextMonthDetails } from "../../lib/utils";
 import { AppError } from "../../middlewares/errors";
 import ActivityLogModel from "../Activity/activity.schema";
 import MessModel from "../Mess/mess.schema";
+import SettingModel from "../MSetting/MSetting.schema";
 import { UserRole } from "../User/user.interface";
 import UserModel from "../User/user.schema";
 import { IMeal, MealType } from "./meal.interface";
 import MealModel from "./meal.schema";
+export interface IMealDetailsByUserIdReturnType {
+  meals: {
+    breakfast?: number;
+    lunch?: number;
+    dinner?: number;
+    userId: string;
+    date: Date;
+  }[];
+  totalActiveMeals: number;
+  totalInactiveMeals: number;
+}
 
+export interface IMealDetailsInputByUserId {
+  from: Date;
+  to: Date;
+  userId: Types.ObjectId;
+  messId: Types.ObjectId;
+}
 // Interface for meal creation/update input
 interface MealInput {
   userId: string;
@@ -213,11 +233,11 @@ export const getMeals = async (
     }
 
     const meals = await MealModel.find(query)
-      .populate("userId", "name email")
-      .populate("messId", "name messId")
+      // .populate("userId", "name email")
+      // .populate("messId", "name messId")
       .limit(filters.limit || 100)
       .skip(filters.skip || 0)
-      .sort({ date: 1 })
+      .sort({ date: -1 })
       .session(session);
 
     await session.commitTransaction();
@@ -297,7 +317,7 @@ export const updateMeal = async (
       entityId: meal._id,
       action: "update",
       performedBy: {
-        userId: user._id,
+        userId: user._id as Types.ObjectId,
         name: user.name,
       },
       timestamp: new Date(),
@@ -382,21 +402,52 @@ export const toggleMealsForDateRange = async (
     session.startTransaction();
     const { userId, messId, startDate, endDate, meals } = input;
 
+    // Fetch settings for the mess
+    const setting = await SettingModel.findOne({ messId }).session(session);
+    if (!setting) {
+      throw new AppError(
+        "Settings not found for mess",
+        404,
+        "SETTINGS_NOT_FOUND"
+      );
+    }
+
+    // Validate that all meal types in input are enabled in settings
+    const enabledMealTypes: { [key in MealType]?: boolean } = {
+      [MealType.Breakfast]: setting.breakfast,
+      [MealType.Lunch]: setting.lunch,
+      [MealType.Dinner]: setting.dinner,
+    };
+
+    const invalidMealTypes = meals.filter(
+      (meal) => !enabledMealTypes[meal.type]
+    );
+    if (invalidMealTypes.length > 0) {
+      const invalidTypes = invalidMealTypes.map((m) => m.type).join(", ");
+      throw new AppError(
+        `Meal types [${invalidTypes}] are not enabled in mess settings`,
+        400,
+        "INVALID_MEAL_TYPES"
+      );
+    }
+
+    // Validate user and mess IDs
     if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(messId)) {
       throw new AppError("Invalid user or mess ID", 400, "INVALID_ID");
     }
 
+    // Validate mess existence
     const mess = await MessModel.findById(messId).session(session);
     if (!mess) {
       throw new AppError("Mess not found", 404, "MESS_NOT_FOUND");
     }
 
+    // Validate user membership
     const user = await UserModel.findOne({
       _id: userId,
       messId,
       isApproved: true,
     }).session(session);
-
     if (!user) {
       throw new AppError(
         "User is not an approved member of this mess",
@@ -405,9 +456,9 @@ export const toggleMealsForDateRange = async (
       );
     }
 
+    // Validate date range
     const start = parseISO(new Date(startDate).toISOString());
     const end = parseISO(new Date(endDate).toISOString());
-
     if (isAfter(start, end)) {
       throw new AppError(
         "Start date must be before end date",
@@ -416,6 +467,7 @@ export const toggleMealsForDateRange = async (
       );
     }
 
+    // Prevent toggling meals for past dates
     const todayMidnight = startOfDay(new Date());
     if (isBefore(start, todayMidnight)) {
       throw new AppError(
@@ -425,6 +477,7 @@ export const toggleMealsForDateRange = async (
       );
     }
 
+    // Validate meal types
     const validMealTypes = Object.values(MealType);
     if (!meals.every((m) => validMealTypes.includes(m.type))) {
       throw new AppError("Invalid meal type", 400, "INVALID_MEAL_TYPE");
@@ -433,6 +486,7 @@ export const toggleMealsForDateRange = async (
     const updatedMeals: IMeal[] = [];
     let currentDate = new Date(start);
 
+    // Iterate through the date range
     while (currentDate <= end) {
       const date = new Date(currentDate);
       let meal = await MealModel.findOne({ userId, messId, date }).session(
@@ -440,10 +494,12 @@ export const toggleMealsForDateRange = async (
       );
 
       if (meal) {
+        // Update existing meal document with new meals array
         meal.meals = meals;
         await meal.save({ session });
         updatedMeals.push(meal);
       } else {
+        // Create new meal document
         const newMeal = await MealModel.create(
           [
             {
@@ -474,6 +530,21 @@ export const createMealsForOneMonth = async (messId: Types.ObjectId) => {
   try {
     console.log(`Running meal creation cron job for mess ${messId}`);
 
+    // Validate messId
+    if (!Types.ObjectId.isValid(messId)) {
+      throw new AppError("Invalid mess ID", 400, "INVALID_MESS_ID");
+    }
+
+    // Fetch the mess settings
+    const settings = await SettingModel.findOne({ messId }).lean();
+    if (!settings) {
+      throw new AppError(
+        `No settings found for mess ${messId}. Please configure settings first.`,
+        404,
+        "SETTINGS_NOT_FOUND"
+      );
+    }
+
     // Fetch the specified mess
     const mess = await MessModel.findOne({
       _id: messId,
@@ -482,7 +553,11 @@ export const createMealsForOneMonth = async (messId: Types.ObjectId) => {
     });
 
     if (!mess) {
-      throw new Error(`Mess with ID ${messId} not found or inactive.`);
+      throw new AppError(
+        `Mess with ID ${messId} not found or inactive.`,
+        404,
+        "MESS_NOT_FOUND"
+      );
     }
 
     const currentMonth = startOfMonth(new Date());
@@ -500,8 +575,10 @@ export const createMealsForOneMonth = async (messId: Types.ObjectId) => {
     });
 
     if (existingMeals) {
-      throw new Error(
-        `Meals already exist for mess ${mess._id} for the current month.`
+      throw new AppError(
+        `Meals already exist for mess ${mess._id} for the current month.`,
+        400,
+        "MEALS_ALREADY_EXIST"
       );
     }
 
@@ -518,33 +595,74 @@ export const createMealsForOneMonth = async (messId: Types.ObjectId) => {
       return;
     }
 
-    const bulkOps = [];
+    const bulkOps: {
+      insertOne: {
+        document: {
+          userId: Types.ObjectId;
+          messId: Types.ObjectId;
+          date: Date;
+          meals: {
+            type: MealType;
+            isActive: boolean;
+            numberOfMeals: number;
+          }[];
+        };
+      };
+    }[] = [];
 
+    // Generate meal entries for each user for each day of the month
     for (const user of users) {
       for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
-        bulkOps.push({
-          insertOne: {
-            document: {
-              userId: user._id,
-              messId: mess._id,
-              date,
-              meals: [
-                { type: MealType.Breakfast, isActive: true, numberOfMeals: 0 },
-                { type: MealType.Lunch, isActive: true, numberOfMeals: 0 },
-                { type: MealType.Dinner, isActive: true, numberOfMeals: 0 },
-              ],
+
+        // Build meals array based on settings
+        const meals = [];
+        if (settings.breakfast) {
+          meals.push({
+            type: MealType.Breakfast,
+            isActive: true,
+            numberOfMeals: 0,
+          });
+        }
+        if (settings.lunch) {
+          meals.push({
+            type: MealType.Lunch,
+            isActive: true,
+            numberOfMeals: 0,
+          });
+        }
+        if (settings.dinner) {
+          meals.push({
+            type: MealType.Dinner,
+            isActive: true,
+            numberOfMeals: 0,
+          });
+        }
+
+        // Push the document to bulk operations if meals are defined
+        if (meals.length > 0) {
+          bulkOps.push({
+            insertOne: {
+              document: {
+                userId: user._id as Types.ObjectId,
+                messId: mess._id as Types.ObjectId,
+                date,
+                meals,
+              },
             },
-          },
-        });
+          });
+        }
       }
     }
 
+    // Execute bulk write operation
     if (bulkOps.length > 0) {
       await MealModel.bulkWrite(bulkOps, { ordered: false });
       console.log(
-        `Created meals for mess ${mess._id} for ${users.length} users.`
+        `Created meals for mess ${mess._id} for ${users.length} users based on settings.`
       );
+    } else {
+      console.log(`No meals to create for mess ${mess._id}.`);
     }
   } catch (err) {
     throw err;
@@ -554,7 +672,20 @@ export const createMonthlyMealsForUser = async (
   messId: Types.ObjectId,
   userId: Types.ObjectId
 ) => {
+  const session = await startSession();
+
   try {
+    session.startTransaction();
+
+    // Validate messId
+    const settings = await SettingModel.findOne({ messId }).session(session);
+    if (!settings) {
+      throw new AppError(
+        "Settings not found for mess",
+        404,
+        "SETTINGS_NOT_FOUND"
+      );
+    }
     console.log(`Running meal creation for mess ${messId} and user ${userId}`);
 
     // Validate messId and userId
@@ -570,8 +701,7 @@ export const createMonthlyMealsForUser = async (
       _id: messId,
       isDeleted: false,
       status: "active",
-    });
-    // console.log()
+    }).session(session);
     if (!mess) {
       throw new AppError(
         `Mess with ID ${messId} not found or inactive`,
@@ -579,6 +709,7 @@ export const createMonthlyMealsForUser = async (
         "MESS_NOT_FOUND"
       );
     }
+
     // Fetch the specified user
     const user = await UserModel.findOne({
       _id: userId,
@@ -586,8 +717,7 @@ export const createMonthlyMealsForUser = async (
       isApproved: true,
       isBlocked: false,
       isVerified: true,
-    });
-    console.log("user", user);
+    }).session(session);
     if (!user) {
       throw new AppError(
         `User with ID ${userId} not found, not approved, or does not belong to mess ${messId}`,
@@ -609,7 +739,7 @@ export const createMonthlyMealsForUser = async (
         $gte: new Date(year, month, 1),
         $lte: new Date(year, month, daysInMonth),
       },
-    });
+    }).session(session);
 
     if (existingMeals) {
       throw new AppError(
@@ -619,36 +749,199 @@ export const createMonthlyMealsForUser = async (
       );
     }
 
-    const bulkOps = [];
-
+    const bulkOps: ({
+      insertOne: {
+        document: {
+          userId: Types.ObjectId;
+          messId: Types.ObjectId;
+          date: Date;
+          meals: {
+            type: MealType;
+            isActive: boolean;
+            numberOfMeals: number;
+          }[];
+        };
+      };
+    } | null)[] = [];
+    console.log("settings", settings);
     // Generate meal entries for the user for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
-      bulkOps.push({
-        insertOne: {
-          document: {
-            userId: user._id,
-            messId: mess._id,
-            date,
-            meals: [
-              { type: MealType.Breakfast, isActive: true, numberOfMeals: 0 },
-              { type: MealType.Lunch, isActive: true, numberOfMeals: 0 },
-              { type: MealType.Dinner, isActive: true, numberOfMeals: 0 },
-            ],
+
+      // Create meals array based on settings
+      const meals = [];
+      if (settings.breakfast) {
+        meals.push({
+          type: MealType.Breakfast,
+          isActive: true,
+          numberOfMeals: 0,
+        });
+      }
+      if (settings.lunch) {
+        meals.push({ type: MealType.Lunch, isActive: true, numberOfMeals: 0 });
+      }
+      if (settings.dinner) {
+        meals.push({ type: MealType.Dinner, isActive: true, numberOfMeals: 0 });
+      }
+
+      // Only push to bulkOps if there are meals to create
+      if (meals.length > 0) {
+        bulkOps.push({
+          insertOne: {
+            document: {
+              userId: user._id as Types.ObjectId,
+              messId: mess._id as Types.ObjectId,
+              date,
+              meals,
+            },
           },
-        },
-      });
+        });
+      }
     }
 
-    if (bulkOps.length > 0) {
-      await MealModel.bulkWrite(bulkOps, { ordered: false });
+    // Filter out null values from bulkOps
+    const validBulkOps = bulkOps.filter((op) => op !== null) as Exclude<
+      (typeof bulkOps)[number],
+      null
+    >[];
+
+    // Execute bulk write
+    if (validBulkOps.length > 0) {
+      await MealModel.bulkWrite(validBulkOps, { ordered: false, session });
       console.log(
         `Created meals for user ${user._id} in mess ${mess._id} for the current month`
       );
+    } else {
+      console.log(
+        `No meals created for user ${user._id} as all meal types are disabled in settings`
+      );
     }
 
+    await session.commitTransaction();
     return { message: `Meals created successfully for user ${user._id}` };
   } catch (err) {
+    await session.abortTransaction();
     throw err;
+  } finally {
+    session.endSession();
   }
+};
+
+export const getMealDetailsByUserId = async (
+  input: IMealDetailsInputByUserId
+): Promise<IMealDetailsByUserIdReturnType> => {
+  const { from, to, userId, messId } = input;
+
+  // Validate input
+  if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(messId)) {
+    throw new AppError("Invalid user or mess ID", 400, "INVALID_ID");
+  }
+
+  if (!isValid(from) || !isValid(to)) {
+    throw new AppError("Invalid date format", 400, "INVALID_DATE");
+  }
+
+  if (isAfter(from, to)) {
+    throw new AppError(
+      "Start date must be before or equal to end date",
+      400,
+      "INVALID_DATE_RANGE"
+    );
+  }
+
+  // Check mess existence
+  const mess = await MessModel.findOne({
+    _id: messId,
+    isDeleted: false,
+    status: "active",
+  });
+  if (!mess) {
+    throw new AppError("Mess not found or inactive", 404, "MESS_NOT_FOUND");
+  }
+
+  // Check user membership
+  const user = await UserModel.findOne({
+    _id: userId,
+    messId,
+    isApproved: true,
+    isBlocked: false,
+    isVerified: true,
+  });
+  if (!user) {
+    throw new AppError(
+      "User is not an approved member of this mess",
+      404,
+      "USER_NOT_FOUND"
+    );
+  }
+
+  // Get mess settings
+  const setting = await SettingModel.findOne({ messId });
+  if (!setting) {
+    throw new AppError(
+      "Settings not found for the mess",
+      404,
+      "SETTINGS_NOT_FOUND"
+    );
+  }
+
+  // Fetch meals within the date range
+  const meals = await MealModel.find({
+    userId,
+    messId,
+    date: {
+      $gte: startOfDay(from),
+      $lte: endOfDay(to),
+    },
+  }).lean();
+  const countDoc = await MealModel.find().countDocuments().lean();
+  console.log(countDoc);
+  // Map enabled meal types based on settings
+  const enabledMealTypes = {
+    breakfast: setting.breakfast,
+    lunch: setting.lunch,
+    dinner: setting.dinner,
+  };
+
+  // Process the meals data
+  const result: IMealDetailsByUserIdReturnType = {
+    meals: [],
+    totalActiveMeals: 0,
+    totalInactiveMeals: 0,
+  };
+
+  meals.forEach((meal) => {
+    const mealDetails: IMealDetailsByUserIdReturnType["meals"][number] = {
+      userId: userId.toString(),
+      date: meal.date,
+    };
+
+    // Process each meal type
+    for (const mealType of Object.keys(enabledMealTypes) as Array<
+      keyof typeof enabledMealTypes
+    >) {
+      if (enabledMealTypes[mealType]) {
+        const mealInfo = meal.meals.find(
+          (m) =>
+            m.type ===
+            MealType[
+              (mealType.charAt(0).toUpperCase() +
+                mealType.slice(1)) as keyof typeof MealType
+            ]
+        );
+        const mealCount = mealInfo?.numberOfMeals ?? 0;
+        mealDetails[mealType] = mealCount;
+
+        if (mealCount > 0) {
+          result.totalActiveMeals += mealCount;
+        } else {
+          result.totalInactiveMeals += 1;
+        }
+      }
+    }
+
+    result.meals.push(mealDetails);
+  });
+
+  return result;
 };

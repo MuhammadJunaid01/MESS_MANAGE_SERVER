@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toggleMealsForDateRangeSchema = exports.deleteMealSchema = exports.updateMealSchema = exports.getMealsSchema = exports.getMealByIdSchema = exports.createMealSchema = void 0;
+exports.toggleMealsForDateRangeSchema = exports.deleteMealSchema = exports.updateMealSchema = exports.getMealsSchema = exports.getMealDetailsByUserIdSchema = exports.getMealByIdSchema = exports.createMealSchema = void 0;
 const zod_1 = require("zod");
 const meal_interface_1 = require("../modules/Meal/meal.interface");
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
@@ -24,6 +24,33 @@ exports.createMealSchema = zod_1.z.object({
 exports.getMealByIdSchema = zod_1.z.object({
     params: zod_1.z.object({
         mealId: zod_1.z.string().regex(objectIdRegex, "Invalid meal ID"),
+    }),
+});
+exports.getMealDetailsByUserIdSchema = zod_1.z.object({
+    query: zod_1.z
+        .object({
+        userId: zod_1.z
+            .string({ required_error: "userId is required" })
+            .regex(objectIdRegex, "Invalid user ID"),
+        messId: zod_1.z
+            .string({ required_error: "messId is required" })
+            .regex(objectIdRegex, "Invalid mess ID"),
+        from: zod_1.z
+            .string()
+            .optional()
+            .refine((val) => !val || !isNaN(Date.parse(val)), {
+            message: "Invalid from date format",
+        }),
+        to: zod_1.z
+            .string()
+            .optional()
+            .refine((val) => !val || !isNaN(Date.parse(val)), {
+            message: "Invalid to date format",
+        }),
+    })
+        .refine((data) => !data.from || !data.to || new Date(data.from) <= new Date(data.to), {
+        message: "from date must be before or equal to to date",
+        path: ["from", "to"],
     }),
 });
 exports.getMealsSchema = zod_1.z.object({

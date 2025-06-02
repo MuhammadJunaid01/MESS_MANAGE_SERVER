@@ -574,3 +574,343 @@
 [2025-06-02 21:04:11] INFO: Connected to MongoDB
 [2025-06-02 21:04:11] INFO: Scheduled meal creation cron job
 [2025-06-02 21:04:11] INFO: Server running on http://localhost:5000
+[2025-06-02 21:06:46] INFO: Application setup complete
+[2025-06-02 21:06:46] INFO: Connected to MongoDB
+[2025-06-02 21:06:46] INFO: Scheduled meal creation cron job
+[2025-06-02 21:06:46] INFO: Server running on http://localhost:5000
+[2025-06-02 21:07:05] INFO: Application setup complete
+[2025-06-02 21:07:05] INFO: Connected to MongoDB
+[2025-06-02 21:07:05] INFO: Scheduled meal creation cron job
+[2025-06-02 21:07:05] INFO: Server running on http://localhost:5000
+[2025-06-02 21:07:47] INFO: Application setup complete
+[2025-06-02 21:07:47] INFO: Connected to MongoDB
+[2025-06-02 21:07:47] INFO: Scheduled meal creation cron job
+[2025-06-02 21:07:47] INFO: Server running on http://localhost:5000
+[2025-06-02 21:08:01] INFO: Application setup complete
+[2025-06-02 21:08:01] INFO: Connected to MongoDB
+[2025-06-02 21:08:01] INFO: Scheduled meal creation cron job
+[2025-06-02 21:08:01] INFO: Server running on http://localhost:5000
+[2025-06-02 21:09:26] INFO: Application setup complete
+[2025-06-02 21:09:26] INFO: Connected to MongoDB
+[2025-06-02 21:09:26] INFO: Scheduled meal creation cron job
+[2025-06-02 21:09:26] INFO: Server running on http://localhost:5000
+[2025-06-02 21:09:44] INFO: Application setup complete
+[2025-06-02 21:09:44] INFO: Connected to MongoDB
+[2025-06-02 21:09:44] INFO: Scheduled meal creation cron job
+[2025-06-02 21:09:44] INFO: Server running on http://localhost:5000
+[2025-06-02 21:10:44] INFO: GET /api/v1/settings 404 14.139 ms
+[2025-06-02 21:11:22] INFO: GET /api/v1/settings/683c233548c9de2c23e8ba37 200 28.323 ms
+[2025-06-02 21:15:30] INFO: Application setup complete
+[2025-06-02 21:15:30] INFO: Connected to MongoDB
+[2025-06-02 21:15:30] INFO: Scheduled meal creation cron job
+[2025-06-02 21:15:30] INFO: Server running on http://localhost:5000
+[2025-06-02 21:17:46] INFO: POST /api/v1/meal/create-monthly-meals-for-user 403 28.471 ms
+[2025-06-02 21:17:54] INFO: POST /api/v1/meal/create-monthly-meals-for-user 200 68.248 ms
+[2025-06-02 21:18:46] INFO: POST /api/v1/meal/create-monthly-meals-for-user 200 42.326 ms
+[2025-06-02 21:18:48] INFO: POST /api/v1/meal/create-monthly-meals-for-user 400 22.106 ms
+[2025-06-02 21:22:39] INFO: POST /api/v1/meal/?userId=683c220744a0ea2bcf42e419 400 6.080 ms
+[2025-06-02 21:23:09] INFO: Application setup complete
+[2025-06-02 21:23:09] INFO: Connected to MongoDB
+[2025-06-02 21:23:09] INFO: Scheduled meal creation cron job
+[2025-06-02 21:23:09] INFO: Server running on http://localhost:5000
+[2025-06-02 21:23:18] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419 200 83.667 ms
+[2025-06-02 21:26:12] INFO: Application setup complete
+[2025-06-02 21:26:12] INFO: Connected to MongoDB
+[2025-06-02 21:26:12] INFO: Scheduled meal creation cron job
+[2025-06-02 21:26:12] INFO: Server running on http://localhost:5000
+[2025-06-02 21:26:19] INFO: Application setup complete
+[2025-06-02 21:26:19] INFO: Connected to MongoDB
+[2025-06-02 21:26:19] INFO: Scheduled meal creation cron job
+[2025-06-02 21:26:19] INFO: Server running on http://localhost:5000
+[2025-06-02 21:26:33] INFO: Application setup complete
+[2025-06-02 21:26:33] INFO: Connected to MongoDB
+[2025-06-02 21:26:33] INFO: Scheduled meal creation cron job
+[2025-06-02 21:26:33] INFO: Server running on http://localhost:5000
+[2025-06-02 21:26:35] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419 200 50.131 ms
+[2025-06-02 21:28:00] INFO: Application setup complete
+[2025-06-02 21:28:00] INFO: Connected to MongoDB
+[2025-06-02 21:28:00] INFO: Scheduled meal creation cron job
+[2025-06-02 21:28:00] INFO: Server running on http://localhost:5000
+[2025-06-02 21:28:11] INFO: Application setup complete
+[2025-06-02 21:28:11] INFO: Connected to MongoDB
+[2025-06-02 21:28:11] INFO: Scheduled meal creation cron job
+[2025-06-02 21:28:11] INFO: Server running on http://localhost:5000
+[2025-06-02 21:31:06] INFO: Application setup complete
+[2025-06-02 21:31:06] INFO: Connected to MongoDB
+[2025-06-02 21:31:06] INFO: Scheduled meal creation cron job
+[2025-06-02 21:31:06] INFO: Server running on http://localhost:5000
+[2025-06-02 21:31:46] INFO: POST /api/v1/meal/toggle 400 36.288 ms
+[2025-06-02 21:31:57] INFO: POST /api/v1/meal/toggle 200 79.535 ms
+[2025-06-02 21:32:05] INFO: POST /api/v1/meal/toggle 400 7.202 ms
+[2025-06-02 21:32:12] INFO: POST /api/v1/meal/toggle 200 40.305 ms
+[2025-06-02 21:33:22] INFO: Application setup complete
+[2025-06-02 21:33:22] INFO: Connected to MongoDB
+[2025-06-02 21:33:22] INFO: Scheduled meal creation cron job
+[2025-06-02 21:33:22] INFO: Server running on http://localhost:5000
+[2025-06-02 21:33:27] INFO: Application setup complete
+[2025-06-02 21:33:27] INFO: Connected to MongoDB
+[2025-06-02 21:33:27] INFO: Scheduled meal creation cron job
+[2025-06-02 21:33:27] INFO: Server running on http://localhost:5000
+[2025-06-02 21:33:48] INFO: Application setup complete
+[2025-06-02 21:33:48] INFO: Connected to MongoDB
+[2025-06-02 21:33:48] INFO: Scheduled meal creation cron job
+[2025-06-02 21:33:48] INFO: Server running on http://localhost:5000
+[2025-06-02 21:33:59] INFO: Application setup complete
+[2025-06-02 21:33:59] INFO: Connected to MongoDB
+[2025-06-02 21:33:59] INFO: Scheduled meal creation cron job
+[2025-06-02 21:33:59] INFO: Server running on http://localhost:5000
+[2025-06-02 21:34:22] INFO: Application setup complete
+[2025-06-02 21:34:22] INFO: Connected to MongoDB
+[2025-06-02 21:34:22] INFO: Scheduled meal creation cron job
+[2025-06-02 21:34:22] INFO: Server running on http://localhost:5000
+[2025-06-02 21:34:28] INFO: Application setup complete
+[2025-06-02 21:34:28] INFO: Connected to MongoDB
+[2025-06-02 21:34:28] INFO: Scheduled meal creation cron job
+[2025-06-02 21:34:28] INFO: Server running on http://localhost:5000
+[2025-06-02 21:34:41] INFO: Application setup complete
+[2025-06-02 21:34:41] INFO: Connected to MongoDB
+[2025-06-02 21:34:41] INFO: Scheduled meal creation cron job
+[2025-06-02 21:34:41] INFO: Server running on http://localhost:5000
+[2025-06-02 21:35:06] INFO: Application setup complete
+[2025-06-02 21:35:06] INFO: Connected to MongoDB
+[2025-06-02 21:35:06] INFO: Scheduled meal creation cron job
+[2025-06-02 21:35:06] INFO: Server running on http://localhost:5000
+[2025-06-02 21:35:18] INFO: Application setup complete
+[2025-06-02 21:35:18] INFO: Connected to MongoDB
+[2025-06-02 21:35:18] INFO: Scheduled meal creation cron job
+[2025-06-02 21:35:18] INFO: Server running on http://localhost:5000
+[2025-06-02 21:35:40] INFO: Application setup complete
+[2025-06-02 21:35:40] INFO: Connected to MongoDB
+[2025-06-02 21:35:40] INFO: Scheduled meal creation cron job
+[2025-06-02 21:35:40] INFO: Server running on http://localhost:5000
+[2025-06-02 21:36:00] INFO: Application setup complete
+[2025-06-02 21:36:01] INFO: Connected to MongoDB
+[2025-06-02 21:36:01] INFO: Scheduled meal creation cron job
+[2025-06-02 21:36:01] INFO: Server running on http://localhost:5000
+[2025-06-02 21:36:21] INFO: Application setup complete
+[2025-06-02 21:36:21] INFO: Connected to MongoDB
+[2025-06-02 21:36:21] INFO: Scheduled meal creation cron job
+[2025-06-02 21:36:21] INFO: Server running on http://localhost:5000
+[2025-06-02 21:36:24] INFO: Application setup complete
+[2025-06-02 21:36:24] INFO: Connected to MongoDB
+[2025-06-02 21:36:24] INFO: Scheduled meal creation cron job
+[2025-06-02 21:36:24] INFO: Server running on http://localhost:5000
+[2025-06-02 21:37:57] INFO: Application setup complete
+[2025-06-02 21:37:57] INFO: Connected to MongoDB
+[2025-06-02 21:37:57] INFO: Scheduled meal creation cron job
+[2025-06-02 21:37:57] INFO: Server running on http://localhost:5000
+[2025-06-02 21:38:35] INFO: Application setup complete
+[2025-06-02 21:38:35] INFO: Connected to MongoDB
+[2025-06-02 21:38:35] INFO: Scheduled meal creation cron job
+[2025-06-02 21:38:35] INFO: Server running on http://localhost:5000
+[2025-06-02 21:39:48] INFO: Application setup complete
+[2025-06-02 21:39:48] INFO: Connected to MongoDB
+[2025-06-02 21:39:48] INFO: Scheduled meal creation cron job
+[2025-06-02 21:39:48] INFO: Server running on http://localhost:5000
+[2025-06-02 21:40:16] INFO: Application setup complete
+[2025-06-02 21:40:16] INFO: Connected to MongoDB
+[2025-06-02 21:40:16] INFO: Scheduled meal creation cron job
+[2025-06-02 21:40:16] INFO: Server running on http://localhost:5000
+[2025-06-02 21:41:39] INFO: Application setup complete
+[2025-06-02 21:41:39] INFO: Connected to MongoDB
+[2025-06-02 21:41:39] INFO: Scheduled meal creation cron job
+[2025-06-02 21:41:39] INFO: Server running on http://localhost:5000
+[2025-06-02 21:42:52] INFO: Application setup complete
+[2025-06-02 21:42:52] INFO: Connected to MongoDB
+[2025-06-02 21:42:52] INFO: Scheduled meal creation cron job
+[2025-06-02 21:42:52] INFO: Server running on http://localhost:5000
+[2025-06-02 21:43:01] INFO: Application setup complete
+[2025-06-02 21:43:01] INFO: Connected to MongoDB
+[2025-06-02 21:43:01] INFO: Scheduled meal creation cron job
+[2025-06-02 21:43:01] INFO: Server running on http://localhost:5000
+[2025-06-02 21:44:09] INFO: Application setup complete
+[2025-06-02 21:44:09] INFO: Connected to MongoDB
+[2025-06-02 21:44:09] INFO: Scheduled meal creation cron job
+[2025-06-02 21:44:09] INFO: Server running on http://localhost:5000
+[2025-06-02 21:44:58] INFO: GET /api/v1/meal/meal-details 400 17.656 ms
+[2025-06-02 21:46:06] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 19.779 ms
+[2025-06-02 21:46:44] INFO: Application setup complete
+[2025-06-02 21:46:44] INFO: Connected to MongoDB
+[2025-06-02 21:46:44] INFO: Scheduled meal creation cron job
+[2025-06-02 21:46:44] INFO: Server running on http://localhost:5000
+[2025-06-02 21:48:28] INFO: Application setup complete
+[2025-06-02 21:48:28] INFO: Connected to MongoDB
+[2025-06-02 21:48:28] INFO: Scheduled meal creation cron job
+[2025-06-02 21:48:28] INFO: Server running on http://localhost:5000
+[2025-06-02 21:49:02] INFO: Application setup complete
+[2025-06-02 21:49:02] INFO: Connected to MongoDB
+[2025-06-02 21:49:02] INFO: Scheduled meal creation cron job
+[2025-06-02 21:49:02] INFO: Server running on http://localhost:5000
+[2025-06-02 21:49:09] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 401 5.983 ms
+[2025-06-02 21:49:15] INFO: POST /api/v1/auth/signin 200 84.560 ms
+[2025-06-02 21:49:43] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 21.053 ms
+[2025-06-02 21:50:48] INFO: Application setup complete
+[2025-06-02 21:50:48] INFO: Connected to MongoDB
+[2025-06-02 21:50:48] INFO: Scheduled meal creation cron job
+[2025-06-02 21:50:48] INFO: Server running on http://localhost:5000
+[2025-06-02 21:50:58] INFO: Application setup complete
+[2025-06-02 21:50:58] INFO: Connected to MongoDB
+[2025-06-02 21:50:58] INFO: Scheduled meal creation cron job
+[2025-06-02 21:50:58] INFO: Server running on http://localhost:5000
+[2025-06-02 21:51:12] INFO: Application setup complete
+[2025-06-02 21:51:12] INFO: Connected to MongoDB
+[2025-06-02 21:51:12] INFO: Scheduled meal creation cron job
+[2025-06-02 21:51:12] INFO: Server running on http://localhost:5000
+[2025-06-02 21:51:23] INFO: Application setup complete
+[2025-06-02 21:51:23] INFO: Connected to MongoDB
+[2025-06-02 21:51:23] INFO: Scheduled meal creation cron job
+[2025-06-02 21:51:23] INFO: Server running on http://localhost:5000
+[2025-06-02 21:53:03] INFO: Application setup complete
+[2025-06-02 21:53:03] INFO: Connected to MongoDB
+[2025-06-02 21:53:03] INFO: Scheduled meal creation cron job
+[2025-06-02 21:53:03] INFO: Server running on http://localhost:5000
+[2025-06-02 21:53:34] INFO: Application setup complete
+[2025-06-02 21:53:34] INFO: Connected to MongoDB
+[2025-06-02 21:53:34] INFO: Scheduled meal creation cron job
+[2025-06-02 21:53:34] INFO: Server running on http://localhost:5000
+[2025-06-02 21:54:22] INFO: Application setup complete
+[2025-06-02 21:54:22] INFO: Connected to MongoDB
+[2025-06-02 21:54:22] INFO: Scheduled meal creation cron job
+[2025-06-02 21:54:22] INFO: Server running on http://localhost:5000
+[2025-06-02 21:54:25] INFO: Application setup complete
+[2025-06-02 21:54:25] INFO: Connected to MongoDB
+[2025-06-02 21:54:25] INFO: Scheduled meal creation cron job
+[2025-06-02 21:54:25] INFO: Server running on http://localhost:5000
+[2025-06-02 21:54:35] INFO: Application setup complete
+[2025-06-02 21:54:35] INFO: Connected to MongoDB
+[2025-06-02 21:54:35] INFO: Scheduled meal creation cron job
+[2025-06-02 21:54:35] INFO: Server running on http://localhost:5000
+[2025-06-02 21:54:38] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 30.108 ms
+[2025-06-02 21:56:54] INFO: Application setup complete
+[2025-06-02 21:56:55] INFO: Connected to MongoDB
+[2025-06-02 21:56:55] INFO: Scheduled meal creation cron job
+[2025-06-02 21:56:55] INFO: Server running on http://localhost:5000
+[2025-06-02 21:56:59] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 30.092 ms
+[2025-06-02 22:32:35] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 12.883 ms
+[2025-06-02 22:33:22] INFO: Application setup complete
+[2025-06-02 22:33:22] INFO: Connected to MongoDB
+[2025-06-02 22:33:22] INFO: Scheduled meal creation cron job
+[2025-06-02 22:33:22] INFO: Server running on http://localhost:5000
+[2025-06-02 22:33:27] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 32.070 ms
+[2025-06-02 22:33:37] INFO: Application setup complete
+[2025-06-02 22:33:37] INFO: Connected to MongoDB
+[2025-06-02 22:33:37] INFO: Scheduled meal creation cron job
+[2025-06-02 22:33:37] INFO: Server running on http://localhost:5000
+[2025-06-02 22:34:09] INFO: Application setup complete
+[2025-06-02 22:34:09] INFO: Connected to MongoDB
+[2025-06-02 22:34:09] INFO: Scheduled meal creation cron job
+[2025-06-02 22:34:09] INFO: Server running on http://localhost:5000
+[2025-06-02 22:34:13] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 26.689 ms
+[2025-06-02 22:37:00] INFO: POST /api/v1/meal/toggle 200 57.597 ms
+[2025-06-02 22:37:12] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 10.183 ms
+[2025-06-02 22:41:11] INFO: Application setup complete
+[2025-06-02 22:41:11] INFO: Connected to MongoDB
+[2025-06-02 22:41:11] INFO: Scheduled meal creation cron job
+[2025-06-02 22:41:11] INFO: Server running on http://localhost:5000
+[2025-06-02 22:41:14] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 36.585 ms
+[2025-06-02 22:42:11] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37&from=2025-06-02T00:00:00.000Z&to=2025-06-10T00:00:00.000Z 200 12.439 ms
+[2025-06-02 22:42:22] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 12.528 ms
+[2025-06-02 22:42:29] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419 200 37.579 ms
+[2025-06-02 22:43:16] INFO: Application setup complete
+[2025-06-02 22:43:16] INFO: Connected to MongoDB
+[2025-06-02 22:43:16] INFO: Scheduled meal creation cron job
+[2025-06-02 22:43:16] INFO: Server running on http://localhost:5000
+[2025-06-02 22:43:19] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419 200 35.122 ms
+[2025-06-02 22:44:05] INFO: Application setup complete
+[2025-06-02 22:44:05] INFO: Connected to MongoDB
+[2025-06-02 22:44:05] INFO: Scheduled meal creation cron job
+[2025-06-02 22:44:05] INFO: Server running on http://localhost:5000
+[2025-06-02 22:44:08] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419 200 32.798 ms
+[2025-06-02 22:45:05] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 17.497 ms
+[2025-06-02 22:46:20] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419&dateFrom=2025-06-02T00:00:00.000Z&dateTo=2025-06-10T00:00:00.000Z 200 18.971 ms
+[2025-06-02 22:47:07] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419&dateFrom=2025-06-02T00:00:00.000Z&dateTo=2025-06-10T00:00:00.000Z 200 11.641 ms
+[2025-06-02 22:47:56] INFO: POST /api/v1/meal/toggle 200 56.125 ms
+[2025-06-02 22:48:12] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419&dateFrom=2025-06-02T00:00:00.000Z&dateTo=2025-06-10T00:00:00.000Z 200 14.400 ms
+[2025-06-02 22:48:18] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 10.614 ms
+[2025-06-02 22:48:20] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 9.602 ms
+[2025-06-02 22:48:21] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 11.114 ms
+[2025-06-02 22:50:25] INFO: Application setup complete
+[2025-06-02 22:50:25] INFO: Connected to MongoDB
+[2025-06-02 22:50:25] INFO: Scheduled meal creation cron job
+[2025-06-02 22:50:25] INFO: Server running on http://localhost:5000
+[2025-06-02 22:50:47] INFO: Application setup complete
+[2025-06-02 22:50:47] INFO: Connected to MongoDB
+[2025-06-02 22:50:47] INFO: Scheduled meal creation cron job
+[2025-06-02 22:50:47] INFO: Server running on http://localhost:5000
+[2025-06-02 22:50:50] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 401 6.641 ms
+[2025-06-02 22:50:55] INFO: POST /api/v1/auth/signin 200 83.462 ms
+[2025-06-02 22:51:11] INFO: GET /api/v1/meal/?userId=683c220744a0ea2bcf42e419&dateFrom=2025-06-02T00:00:00.000Z&dateTo=2025-06-10T00:00:00.000Z 200 29.180 ms
+[2025-06-02 22:51:20] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 14.457 ms
+[2025-06-02 22:52:29] INFO: Application setup complete
+[2025-06-02 22:52:29] INFO: Connected to MongoDB
+[2025-06-02 22:52:29] INFO: Scheduled meal creation cron job
+[2025-06-02 22:52:29] INFO: Server running on http://localhost:5000
+[2025-06-02 22:52:31] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 35.662 ms
+[2025-06-02 22:53:08] INFO: Application setup complete
+[2025-06-02 22:53:08] INFO: Connected to MongoDB
+[2025-06-02 22:53:08] INFO: Scheduled meal creation cron job
+[2025-06-02 22:53:08] INFO: Server running on http://localhost:5000
+[2025-06-02 22:53:12] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 29.942 ms
+[2025-06-02 22:54:54] INFO: Application setup complete
+[2025-06-02 22:54:54] INFO: Connected to MongoDB
+[2025-06-02 22:54:54] INFO: Scheduled meal creation cron job
+[2025-06-02 22:54:54] INFO: Server running on http://localhost:5000
+[2025-06-02 22:54:57] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 33.830 ms
+[2025-06-02 22:56:28] INFO: Application setup complete
+[2025-06-02 22:56:28] INFO: Connected to MongoDB
+[2025-06-02 22:56:28] INFO: Scheduled meal creation cron job
+[2025-06-02 22:56:28] INFO: Server running on http://localhost:5000
+[2025-06-02 22:56:54] INFO: Application setup complete
+[2025-06-02 22:56:54] INFO: Connected to MongoDB
+[2025-06-02 22:56:54] INFO: Scheduled meal creation cron job
+[2025-06-02 22:56:54] INFO: Server running on http://localhost:5000
+[2025-06-02 22:58:02] INFO: Application setup complete
+[2025-06-02 22:58:02] INFO: Connected to MongoDB
+[2025-06-02 22:58:02] INFO: Scheduled meal creation cron job
+[2025-06-02 22:58:02] INFO: Server running on http://localhost:5000
+[2025-06-02 22:58:19] INFO: Application setup complete
+[2025-06-02 22:58:19] INFO: Connected to MongoDB
+[2025-06-02 22:58:19] INFO: Scheduled meal creation cron job
+[2025-06-02 22:58:19] INFO: Server running on http://localhost:5000
+[2025-06-02 22:58:23] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 26.142 ms
+[2025-06-02 23:00:29] INFO: Application setup complete
+[2025-06-02 23:00:29] INFO: Connected to MongoDB
+[2025-06-02 23:00:29] INFO: Scheduled meal creation cron job
+[2025-06-02 23:00:29] INFO: Server running on http://localhost:5000
+[2025-06-02 23:00:31] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 31.489 ms
+[2025-06-02 23:00:56] INFO: Application setup complete
+[2025-06-02 23:00:56] INFO: Connected to MongoDB
+[2025-06-02 23:00:56] INFO: Scheduled meal creation cron job
+[2025-06-02 23:00:56] INFO: Server running on http://localhost:5000
+[2025-06-02 23:01:00] INFO: GET /api/v1/meal/meal-details?userId=683c220744a0ea2bcf42e419&messId=683c233548c9de2c23e8ba37 200 43.966 ms
+[2025-06-02 23:50:44] INFO: GET /api/v1/meal/create-for-one-month 201 60.048 ms
+[2025-06-02 23:52:58] INFO: GET /api/v1/meal/create-for-one-month 401 4.457 ms
+[2025-06-02 23:52:59] INFO: GET /api/v1/meal/create-for-one-month 401 1.508 ms
+[2025-06-02 23:53:00] INFO: GET /api/v1/meal/create-for-one-month 401 1.739 ms
+[2025-06-02 23:53:01] INFO: GET /api/v1/meal/create-for-one-month 401 1.660 ms
+[2025-06-02 23:53:10] INFO: POST /api/v1/meal/toggle 401 1.766 ms
+[2025-06-02 23:53:25] INFO: Application setup complete
+[2025-06-02 23:53:25] INFO: Connected to MongoDB
+[2025-06-02 23:53:25] INFO: Scheduled meal creation cron job
+[2025-06-02 23:53:25] INFO: Server running on http://localhost:5000
+[2025-06-02 23:55:33] INFO: Application setup complete
+[2025-06-02 23:55:33] INFO: Connected to MongoDB
+[2025-06-02 23:55:33] INFO: Scheduled meal creation cron job
+[2025-06-02 23:55:33] INFO: Server running on http://localhost:5000
+[2025-06-02 23:56:49] INFO: Application setup complete
+[2025-06-02 23:56:49] INFO: Connected to MongoDB
+[2025-06-02 23:56:49] INFO: Scheduled meal creation cron job
+[2025-06-02 23:56:49] INFO: Server running on http://localhost:5000
+[2025-06-02 23:57:26] INFO: Application setup complete
+[2025-06-02 23:57:26] INFO: Connected to MongoDB
+[2025-06-02 23:57:26] INFO: Scheduled meal creation cron job
+[2025-06-02 23:57:26] INFO: Server running on http://localhost:5000
+[2025-06-02 23:57:55] INFO: GET /api/v1/meal/create-for-one-month 401 7.552 ms
+[2025-06-02 23:57:59] INFO: POST /api/v1/auth/signin 200 83.123 ms
+[2025-06-02 23:58:21] INFO: GET /api/v1/meal/create-for-one-month 201 53.477 ms
+[2025-06-02 23:59:04] INFO: Application setup complete
+[2025-06-02 23:59:04] INFO: Connected to MongoDB
+[2025-06-02 23:59:04] INFO: Scheduled meal creation cron job
+[2025-06-02 23:59:04] INFO: Server running on http://localhost:5000
+[2025-06-02 23:59:19] INFO: GET /api/v1/meal/create-for-one-month 201 68.570 ms
+[2025-06-02 23:59:51] INFO: GET /api/v1/meal/create-for-one-month 500 18.895 ms
