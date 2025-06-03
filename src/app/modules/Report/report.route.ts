@@ -3,8 +3,12 @@ import rateLimit from "express-rate-limit";
 import { protect } from "../../middlewares/auth";
 import { sanitizeInput } from "../../middlewares/sanitize.middleware";
 import { validate } from "../../middlewares/validation";
-import { getMealReportSchema } from "../../schemas/report.schema";
 import {
+  getMealReportSchema,
+  groceryReportQuerySchema,
+} from "../../schemas/report.schema";
+import {
+  generateGroceryReportController,
   generateMealReportController,
   generateUsersMealReportController,
 } from "./report.controller";
@@ -36,5 +40,12 @@ router.get(
   sanitizeInput,
   validate(getMealReportSchema),
   generateUsersMealReportController
+);
+router.get(
+  "/grocery-report",
+  getLimiter,
+  sanitizeInput,
+  validate(groceryReportQuerySchema),
+  generateGroceryReportController
 );
 export { router as reportRouter };

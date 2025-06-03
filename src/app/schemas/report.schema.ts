@@ -1,7 +1,28 @@
 import { z } from "zod";
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-
+export const groceryReportQuerySchema = z.object({
+  query: z.object({
+    messId: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^[0-9a-fA-F]{24}$/.test(val), {
+        message: "Invalid mess ID format",
+      }),
+    from: z
+      .string()
+      .optional()
+      .refine((val) => !val || !isNaN(Date.parse(val)), {
+        message: "Invalid from format",
+      }),
+    to: z
+      .string()
+      .optional()
+      .refine((val) => !val || !isNaN(Date.parse(val)), {
+        message: "Invalid to format",
+      }),
+  }),
+});
 export const getMealReportSchema = z.object({
   query: z.object({
     // messId: z.string().regex(objectIdRegex, "Invalid mess ID").optional(),

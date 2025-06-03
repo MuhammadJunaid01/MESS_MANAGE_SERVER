@@ -1,9 +1,14 @@
+import { endOfMonth, startOfMonth } from "date-fns";
 import { NextFunction, Request, Response } from "express";
 import { Types } from "mongoose";
 import { sendResponse } from "../../lib/utils";
 import { catchAsync } from "../../middlewares";
 import { AppError } from "../../middlewares/errors";
-import { generateMealReport, generateUsersMealReport } from "./report.service";
+import {
+  generateGroceryReport,
+  generateMealReport,
+  generateUsersMealReport,
+} from "./report.service";
 
 // Generate meal participation report
 export const generateMealReportController = catchAsync(
@@ -36,6 +41,41 @@ export const generateMealReportController = catchAsync(
       statusCode: 200,
       success: true,
       message: "Meal report generated successfully",
+      data: report,
+    });
+  }
+);
+export const generateGroceryReportController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { from, to } = req.query;
+    const authUser = req.user;
+
+    if (!authUser) {
+      throw new AppError(
+        "Unauthorized: No authenticated user",
+        401,
+        "UNAUTHORIZED"
+      );
+    }
+    const messId = authUser.messId;
+    if (!messId) {
+      throw new AppError("Invalid messId", 400, "INVALID_MESS_ID");
+    }
+    const currentMonthStart = startOfMonth(new Date());
+    const currentMonthEnd = endOfMonth(new Date());
+
+    const filters = {
+      messId: messId?.toString(),
+      from: from ? String(from) : currentMonthStart.toISOString(),
+      to: to ? String(to) : currentMonthEnd.toISOString(),
+    };
+
+    const report = await generateGroceryReport(filters, authUser.userId);
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Grocery report generated successfully",
       data: report,
     });
   }

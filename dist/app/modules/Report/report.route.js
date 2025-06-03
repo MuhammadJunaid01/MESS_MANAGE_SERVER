@@ -24,3 +24,4 @@ router.use(auth_1.protect);
 // Meal routes
 router.get("/", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(report_schema_1.getMealReportSchema), report_controller_1.generateMealReportController);
 router.get("/users-meal-report", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(report_schema_1.getMealReportSchema), report_controller_1.generateUsersMealReportController);
+router.get("/grocery-report", getLimiter, sanitize_middleware_1.sanitizeInput, (0, validation_1.validate)(report_schema_1.groceryReportQuerySchema), report_controller_1.generateGroceryReportController);

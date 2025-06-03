@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { GroceryCategory, GroceryUnit } from "../Expense/expense.interface";
 
 export interface MealReportFilters {
   messId: Types.ObjectId;
@@ -21,9 +22,9 @@ export interface MealReportResult {
   totalActiveMeals: number;
   totalCost: number;
   perMealRate: number;
-  breakfast: { active: number; inactive: number; total: number };
-  lunch: { active: number; inactive: number; total: number };
-  dinner: { active: number; inactive: number; total: number };
+  breakfast?: { active: number; inactive: number; total: number };
+  lunch?: { active: number; inactive: number; total: number };
+  dinner?: { active: number; inactive: number; total: number };
 }
 export interface IUsersMeal {
   _id: string;
@@ -39,4 +40,12 @@ export interface UsersMealFilters {
   dateTo?: string;
   skip?: number;
   limit?: number;
+}
+
+export interface IGroceryReport {
+  name: GroceryCategory;
+  unit: GroceryUnit; // unit
+  total: number; //total unit
+  price: number; //total price
+  quantity: number; //
 }
