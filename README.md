@@ -245,5 +245,4 @@ All API endpoints are prefixed with `/api/v1`.
 Contributions are welcome! Please fork the repository and create a pull request with your changes.
 
 ## License
-
 This project is licensed under the ISC License.
